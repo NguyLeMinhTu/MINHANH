@@ -6,7 +6,7 @@ import aoThun4 from '../assets/ao-thun-dong-phuc-cong-ty-aircool-chuyen-nhiet-th
 export const products = [
     {
         id: 1,
-        name: "Áo Thun Đồng Phục Công Ty Aircool Chuyển Nhiệt TH True Milk",
+        name: "Áo Thun Đồng Phục Công Ty Aircool Chuyển Nhiệt TH True Milk [Hot]",
         images: [aoThun1, aoThun2, aoThun3, aoThun4],
         price: 150000,
         category: "Áo đồng phục công ty",
@@ -14,10 +14,11 @@ export const products = [
         color: "Trắng phối xanh dương",
         sizes: ["S", "M", "L", "XL", "XXL"],
         description: "Áo thun đồng phục công ty Aircool chuyển nhiệt TH True Milk được thiết kế với chất liệu vải cao cấp, mang lại cảm giác thoáng mát và dễ chịu khi mặc. Thiết kế chuyển nhiệt giúp áo giữ màu sắc tươi sáng và bền đẹp sau nhiều lần giặt.",
+        isNew: true,
     },
     {
         id: 2,
-        name: "Áo Thun Đồng Phục Công Ty Aircool Chuyển Nhiệt TH True Milk - Mẫu 2",
+        name: "Áo Thun Đồng Phục Công Ty Aircool Chuyển Nhiệt TH True Milk - Mẫu 2 [Hot]",
         images: [aoThun1, aoThun2, aoThun3, aoThun4],
         price: 150000,
         category: "Áo đồng phục công ty",
@@ -25,10 +26,11 @@ export const products = [
         color: "Trắng phối xanh dương",
         sizes: ["S", "M", "L", "XL", "XXL"],
         description: "Áo thun đồng phục công ty Aircool chuyển nhiệt TH True Milk được thiết kế với chất liệu vải cao cấp, mang lại cảm giác thoáng mát và dễ chịu khi mặc. Thiết kế chuyển nhiệt giúp áo giữ màu sắc tươi sáng và bền đẹp sau nhiều lần giặt.",
+        isNew: true,
     },
     {
         id: 3,
-        name: "Áo Thun Đồng Phục Công Ty Aircool Chuyển Nhiệt TH True Milk - Mẫu 3",
+        name: "Áo Thun Đồng Phục Công Ty Aircool Chuyển Nhiệt TH True Milk - Mẫu 5",
         images: [aoThun1, aoThun2, aoThun3, aoThun4],
         price: 150000,
         category: "Áo đồng phục công ty",
@@ -36,10 +38,11 @@ export const products = [
         color: "Trắng phối xanh dương",
         sizes: ["S", "M", "L", "XL", "XXL"],
         description: "Áo thun đồng phục công ty Aircool chuyển nhiệt TH True Milk được thiết kế với chất liệu vải cao cấp, mang lại cảm giác thoáng mát và dễ chịu khi mặc. Thiết kế chuyển nhiệt giúp áo giữ màu sắc tươi sáng và bền đẹp sau nhiều lần giặt.",
+        isNew: false,
     },
     {
         id: 4,
-        name: "Áo Thun Đồng Phục Công Ty Aircool Chuyển Nhiệt TH True Milk - Mẫu 4",
+        name: "Áo Thun Đồng Phục Công Ty Aircool Chuyển Nhiệt TH True Milk - Mẫu 4 [Hot]",
         images: [aoThun1, aoThun2, aoThun3, aoThun4],
         price: 150000,
         category: "Áo đồng phục công ty",
@@ -47,6 +50,7 @@ export const products = [
         color: "Trắng phối xanh dương",
         sizes: ["S", "M", "L", "XL", "XXL"],
         description: "Áo thun đồng phục công ty Aircool chuyển nhiệt TH True Milk được thiết kế với chất liệu vải cao cấp, mang lại cảm giác thoáng mát và dễ chịu khi mặc. Thiết kế chuyển nhiệt giúp áo giữ màu sắc tươi sáng và bền đẹp sau nhiều lần giặt.",
+        isNew: true,
     },
     {
         id: 5,
@@ -58,10 +62,11 @@ export const products = [
         color: "Trắng phối xanh dương",
         sizes: ["S", "M", "L", "XL", "XXL"],
         description: "Áo thun đồng phục công ty Aircool chuyển nhiệt TH True Milk được thiết kế với chất liệu vải cao cấp, mang lại cảm giác thoáng mát và dễ chịu khi mặc. Thiết kế chuyển nhiệt giúp áo giữ màu sắc tươi sáng và bền đẹp sau nhiều lần giặt.",
+        isNew: true,
     },
     {
         id: 6,
-        name: "Áo Thun Đồng Phục Công Ty Aircool Chuyển Nhiệt TH True Milk - Mẫu 2",
+        name: "Áo Thun Đồng Phục Công Ty Aircool Chuyển Nhiệt TH True Milk - Mẫu 2 [Hot]",
         images: [aoThun1, aoThun2, aoThun3, aoThun4],
         price: 150000,
         category: "Đồng phục công sở",
@@ -69,10 +74,11 @@ export const products = [
         color: "Trắng phối xanh dương",
         sizes: ["S", "M", "L", "XL", "XXL"],
         description: "Áo thun đồng phục công ty Aircool chuyển nhiệt TH True Milk được thiết kế với chất liệu vải cao cấp, mang lại cảm giác thoáng mát và dễ chịu khi mặc. Thiết kế chuyển nhiệt giúp áo giữ màu sắc tươi sáng và bền đẹp sau nhiều lần giặt.",
+        isNew: true,
     },
     {
         id: 7,
-        name: "Áo Thun Đồng Phục Công Ty Aircool Chuyển Nhiệt TH True Milk - Mẫu 3",
+        name: "Áo Thun Đồng Phục Công Ty Aircool Chuyển Nhiệt TH True Milk - Mẫu 3 [Hot]",
         images: [aoThun1, aoThun2, aoThun3, aoThun4],
         price: 150000,
         category: "Đồng phục công sở",
@@ -80,6 +86,7 @@ export const products = [
         color: "Trắng phối xanh dương",
         sizes: ["S", "M", "L", "XL", "XXL"],
         description: "Áo thun đồng phục công ty Aircool chuyển nhiệt TH True Milk được thiết kế với chất liệu vải cao cấp, mang lại cảm giác thoáng mát và dễ chịu khi mặc. Thiết kế chuyển nhiệt giúp áo giữ màu sắc tươi sáng và bền đẹp sau nhiều lần giặt.",
+        isNew: true,
     },
     {
         id: 8,
@@ -91,6 +98,7 @@ export const products = [
         color: "Trắng phối xanh dương",
         sizes: ["S", "M", "L", "XL", "XXL"],
         description: "Áo thun đồng phục công ty Aircool chuyển nhiệt TH True Milk được thiết kế với chất liệu vải cao cấp, mang lại cảm giác thoáng mát và dễ chịu khi mặc. Thiết kế chuyển nhiệt giúp áo giữ màu sắc tươi sáng và bền đẹp sau nhiều lần giặt.",
+        isNew: false,
     },
     {
         id: 9,
@@ -102,6 +110,7 @@ export const products = [
         color: "Trắng phối xanh dương",
         sizes: ["S", "M", "L", "XL", "XXL"],
         description: "Áo thun đồng phục công ty Aircool chuyển nhiệt TH True Milk được thiết kế với chất liệu vải cao cấp, mang lại cảm giác thoáng mát và dễ chịu khi mặc. Thiết kế chuyển nhiệt giúp áo giữ màu sắc tươi sáng và bền đẹp sau nhiều lần giặt.",
+        isNew: false,
     },
     {
         id: 10,
@@ -113,6 +122,7 @@ export const products = [
         color: "Trắng phối xanh dương",
         sizes: ["S", "M", "L", "XL", "XXL"],
         description: "Áo thun đồng phục công ty Aircool chuyển nhiệt TH True Milk được thiết kế với chất liệu vải cao cấp, mang lại cảm giác thoáng mát và dễ chịu khi mặc. Thiết kế chuyển nhiệt giúp áo giữ màu sắc tươi sáng và bền đẹp sau nhiều lần giặt.",
+        isNew: false,
     },
     {
         id: 11,
@@ -124,6 +134,7 @@ export const products = [
         color: "Trắng phối xanh dương",
         sizes: ["S", "M", "L", "XL", "XXL"],
         description: "Áo thun đồng phục công ty Aircool chuyển nhiệt TH True Milk được thiết kế với chất liệu vải cao cấp, mang lại cảm giác thoáng mát và dễ chịu khi mặc. Thiết kế chuyển nhiệt giúp áo giữ màu sắc tươi sáng và bền đẹp sau nhiều lần giặt.",
+        isNew: false,
     },
     {
         id: 12,
@@ -135,5 +146,6 @@ export const products = [
         color: "Trắng phối xanh dương",
         sizes: ["S", "M", "L", "XL", "XXL"],
         description: "Áo thun đồng phục công ty Aircool chuyển nhiệt TH True Milk được thiết kế với chất liệu vải cao cấp, mang lại cảm giác thoáng mát và dễ chịu khi mặc. Thiết kế chuyển nhiệt giúp áo giữ màu sắc tươi sáng và bền đẹp sau nhiều lần giặt.",
+        isNew: false,
     }
 ];

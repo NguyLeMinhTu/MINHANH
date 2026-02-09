@@ -4,11 +4,13 @@ import Footer from "./Footer";
 import ModalIntro from "../common/Modal/ModalIntro";
 import FloatingHotline from "../common/FloatingHotline";
 import FloatingZalo from "../common/FloatingZalo";
+import Breadcrumb from "../common/Breadcrumb";
 
 export default function Layout({ children }) {
     return (
         <div className="min-h-screen flex flex-col bg-stone-50">
             <Navbar />
+            <Breadcrumb />
             <ModalIntro />
             <main className="flex-1">{children}</main>
             <Footer />

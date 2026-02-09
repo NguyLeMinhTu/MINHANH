@@ -13,7 +13,7 @@ export default function Navbar() {
     const [activeMenu, setActiveMenu] = useState(null);
     const [mobileOpen, setMobileOpen] = useState(false);
     const [searchOpen, setSearchOpen] = useState(false);
-    const primary = "##af7b51";
+    const primary = "#af7b51";
 
     const productCategoryMap = useMemo(() => {
         const map = {};
@@ -36,7 +36,7 @@ export default function Navbar() {
             .replace(/\-+/g, "-");
 
     return (
-        <header className="w-full">
+        <header className="w-full sticky top-0 z-50">
             <div className="w-full bg-[#af7b51]">
                 {/* Chữ nhỏ */}
                 <div className="max-w-7xl mx-auto text-center text-white text-sm py-1 px-2">
@@ -64,7 +64,7 @@ export default function Navbar() {
                                     >
                                         <Link
                                             to={item.href}
-                                            className="relative inline-block px-4 py-2 text-sm font-medium text-gray-800 transform transition-all duration-200 ease-out group-hover:text-[#af7b51]"
+                                            className="relative inline-block px-4 py-2 text-md font-medium text-gray-800 transform transition-all duration-200 ease-out group-hover:text-[#af7b51]"
                                         >
                                             <span className="relative z-10 flex flex-col items-center">
                                                 <span className="transition-transform duration-200 group-hover:-translate-y-1">
@@ -93,8 +93,6 @@ export default function Navbar() {
                                                                             <Link to={`/san-pham/${slugify(cat)}/${slugify(sub)}`} className="hover:text-[#af7b51] hover:bg-gray-50 px-2 py-1 rounded transition-colors duration-200">
                                                                                 {sub}
                                                                             </Link>
-
-
                                                                         </li>
                                                                     ))}
                                                                 </ul>
