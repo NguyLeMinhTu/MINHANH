@@ -1,0 +1,33 @@
+{
+  "properties": [
+    {
+      "name": "jwt.secret",
+      "type": "java.lang.String",
+      "description": "Secret key used to sign JWT tokens."
+    },
+    {
+      "name": "jwt.expiration-ms",
+      "type": "java.lang.Long",
+      "description": "Access token expiration time in milliseconds.",
+      "defaultValue": 86400000
+    },
+    {
+      "name": "jwt.refresh-expiration-ms",
+      "type": "java.lang.Long",
+      "description": "Refresh token expiration time in milliseconds.",
+      "defaultValue": 604800000
+    },
+    {
+      "name": "auth.rate-limit.max-attempts",
+      "type": "java.lang.Integer",
+      "description": "Maximum failed login attempts allowed per window.",
+      "defaultValue": 5
+    },
+    {
+      "name": "auth.rate-limit.window-seconds",
+      "type": "java.lang.Integer",
+      "description": "Rate limit window size in seconds.",
+      "defaultValue": 60
+    }
+  ]
+}
