@@ -14,6 +14,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import com.minhanh.backend.dto.SanPhamRequestDto;
+import com.minhanh.backend.entity.HinhAnhSanPham;
+import java.util.ArrayList;
 
 import java.util.List;
 import java.util.regex.Pattern;
@@ -23,7 +27,7 @@ import static org.springframework.data.jpa.domain.Specification.where;
 @Service
 @RequiredArgsConstructor
 public class SanPhamService {
-    private static final String PUBLISHED = "PUBLISHED";
+    private static final String PUBLISHED = "cong_khai";
     private static final Pattern UUID_PATTERN = Pattern.compile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$");
 
     private final SanPhamRepository sanPhamRepository;
@@ -77,6 +81,26 @@ public class SanPhamService {
     }
 
     /**
+     * Lấy danh sách sản phẩm cho Admin (không lọc trường hợp ẩn/hết hàng)
+     */
+    public Page<SanPham> getAdminPageSanPhams(int page, int size, String search, String danhMucId, String thuongHieu) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "ngayTao"));
+        
+        Specification<SanPham> spec = (root, query, cb) -> cb.conjunction();
+        if (search != null && !search.trim().isEmpty()) {
+            spec = spec.and((root, query, cb) -> cb.like(cb.lower(root.get("tenSanPham")), "%" + search.trim().toLowerCase() + "%"));
+        }
+        if (danhMucId != null && !danhMucId.trim().isEmpty()) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.join("danhMuc").get("danhMucId"), danhMucId.trim()));
+        }
+        if (thuongHieu != null && !thuongHieu.trim().isEmpty()) {
+            spec = spec.and((root, query, cb) -> cb.like(cb.lower(root.get("thuongHieu")), "%" + thuongHieu.trim().toLowerCase() + "%"));
+        }
+        
+        return sanPhamRepository.findAll(spec, pageable);
+    }
+
+    /**
         * Lấy chi tiết sản phẩm bằng slug hoặc UUID, chỉ trả sản phẩm đã publish.
      */
     public SanPham getBySlugOrId(String slugOrId) {
@@ -92,6 +116,61 @@ public class SanPhamService {
 
         return sanPhamRepository.findBySlugAndTrangThai(value, PUBLISHED)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy sản phẩm"));
+    }
+
+    @Transactional
+    public SanPham updateSanPham(String id, SanPhamRequestDto dto) {
+        SanPham sp = sanPhamRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy sản phẩm: " + id));
+
+        if (dto.getTenSanPham() != null) sp.setTenSanPham(dto.getTenSanPham());
+        if (dto.getSlug() != null) sp.setSlug(dto.getSlug());
+        if (dto.getMoTa() != null) sp.setMoTa(dto.getMoTa());
+        if (dto.getMetaTitle() != null) sp.setMetaTitle(dto.getMetaTitle());
+        if (dto.getMetaDescription() != null) sp.setMetaDescription(dto.getMetaDescription());
+        if (dto.getGiaThamKhao() != null) sp.setGiaThamKhao(dto.getGiaThamKhao());
+        if (dto.getGiaBan() != null) sp.setGiaBan(dto.getGiaBan());
+        if (dto.getGiaKhuyenMai() != null) sp.setGiaKhuyenMai(dto.getGiaKhuyenMai());
+        if (dto.getSoLuongTon() != null) sp.setSoLuongTon(dto.getSoLuongTon());
+        if (dto.getDonViTinh() != null) sp.setDonViTinh(dto.getDonViTinh());
+        if (dto.getThuongHieu() != null) sp.setThuongHieu(dto.getThuongHieu());
+        if (dto.getXuatXu() != null) sp.setXuatXu(dto.getXuatXu());
+        if (dto.getChatLieu() != null) sp.setChatLieu(dto.getChatLieu());
+        if (dto.getBaoQuan() != null) sp.setBaoQuan(dto.getBaoQuan());
+        if (dto.getTags() != null) sp.setTags(dto.getTags());
+        if (dto.getSpNoiBat() != null) sp.setSpNoiBat(dto.getSpNoiBat());
+        if (dto.getSpMoi() != null) sp.setSpMoi(dto.getSpMoi());
+        if (dto.getTrangThai() != null) sp.setTrangThai(dto.getTrangThai());
+
+        if (dto.getDanhMucId() != null) {
+            DanhMucSanPham dm = danhMucSanPhamRepository.findById(dto.getDanhMucId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy danh mục: " + dto.getDanhMucId()));
+            sp.setDanhMuc(dm);
+        }
+
+        if (dto.getHinhAnh() != null) {
+            if (sp.getHinhAnh() != null) {
+                sp.getHinhAnh().clear(); // Sẽ kích hoạt orphanRemoval
+            } else {
+                sp.setHinhAnh(new ArrayList<>());
+            }
+            for (String url : dto.getHinhAnh()) {
+                HinhAnhSanPham ha = new HinhAnhSanPham();
+                ha.setUrlAnh(url);
+                ha.setSanPham(sp);
+                sp.getHinhAnh().add(ha);
+            }
+        }
+
+        return sanPhamRepository.save(sp);
+    }
+
+    @Transactional
+    public void softDeleteSanPham(String id) {
+        SanPham sp = sanPhamRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy sản phẩm: " + id));
+        sp.setTrangThai("an");
+        sanPhamRepository.save(sp);
     }
 
         /**

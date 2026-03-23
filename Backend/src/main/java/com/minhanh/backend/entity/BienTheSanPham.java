@@ -19,6 +19,7 @@ public class BienTheSanPham {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "san_pham_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private SanPham sanPham;
 
     @Column(name = "mau_sac", length = 50)

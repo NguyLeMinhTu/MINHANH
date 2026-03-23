@@ -9,6 +9,7 @@ import java.util.List;
 @Entity
 @Table(name = "danh_muc_san_pham")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@com.fasterxml.jackson.annotation.JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class DanhMucSanPham {
 
     @Id
@@ -28,9 +29,11 @@ public class DanhMucSanPham {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     @OnDelete(action = OnDeleteAction.SET_NULL)
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "children"})
     private DanhMucSanPham parent;
 
     @OneToMany(mappedBy = "parent")
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private List<DanhMucSanPham> children;
 
     @Column(name = "hinh_anh", length = 500)

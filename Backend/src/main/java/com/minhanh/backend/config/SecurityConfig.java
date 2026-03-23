@@ -29,6 +29,8 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(new CorsConfig().corsConfigurationSource()))
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
+                // CORS Preflight
+                .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                 // Công khai (không cần token)
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/trang-chu/**").permitAll()

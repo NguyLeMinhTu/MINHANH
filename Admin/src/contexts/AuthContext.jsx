@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState } from 'react'
-import { nguoiDung } from '../assets/assets'
+import axiosInstance from '../utils/axiosConfig'
 
 const AuthContext = createContext(null)
 
@@ -9,17 +9,23 @@ export const AuthProvider = ({ children }) => {
         return stored ? JSON.parse(stored) : null
     })
 
-    const login = (email, password) => {
-        const found = nguoiDung.find(
-            (u) => u.email === email && u.mat_khau === password && u.vai_tro === 'admin'
-        )
-        if (found) {
-            const { mat_khau, reset_token, reset_token_expire, ...safeUser } = found
-            setUser(safeUser)
-            localStorage.setItem('admin_user', JSON.stringify(safeUser))
-            return true
+    const login = async (email, matKhau) => {
+        try {
+            const data = await axiosInstance.post('/auth/login', { email, matKhau });
+            
+            // Xử lý thành công
+            if (data && data.vaiTro === 'admin') {
+                setUser(data)
+                localStorage.setItem('admin_user', JSON.stringify(data))
+                return true
+            } else {
+                console.warn("Tài khoản không có quyền Admin");
+                return false
+            }
+        } catch (error) {
+            console.error("Lỗi đăng nhập:", error)
+            return false
         }
-        return false
     }
 
     const logout = () => {

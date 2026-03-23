@@ -11,6 +11,7 @@ import java.util.List;
 @Entity
 @Table(name = "san_pham")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@com.fasterxml.jackson.annotation.JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class SanPham {
 
     @Id
@@ -86,9 +87,9 @@ public class SanPham {
     @Column(name = "ngay_tao")
     private LocalDateTime ngayTao;
 
-    @OneToMany(mappedBy = "sanPham", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "sanPham", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BienTheSanPham> bienThe;
 
-    @OneToMany(mappedBy = "sanPham", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "sanPham", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<HinhAnhSanPham> hinhAnh;
 }
