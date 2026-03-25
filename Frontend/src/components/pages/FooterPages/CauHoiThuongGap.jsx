@@ -6,6 +6,8 @@ import cauhoi4 from '../../../assets/QvA/cau-hoi-thuong-gap4.jpg'
 import cauhoi5 from '../../../assets/QvA/cau-hoi-thuong-gap5.jpg'
 import cauhoi6 from '../../../assets/QvA/cau-hoi-thuong-gap6.jpg'
 
+import Title from '../../common/Title'
+
 
 
 const CauHoiThuongGap = () => {
@@ -13,8 +15,15 @@ const CauHoiThuongGap = () => {
         <section className="max-w-7xl mx-auto px-6 py-12 text-gray-800">
             {/* Block 1 header + intro */}
             <div className="mb-6 text-center">
-                <h1 className="text-2xl font-semibold text-gray-900">Câu Hỏi Thường Gặp Về Làm Đồng Phục Tại Hải Anh</h1>
-                <p className="mt-2 text-gray-600">Đồng phục từ lâu đã trở thành một phần không thể thiếu trong bộ nhận diện của các doanh nghiệp, công ty hay tổ chức, nhằm tạo sự đồng nhất và quảng bá thương hiệu. Nhu cầu may đồng phục cũng vì vậy mà luôn có dấu hiệu tăng cao. Thế nhưng, xoay quanh chủ đề này là rất nhiều câu hỏi được khách hàng đặt ra và chưa thể có lời giải đáp chính xác nhất. Nội dung bài viết là tổng hợp và giải đáp những câu hỏi thường gặp khi làm đồng phục dựa trên kinh nghiệm từ Đồng phục Hải Anh.</p>
+                <Title
+                    align="center"
+                    size="sm"
+                    title="Câu Hỏi Thường Gặp Về Làm Đồng Phục Tại Hải Anh"
+                    subtitle="Đồng phục từ lâu đã trở thành một phần không thể thiếu trong bộ nhận diện của các doanh nghiệp, công ty hay tổ chức, nhằm tạo sự đồng nhất và quảng bá thương hiệu. Nhu cầu may đồng phục cũng vì vậy mà luôn có dấu hiệu tăng cao. Thế nhưng, xoay quanh chủ đề này là rất nhiều câu hỏi được khách hàng đặt ra và chưa thể có lời giải đáp chính xác nhất. Nội dung bài viết là tổng hợp và giải đáp những câu hỏi thường gặp khi làm đồng phục dựa trên kinh nghiệm từ Đồng phục Hải Anh."
+                    titleClassName="text-gray-900 font-semibold"
+                    subtitleClassName="text-gray-600"
+                    overlineClassName="text-gray-500"
+                />
             </div>
 
             <div className="grid gap-6 lg:grid-cols-3 rounded-xl bg-white shadow-sm p-6 mb-10">

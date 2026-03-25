@@ -4,46 +4,65 @@ const CategoryMenu = ({ categories = [], onFilter = () => { }, selectedCategory 
     const [openIdx, setOpenIdx] = useState(null)
 
     return (
-        <div className="rounded-md overflow-hidden border border-gray-100">
-            <div className="bg-[#af7b51] text-white px-3 py-2 font-semibold text-xs text-center">DANH MỤC SẢN PHẨM</div>
+        <div className="bg-white rounded-2xl overflow-hidden border border-carbon-black-100 shadow-sm">
+            {/* Header */}
+            <div className="px-5 pt-5 pb-3 border-b border-carbon-black-100">
+                <p className="text-[10px] font-bold text-brown-bark-700 tracking-[0.18em] uppercase mb-1">Khám phá</p>
+                <h3 className="text-base font-bold text-carbon-black-900 tracking-tight">Danh mục sản phẩm</h3>
+            </div>
 
-            <div className="p-2">
+            <div className="p-3">
+                {/* All products */}
                 <button
                     onClick={() => onFilter(null, null)}
-                    className={`w-full text-left py-1.5 px-2 mb-2 rounded text-sm ${!selectedCategory ? 'bg-gray-100' : ''}`}
+                    className={`w-full text-left py-2 px-3 mb-1 rounded-xl text-sm font-semibold transition-colors ${!selectedCategory
+                        ? 'bg-brown-bark-800 text-golden-earth-50'
+                        : 'text-carbon-black-600 hover:bg-carbon-black-50'
+                        }`}
                 >
                     Tất cả sản phẩm
                 </button>
 
-                <ul className="space-y-1">
+                <ul className="space-y-0.5">
                     {categories.length === 0 ? (
-                        <li className="py-1 text-sm">Không có danh mục</li>
+                        <li className="py-2 px-3 text-sm text-carbon-black-400">Không có danh mục</li>
                     ) : (
                         categories.map((c, i) => (
-                            <li key={c.name}>
-                                <div className="flex items-center justify-between">
-                                    <button
-                                        onClick={() => setOpenIdx(openIdx === i ? null : i)}
-                                        className={`text-left w-full py-1.5 px-2 rounded text-sm ${selectedCategory === c.name ? 'font-semibold' : ''}`}
+                            <li key={c.slug || c.name}>
+                                <button
+                                    onClick={() => {
+                                        setOpenIdx(openIdx === i ? null : i)
+                                        onFilter(c.slug || null, null)
+                                    }}
+                                    className={`w-full flex items-center justify-between py-2 px-3 rounded-xl text-sm transition-colors ${selectedCategory === (c.slug || null)
+                                        ? 'bg-golden-earth-50 text-brown-bark-700 font-bold'
+                                        : 'text-carbon-black-700 hover:bg-carbon-black-50 font-medium'
+                                        }`}
+                                >
+                                    <span>{c.name}</span>
+                                    <svg
+                                        className={`w-3.5 h-3.5 transition-transform duration-200 ${openIdx === i ? 'rotate-180 text-brown-bark-700' : 'text-carbon-black-300'
+                                            }`}
+                                        fill="none" viewBox="0 0 24 24" stroke="currentColor"
                                     >
-                                        {c.name}
-                                    </button>
-                                    <button className="px-2" onClick={() => onFilter(c.name, null)} aria-label={`Filter ${c.name}`}>
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L15 13.414V19a1 1 0 01-1.447.894L9 18v-4.586L3.293 6.707A1 1 0 013 6V4z" />
-                                        </svg>
-                                    </button>
-                                </div>
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </button>
 
                                 {openIdx === i && (
-                                    <ul className="mt-1 ml-3 space-y-1">
-                                        {c.subs.map((s) => (
-                                            <li key={s}>
+                                    <ul className="mt-0.5 ml-2 mb-1 space-y-0.5">
+                                        {(c.subs || []).map((s) => (
+                                            <li key={s.slug || s.name}>
                                                 <button
-                                                    onClick={() => onFilter(c.name, s)}
-                                                    className={`text-left w-full py-1 px-2 rounded text-xs ${selectedSub === s ? 'font-semibold text-[#af7b51]' : 'text-gray-700'}`}
+                                                    onClick={() => onFilter(c.slug || null, s.slug || null)}
+                                                    className={`w-full text-left flex items-center gap-2 py-1.5 px-3 rounded-lg text-xs transition-colors ${selectedSub === (s.slug || null)
+                                                        ? 'text-brown-bark-700 font-bold'
+                                                        : 'text-carbon-black-500 hover:text-carbon-black-800'
+                                                        }`}
                                                 >
-                                                    {s}
+                                                    <span className={`w-1 h-1 rounded-full shrink-0 ${selectedSub === (s.slug || null) ? 'bg-brown-bark-700' : 'bg-carbon-black-200'
+                                                        }`} />
+                                                    {s.name}
                                                 </button>
                                             </li>
                                         ))}

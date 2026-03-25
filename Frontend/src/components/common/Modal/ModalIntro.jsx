@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
+import { X, Send } from 'lucide-react';
 import picModalIntro from "../../../assets/anhModalIntro.jpg";
 
 const STORAGE_KEY = "modalIntroLastShown";
@@ -44,84 +45,103 @@ export default function ModalIntro({ imageSrc = picModalIntro }) {
     if (!open) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4 sm:px-6">
+        <div className="fixed inset-0 z-100 flex items-center justify-center bg-carbon-black-900/60 backdrop-blur-sm px-4 sm:px-6 transition-opacity duration-300">
             <div
                 ref={dialogRef}
-                className="relative w-full max-w-5xl bg-white rounded-xl shadow-2xl overflow-hidden transform transition-all duration-300 scale-100 opacity-100"
+                className="relative w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col lg:flex-row transform scale-100 transition-transform duration-500"
             >
+                {/* Nút đóng */}
                 <button
                     onClick={close}
                     aria-label="Close"
-                    className="absolute top-2 right-2 z-50 w-8 h-8 bg-white/90 rounded-full flex items-center justify-center hover:bg-gray-100 shadow-sm transition"
+                    className="absolute top-4 right-4 z-50 p-2 bg-white/50 backdrop-blur-md rounded-full text-carbon-black-500 hover:text-carbon-black-900 hover:bg-carbon-black-100 transition-all border border-transparent hover:border-carbon-black-200"
                 >
-                    <span className="text-lg text-gray-700 font-bold">×</span>
+                    <X className="w-5 h-5" />
                 </button>
 
-                <div className="grid grid-cols-1 lg:grid-cols-5">
-                    {/* Ảnh bên trái - hiện full nguyên mẫu, không crop */}
-                    <div className="hidden lg:block lg:col-span-3 bg-gray-50 flex items-center justify-center p-4">
-                        <img
-                            src={imageSrc}
-                            alt="Đồng phục thể thao Hải Anh - Ưu đãi bùng nổ"
-                            className="max-w-full max-h-[500px] object-contain"  // <-- key: object-contain + max-h để không quá to
-                        />
+                {/* Phần Hình ảnh bên trái */}
+                <div className="lg:w-3/5 flex items-center justify-center p-6 relative overflow-hidden bg-white border-r border-carbon-black-100">
+                    {/* Hình nền mờ đằng sau */}
+                    <div className="absolute inset-0 bg-linear-to-br from-carbon-black-50 to-white opacity-80"></div>
+                    
+                    <img
+                        src={imageSrc}
+                        alt="Đồng phục Minh Anh - Ưu đãi bùng nổ"
+                        className="relative z-10 max-w-full max-h-[400px] lg:max-h-[500px] object-contain drop-shadow-xl rounded-2xl"
+                    />
+                </div>
+
+                {/* Phần Form bên phải */}
+                <div className="lg:w-2/5 flex flex-col justify-center p-8 lg:p-10 bg-white relative">
+                    <div className="mb-6 relative z-10">
+                        <span className="inline-block px-3 py-1 mb-3 text-xs font-bold uppercase tracking-wider text-golden-earth-700 bg-golden-earth-100 rounded-full">
+                            Ưu đãi giới hạn
+                        </span>
+                        <h2 className="text-2xl lg:text-3xl font-bold text-brown-bark-900 mb-2 font-serif tracking-tight">
+                            Nhận Báo Giá Ngay 👋
+                        </h2>
+                        <p className="text-carbon-black-500 leading-relaxed text-sm">
+                            Điền thông tin để nhận tư vấn chuyên sâu và ưu đãi đặc biệt từ Minh Anh. <br/>
+                            <span className="font-medium text-brown-bark-600">(Nhận đặt từ 10 chiếc)</span>
+                        </p>
                     </div>
 
-                    {/* Form bên phải */}
-                    <div className="lg:col-span-2 flex flex-col justify-center p-5 lg:p-8 bg-white">
-                        <h2 className="text-xl lg:text-2xl font-bold text-[#755134] mb-2">
-                            BẠN ƠI TỪ TỪ <span className="inline-block animate-wave"></span>
-                        </h2>
-
-                        <p className="text-sm text-gray-600 mb-5 leading-relaxed">
-                            Quý khách vui lòng điền thông tin để nhận báo giá nhanh và ưu đãi tốt nhất. (Nhận đặt từ 10 chiếc)
-                        </p>
-
-                        <form
-                            className="space-y-3.5"
-                            onSubmit={(e) => {
-                                e.preventDefault();
-                                alert("Cảm ơn! Chúng tôi sẽ liên hệ sớm.");
-                                close();
-                            }}
-                        >
+                    <form
+                        className="space-y-4 relative z-10"
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            alert("Cảm ơn! Chúng tôi sẽ liên hệ sớm.");
+                            close();
+                        }}
+                    >
+                        <div className="space-y-1">
+                            <label className="text-xs font-semibold text-carbon-black-700 uppercase tracking-wide ml-1">Họ và Tên</label>
                             <input
                                 type="text"
                                 name="name"
-                                placeholder="Họ và Tên"
+                                placeholder="Nhập họ và tên..."
                                 required
-                                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#755134] transition"
+                                className="w-full bg-carbon-black-50 border border-carbon-black-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-golden-earth-400 focus:bg-white transition-all"
                             />
+                        </div>
 
+                        <div className="space-y-1">
+                            <label className="text-xs font-semibold text-carbon-black-700 uppercase tracking-wide ml-1">Số điện thoại</label>
                             <input
                                 type="tel"
                                 name="phone"
-                                placeholder="Số điện thoại"
+                                placeholder="Nhập số điện thoại..."
                                 required
-                                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#755134] transition"
+                                className="w-full bg-carbon-black-50 border border-carbon-black-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-golden-earth-400 focus:bg-white transition-all"
                             />
+                        </div>
 
+                        <div className="space-y-1">
+                            <label className="text-xs font-semibold text-carbon-black-700 uppercase tracking-wide ml-1">Số lượng cần báo</label>
                             <input
                                 type="number"
                                 name="quantity"
-                                placeholder="Số lượng cần báo"
+                                placeholder="Ví dụ: 50"
                                 min="10"
                                 required
-                                className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#755134] transition"
+                                className="w-full bg-carbon-black-50 border border-carbon-black-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-golden-earth-400 focus:bg-white transition-all"
                             />
+                        </div>
 
-                            <button
-                                type="submit"
-                                className="w-full bg-[#755134] hover:bg-[#5f402b] text-white font-semibold py-3 rounded-lg text-base uppercase tracking-wide transition shadow-md hover:shadow-lg"
-                            >
-                                NHẬN TƯ VẤN
-                            </button>
-                        </form>
+                        <button
+                            type="submit"
+                            className="w-full flex items-center justify-center gap-2 bg-brown-bark-800 hover:bg-brown-bark-900 text-white font-semibold py-3.5 rounded-xl text-sm uppercase tracking-wider transition-all shadow-md mt-2"
+                        >
+                            Nhận Tư Vấn <Send className="w-4 h-4" />
+                        </button>
+                    </form>
 
-                        <p className="mt-4 text-xs text-gray-500 text-center leading-tight">
-                            Chúng tôi sẽ liên hệ sớm nhất. Bằng việc gửi thông tin, bạn đồng ý với chính sách bảo mật.
-                        </p>
-                    </div>
+                    <p className="mt-6 text-xs text-carbon-black-400 text-center leading-relaxed">
+                        Chúng tôi cam kết bảo mật thông tin của bạn.
+                    </p>
+                    
+                    {/* Decorative Shape */}
+                    <div className="absolute bottom-0 right-0 w-32 h-32 bg-golden-earth-50 rounded-tl-full opacity-50 pointer-events-none"></div>
                 </div>
             </div>
         </div>

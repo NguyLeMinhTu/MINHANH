@@ -1,12 +1,18 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import ModalIntro from "../common/Modal/ModalIntro";
 import FloatingHotline from "../common/FloatingHotline";
 import FloatingZalo from "../common/FloatingZalo";
 import Breadcrumb from "../common/Breadcrumb";
+import ScrollToTopButton from "./ScrollToTopButton";
 
 export default function Layout({ children }) {
+    const location = useLocation();
+    useEffect(() => {
+        window.scrollTo({ top: 0, behavior: 'auto' });
+    }, [location.pathname]);
     return (
         <div className="min-h-screen flex flex-col bg-stone-50">
             <Navbar />
@@ -15,11 +21,12 @@ export default function Layout({ children }) {
             <main className="flex-1">{children}</main>
             <Footer />
 
-            {/* Floating hotline and Zalo buttons (stationary right-side bubbles) */}
-            <div className="fixed right-4 top-1/2 transform -translate-y-1/2 z-[9999] flex flex-col items-center gap-4">
+            {/* Floating hotline and Zalo buttons (bottom-center) */}
+            <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-9999 flex flex-col sm:flex-row items-center gap-3 px-3">
                 <FloatingHotline />
                 <FloatingZalo />
             </div>
+            <ScrollToTopButton />
         </div>
     );
 }

@@ -41,8 +41,8 @@ export const categories = [
 
     {
         id: 5,
-        label: "CỬA HÀNG",
-        href: "/cua-hang",
+        label: "LIÊN HỆ",
+        href: "/lien-he",
         hasSubmenu: false,
     },
     {

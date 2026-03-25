@@ -1,18 +1,21 @@
 import React from 'react';
 import zaloImg from '../../assets/Foating-zalo.png';
 
-export default function FloatingZalo({ href = '#' }) {
+export default function FloatingZalo({ href = '#', title = 'TƯ VẤN QUA', label = 'ZALO' }) {
     return (
         <a
             href={href}
             target="_blank"
             rel="noreferrer"
-            aria-label="Zalo"
-            className="w-12 h-12 md:w-14 md:h-14 rounded-full shadow-2xl overflow-visible relative bg-white flex items-center justify-center">
-            <img src={zaloImg} alt="Zalo" className="w-10 h-10 md:w-12 md:h-12 object-contain" />
+            aria-label={`${title} ${label}`}
+            className="relative h-14 md:h-16 rounded-full shadow-2xl overflow-visible pl-14 md:pl-16 pr-7 bg-blue-600 text-white flex items-center hover:opacity-95 transition-opacity">
+            <span className="absolute -left-2 top-1/2 -translate-y-1/2 w-14 h-14 md:w-16 md:h-16 rounded-full bg-blue-600 shadow-2xl flex items-center justify-center">
+                <img src={zaloImg} alt="" className="w-11 h-11 md:w-13 md:h-13 object-contain" aria-hidden />
+            </span>
 
-            {/* Red badge top-right */}
-            <span className="absolute -top-1 -right-1 w-4 h-4 md:w-5 md:h-5 bg-red-500 rounded-full border-2 border-white flex items-center justify-center text-[10px] text-white" aria-hidden>
+            <span className="flex flex-col leading-none">
+                <span className="text-xs md:text-sm font-semibold tracking-wide uppercase opacity-95">{title}</span>
+                <span className="text-base md:text-lg font-extrabold">{label}</span>
             </span>
         </a>
     );
