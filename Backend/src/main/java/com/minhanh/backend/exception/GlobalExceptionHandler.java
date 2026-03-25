@@ -39,7 +39,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, String>> handleOther(Exception ex) {
+        System.err.println("=== ERROR CAUGHT BY GLOBAL HANDLER ===");
+        ex.printStackTrace();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of("message", "Lỗi hệ thống"));
+                .body(Map.of("message", "Lỗi Hệ Thống: " + ex.getMessage()));
     }
 }
