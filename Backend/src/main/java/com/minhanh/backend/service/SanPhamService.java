@@ -17,7 +17,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.minhanh.backend.dto.SanPhamRequestDto;
 import com.minhanh.backend.entity.HinhAnhSanPham;
+import com.minhanh.backend.entity.BienTheSanPham;
+import com.minhanh.backend.dto.BienTheSanPhamDto;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import java.util.List;
 import java.util.regex.Pattern;
@@ -118,6 +122,107 @@ public class SanPhamService {
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy sản phẩm"));
     }
 
+    // Hàm sinh đường dẫn web (Slug) dùng làm mỏ neo SEO từ Tên Sản Phẩm nguyên thể tiếng Việt
+    private String generateSlug(String input) {
+        // Nếu tên bị rỗng, cấp mã ngẫu nhiên bằng thời gian máy chủ
+        if (input == null || input.trim().isEmpty()) return "sp-" + System.currentTimeMillis();
+        
+        // Khử dấu câu: "Áo Quần" -> "Ao Quan" -> "ao-quan"
+        String slug = java.text.Normalizer.normalize(input, java.text.Normalizer.Form.NFD)
+                .replaceAll("\\p{InCombiningDiacriticalMarks}+", "")
+                .toLowerCase()
+                .replaceAll("[^a-z0-9\\s]", "")
+                .trim()
+                .replaceAll("\\s+", "-");
+                
+        // Ép thêm chuỗi số ở đuôi để chống đụng độ 100% (Unique guarantee) mà không cần query MySQL dò tìm
+        return slug + "-" + System.currentTimeMillis(); 
+    }
+
+    @Transactional
+    public SanPham createSanPham(SanPhamRequestDto dto) {
+        SanPham sp = new SanPham(); // Tạo vùng nhớ trống trong RAM chuẩn bị nặn hình Sản Phẩm
+        
+        sp.setTenSanPham(dto.getTenSanPham());
+        
+        // Về Slug: Bắt buộc phải có, nếu User điền tay thì lấy, nếu lười để trống thì Máy tự sinh
+        if (dto.getSlug() != null && !dto.getSlug().trim().isEmpty()) {
+            sp.setSlug(dto.getSlug().trim());
+        } else {
+            sp.setSlug(generateSlug(dto.getTenSanPham()));
+        }
+
+        // Đắp các trường thông tin chữ nghĩa thô...
+        sp.setMetaTitle(dto.getMetaTitle());
+        sp.setMetaDescription(dto.getMetaDescription());
+        sp.setGiaThamKhao(dto.getGiaThamKhao() != null ? dto.getGiaThamKhao() : java.math.BigDecimal.ZERO);
+        sp.setGiaBan(dto.getGiaBan() != null ? dto.getGiaBan() : java.math.BigDecimal.ZERO);
+        sp.setGiaKhuyenMai(dto.getGiaKhuyenMai() != null ? dto.getGiaKhuyenMai() : java.math.BigDecimal.ZERO);
+        sp.setSoLuongTon(dto.getSoLuongTon() != null ? dto.getSoLuongTon() : 0);
+        sp.setDonViTinh(dto.getDonViTinh() != null ? dto.getDonViTinh() : "Cái");
+        sp.setThuongHieu(dto.getThuongHieu());
+        sp.setXuatXu(dto.getXuatXu());
+        sp.setChatLieu(dto.getChatLieu());
+        sp.setBaoQuan(dto.getBaoQuan());
+        sp.setTags(dto.getTags());
+        sp.setSpNoiBat(dto.getSpNoiBat() != null ? dto.getSpNoiBat() : false);
+        sp.setSpMoi(dto.getSpMoi() != null ? dto.getSpMoi() : false);
+        sp.setTrangThai(dto.getTrangThai() != null ? dto.getTrangThai() : "cong_khai");
+        sp.setNgayTao(java.time.LocalDateTime.now()); // Tem ghi ngày tháng khởi tạo vĩnh viễn (Read-only)
+        sp.setViews(0);
+        sp.setLuotMua(0);
+
+        // Nối Khóa Ngoại (Foreign Key) móc về Table Danh Mục nếu User có phân loại
+        if (dto.getDanhMucId() != null && !dto.getDanhMucId().trim().isEmpty()) {
+            DanhMucSanPham dm = danhMucSanPhamRepository.findById(dto.getDanhMucId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy danh mục: " + dto.getDanhMucId()));
+            sp.setDanhMuc(dm);
+        }
+
+        // --- Bắt đầu nặn dòng chảy Biến Thể (Size/Màu) ---
+        sp.setBienThe(new ArrayList<>());
+        if (dto.getBienThe() != null && !dto.getBienThe().isEmpty()) {
+            int totalStock = 0;
+            java.util.Set<String> uniqueKeys = new java.util.HashSet<>();
+
+            for (BienTheSanPhamDto bDto : dto.getBienThe()) {
+                String c = bDto.getMauSac() != null ? bDto.getMauSac().trim().toLowerCase() : "";
+                String s = bDto.getSize() != null ? bDto.getSize().trim().toLowerCase() : "";
+                String colorSizeKey = c + "-" + s;
+                                    
+                if (!uniqueKeys.add(colorSizeKey)) {
+                    throw new RuntimeException("Lỗi trùng lặp: Phân loại hàng (Màu: " + bDto.getMauSac() + ", Size: " + bDto.getSize() + ") xuất hiện nhiều lần!");
+                }
+
+                BienTheSanPham bt = new BienTheSanPham();
+                bt.setSanPham(sp); // Chìa khóa vàng: Đính thằng Con vào thằng Cha
+                bt.setMauSac(bDto.getMauSac());
+                bt.setSize(bDto.getSize());
+                bt.setGia(bDto.getGia());
+                bt.setSoLuong(bDto.getSoLuong() != null ? bDto.getSoLuong() : 0);
+                
+                totalStock += bt.getSoLuong();
+                sp.getBienThe().add(bt);
+            }
+            // Auto-Sync đồng loạt ép số lượng của Cha = Tổng Các Con
+            sp.setSoLuongTon(totalStock);
+        }
+
+        // --- Bắt đầu nặn list Ảnh Cloudinary ---
+        sp.setHinhAnh(new ArrayList<>());
+        if (dto.getHinhAnh() != null && !dto.getHinhAnh().isEmpty()) {
+            for (String url : dto.getHinhAnh()) {
+                HinhAnhSanPham img = new HinhAnhSanPham();
+                img.setSanPham(sp); // Đính hình Con vào thân Cha
+                img.setUrlAnh(url);
+                sp.getHinhAnh().add(img);
+            }
+        }
+
+        // Kỹ thuật nhét vào Database bằng Hibernate: Mình lưu Thằng Cha thì nó tự động thả luôn 2 bầy đàn Thằng Con xuống SQL thông qua Cascade=ALL 
+        return sanPhamRepository.save(sp);
+    }
+
     @Transactional
     public SanPham updateSanPham(String id, SanPhamRequestDto dto) {
         SanPham sp = sanPhamRepository.findById(id)
@@ -146,6 +251,62 @@ public class SanPhamService {
             DanhMucSanPham dm = danhMucSanPhamRepository.findById(dto.getDanhMucId())
                     .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy danh mục: " + dto.getDanhMucId()));
             sp.setDanhMuc(dm);
+        }
+
+        if (dto.getBienThe() != null) {
+            if (sp.getBienThe() == null) {
+                sp.setBienThe(new ArrayList<>());
+            }
+            // 1. Tạo bản đồ Map tra cứu nhanh Biến thể cũ để bảo vệ dòng dữ liệu không bị xóa tạo mới liên tục
+            Map<String, BienTheSanPham> existingVariantMap = sp.getBienThe().stream()
+                    .filter(v -> v.getBienTheId() != null)
+                    .collect(Collectors.toMap(BienTheSanPham::getBienTheId, v -> v));
+
+            List<BienTheSanPham> updatedVariants = new ArrayList<>();
+            int totalStock = 0; // Biến tạm rổ rỗng để tính dồn số lượng kho
+            java.util.Set<String> uniqueKeys = new java.util.HashSet<>();
+
+            // 2. Vòng lặp quét dòng chảy dữ liệu Biến Thể từ giao diện React Form gửi xuống
+            for (BienTheSanPhamDto bDto : dto.getBienThe()) {
+                String c = bDto.getMauSac() != null ? bDto.getMauSac().trim().toLowerCase() : "";
+                String s = bDto.getSize() != null ? bDto.getSize().trim().toLowerCase() : "";
+                String colorSizeKey = c + "-" + s;
+                                    
+                if (!uniqueKeys.add(colorSizeKey)) {
+                    throw new RuntimeException("Lỗi trùng lặp: Phân loại hàng (Màu: " + bDto.getMauSac() + ", Size: " + bDto.getSize() + ") xuất hiện nhiều lần!");
+                }
+
+                BienTheSanPham bt;
+                // Nếu React đưa ID cũ quen -> bốc data cũ ra để ghi số liệu mới vào
+                if (bDto.getBienTheId() != null && existingVariantMap.containsKey(bDto.getBienTheId())) {
+                    bt = existingVariantMap.get(bDto.getBienTheId());
+                } else {
+                    // Nếu là Size/Màu mới toanh do User tự gõ thêm -> Tạo cờ trắng hoàn toàn mới
+                    bt = new BienTheSanPham();
+                    bt.setSanPham(sp); // Phải móc nối nó vào Sản Phẩm Gốc
+                }
+                
+                // Set số liệu mới
+                bt.setMauSac(bDto.getMauSac());
+                bt.setSize(bDto.getSize());
+                bt.setGia(bDto.getGia());
+                bt.setSoLuong(bDto.getSoLuong() != null ? bDto.getSoLuong() : 0);
+                
+                // Toán học: Góp gió thành bão - cộng dồn từ từ lượng hàng
+                totalStock += bt.getSoLuong();
+                updatedVariants.add(bt);
+            }
+            
+            // 3. Quét sạch tàn dư: clear list biến thể cũ (những record bị click dấu Thùng Rác trên React)
+            sp.getBienThe().clear();
+            // Up mảng mới được dọn dẹp sạch sẽ vào entity
+            sp.getBienThe().addAll(updatedVariants);
+            
+            // 4. LUẬT BẤT THÀNH VĂN AUTO-SYNC: 
+            // Nếu có ít nhất 1 biến thể, Cấm ghi đè bậy, lấy Tổng Kho Con đè lấp lên Kho Mẹ.
+            if (!updatedVariants.isEmpty()) {
+                sp.setSoLuongTon(totalStock);
+            }
         }
 
         if (dto.getHinhAnh() != null) {

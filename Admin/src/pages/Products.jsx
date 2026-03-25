@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { fetchProducts, deleteProduct } from '../app/slices/productSlice'
 import { fetchCategories } from '../app/slices/categorySlice'
 import ProductFormModal from '../components/ProductFormModal'
+import ProductAddForm from '../components/ProductAddForm'
 
 const trangThaiStyle = {
     cong_khai: 'bg-emerald-100 text-emerald-700',
@@ -134,6 +135,7 @@ const Products = () => {
     const [search, setSearch] = useState('')
     const [selected, setSelected] = useState(null)
     const [editingProduct, setEditingProduct] = useState(null)
+    const [isAdding, setIsAdding] = useState(false)
 
     useEffect(() => {
         dispatch(fetchProducts({ page: 0, size: 50 }))
@@ -164,7 +166,7 @@ const Products = () => {
                     <h2 className="text-xl font-bold text-gray-800">DANH SÁCH SẢN PHẨM</h2>
                     <p className="text-sm text-gray-500 mt-0.5">Quản lý thông tin của sản phẩm</p>
                 </div>
-                <button className="flex items-center gap-2 bg-[#DAA06D] hover:bg-[#c08850] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm">
+                <button onClick={() => setIsAdding(true)} className="flex items-center gap-2 bg-[#DAA06D] hover:bg-[#c08850] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm">
                     <Plus size={16} />
                     Thêm sản phẩm
                 </button>
@@ -274,6 +276,12 @@ const Products = () => {
                     product={editingProduct} 
                     categories={categoriesList || []} 
                     onClose={() => setEditingProduct(null)} 
+                />
+            )}
+            {isAdding && (
+                <ProductAddForm 
+                    categories={categoriesList || []} 
+                    onClose={() => setIsAdding(false)} 
                 />
             )}
         </div>

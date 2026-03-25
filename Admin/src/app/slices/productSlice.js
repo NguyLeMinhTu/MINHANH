@@ -13,6 +13,18 @@ export const fetchProducts = createAsyncThunk(
     }
 );
 
+export const createProduct = createAsyncThunk(
+    'products/create',
+    async (data, { rejectWithValue }) => {
+        try {
+            const response = await axiosInstance.post(`/admin/san-pham`, data);
+            return response;
+        } catch (error) {
+            return rejectWithValue(error.response?.data || error.message);
+        }
+    }
+);
+
 export const updateProduct = createAsyncThunk(
     'products/update',
     async ({ id, data }, { rejectWithValue }) => {
