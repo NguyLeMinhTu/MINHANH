@@ -26,4 +26,5 @@ public class SanPhamRequestDto {
     private String trangThai;
     private String danhMucId;
     private List<String> hinhAnh;
+    private List<BienTheSanPhamDto> bienThe;
 }

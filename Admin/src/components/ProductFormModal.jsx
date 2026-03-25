@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Trash2, Save, ImagePlus, Star } from 'lucide-react';
+import { X, Trash2, Save, ImagePlus, Star, Plus } from 'lucide-react';
 import axiosInstance from '../utils/axiosConfig';
 import { useDispatch } from 'react-redux';
 import { updateProduct, fetchProducts } from '../app/slices/productSlice';
@@ -13,7 +13,7 @@ const ProductFormModal = ({ product, categories, onClose }) => {
         giaThamKhao: 0, giaBan: 0, giaKhuyenMai: 0,
         soLuongTon: 0, donViTinh: 'Áo', thuongHieu: '', xuatXu: '',
         chatLieu: '', baoQuan: '', tags: '',
-        spNoiBat: false, spMoi: false, trangThai: 'cong_khai', danhMucId: '', images: []
+        spNoiBat: false, spMoi: false, trangThai: 'cong_khai', danhMucId: '', images: [], bienThe: []
     });
 
     useEffect(() => {
@@ -28,7 +28,8 @@ const ProductFormModal = ({ product, categories, onClose }) => {
                 spNoiBat: product.spNoiBat || false, spMoi: product.spMoi || false,
                 danhMucId: product.danhMuc?.danhMucId || '',
                 trangThai: product.trangThai || 'cong_khai',
-                images: Array.isArray(product.hinhAnh) ? product.hinhAnh.map(img => img.urlAnh || img.url).filter(Boolean) : []
+                images: Array.isArray(product.hinhAnh) ? product.hinhAnh.map(img => img.urlAnh || img.url).filter(Boolean) : [],
+                bienThe: Array.isArray(product.bienThe) ? product.bienThe.map(v => ({ ...v })) : []
             });
         }
     }, [product]);
@@ -80,15 +81,65 @@ const ProductFormModal = ({ product, categories, onClose }) => {
         });
     };
 
+    // Hàm gánh trọng trách bắt lỗi khi User gõ phím vào 1 ô dữ liệu bấy kỳ của 1 dòng Size/Màu
+    const handleVariantChange = (index, field, value) => {
+        setFormData(prev => {
+            const newBienThe = [...prev.bienThe];
+            newBienThe[index] = { ...newBienThe[index], [field]: value }; // Cập nhật lại Object tại dòng đó
+            
+            let newTotalStock = prev.soLuongTon;
+            // Thuật toán: Nếu người dùng đang chỉnh sửa ô TỒN KHO chứ không phải gõ ô Màu Sắc/Kích Cỡ
+            // -> Thì kích hoạt quét quyét quyét dọc vòng lặp tự cộng dồn các ô Kho biến thể lại cho ta 1 Tổng kho chốt đơn
+            if (field === 'soLuong') {
+                newTotalStock = newBienThe.reduce((sum, item) => sum + (Number(item.soLuong) || 0), 0);
+            }
+            return { ...prev, bienThe: newBienThe, soLuongTon: field === 'soLuong' ? newTotalStock : prev.soLuongTon };
+        });
+    };
+
+    // Hàm tạo phôi rỗng 1 dòng Biến Thể Size/Màu mới toanh (Nhấn nút "Thêm tùy chọn")
+    const addVariant = () => {
+        setFormData(prev => ({
+            ...prev,
+            bienThe: [...prev.bienThe, { mauSac: '', size: '', gia: '', soLuong: 0 }]
+        }));
+    };
+
+    // Hàm đá đít (xóa) 1 dòng Biến Thể lúc nhấn icon Thùng Rác mini
+    const removeVariant = (index) => {
+        setFormData(prev => {
+            const newBienThe = prev.bienThe.filter((_, i) => i !== index); // Lấy những thằng không bị click
+            const newTotalStock = newBienThe.reduce((sum, item) => sum + (Number(item.soLuong) || 0), 0); // Vẫn phải tuân thủ Auto-Sync ngay lập tức
+            return {
+                ...prev,
+                bienThe: newBienThe,
+                soLuongTon: newBienThe.length > 0 ? newTotalStock : prev.soLuongTon
+            };
+        });
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        // Kiểm tra biến thể trùng lặp (Màu + Size = Unique)
+        const uniqueSet = new Set();
+        for (let v of formData.bienThe) {
+            const key = `${v.mauSac || ''}-${v.size || ''}`.toLowerCase().trim();
+            if (uniqueSet.has(key)) {
+                alert(`Lỗi: Phân loại hàng (Màu: "${v.mauSac || ''}", Size: "${v.size || ''}") bị trùng lặp.\nVui lòng gộp chung số lượng lại hoặc xóa bớt dòng thừa!`);
+                return; // Chặn đứng thao tác submit gọi API
+            }
+            uniqueSet.add(key);
+        }
+
         setLoading(true);
         try {
             const payload = {
                 ...formData,
                 giaBan: Number(formData.giaBan), giaKhuyenMai: Number(formData.giaKhuyenMai), giaThamKhao: Number(formData.giaThamKhao),
                 soLuongTon: Number(formData.soLuongTon),
-                hinhAnh: formData.images
+                hinhAnh: formData.images,
+                bienThe: formData.bienThe.map(v => ({...v, gia: v.gia ? Number(v.gia) : null, soLuong: Number(v.soLuong) }))
             };
             await dispatch(updateProduct({ id: product.sanPhamId, data: payload })).unwrap();
             dispatch(fetchProducts({ page: 0, size: 50 })); // Reload API
@@ -103,7 +154,8 @@ const ProductFormModal = ({ product, categories, onClose }) => {
     const tabs = [
         { id: 'thong_tin', label: 'Thông tin cơ bản' },
         { id: 'chi_tiet', label: 'Bài viết Chi tiết' },
-        { id: 'hinh_anh', label: 'Lệnh Ảnh (Cloudinary)' }
+        { id: 'bien_the', label: `Biến thể (${formData.bienThe?.length || 0})` },
+        { id: 'hinh_anh', label: `Lệnh Ảnh (${formData.images?.length || 0})` }
     ];
 
     return (
@@ -151,7 +203,7 @@ const ProductFormModal = ({ product, categories, onClose }) => {
                                     <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Giá khuyến mãi ưu đãi</label><input type="number" name="giaKhuyenMai" value={formData.giaKhuyenMai} onChange={handleChange} className="w-full px-3.5 py-2.5 text-sm font-mono border border-gray-200 rounded-xl bg-white shadow-sm focus:outline-none focus:ring-[#DAA06D]/40" /></div>
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
-                                    <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Trữ lượng kho *</label><input required type="number" name="soLuongTon" value={formData.soLuongTon} onChange={handleChange} className="w-full px-3.5 py-2.5 text-sm font-mono border border-gray-200 rounded-xl bg-white shadow-sm focus:outline-none focus:ring-[#DAA06D]/40" /></div>
+                                    <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Trữ lượng kho *</label><input required type="number" name="soLuongTon" value={formData.soLuongTon} onChange={handleChange} disabled={formData.bienThe && formData.bienThe.length > 0} className="w-full px-3.5 py-2.5 text-sm font-mono border border-gray-200 rounded-xl shadow-sm focus:outline-none focus:ring-[#DAA06D]/40 disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed transition-all" title={formData.bienThe && formData.bienThe.length > 0 ? "Kho tự động tính tổng từ các danh sách Biến thể để chống sai sót" : ""} /></div>
                                     <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Đơn vị tính</label><input type="text" name="donViTinh" value={formData.donViTinh} onChange={handleChange} className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-xl bg-white shadow-sm focus:outline-none focus:ring-[#DAA06D]/40" placeholder="vd: Áo" /></div>
                                 </div>
                             </div>
@@ -168,6 +220,47 @@ const ProductFormModal = ({ product, categories, onClose }) => {
                                     <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Hướng dẫn bảo quản (Giặt ủi)</label><textarea name="baoQuan" rows="4" value={formData.baoQuan} onChange={handleChange} className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-xl bg-white shadow-sm focus:outline-none focus:ring-[#DAA06D]/40 leading-relaxed"></textarea></div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+
+                    {/* --- TAB BIẾN THỂ --- */}
+                    <div className={activeTab === 'bien_the' ? 'block' : 'hidden'}>
+                        <div className="mb-5 flex items-center justify-between bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                            <div>
+                                <h4 className="font-bold text-gray-800 text-sm">Danh sách Phân loại hàng (SKU)</h4>
+                                <p className="text-xs text-gray-500 mt-1">Quản lý kích cỡ, màu sắc và tự động cộng dồn tồn kho.</p>
+                            </div>
+                            <button type="button" onClick={addVariant} className="px-4 py-2 bg-[#DAA06D]/10 text-[#DAA06D] hover:bg-[#DAA06D] hover:text-white rounded-lg font-semibold text-sm transition-colors flex items-center gap-2">
+                                <Plus size={16} /> Thêm tùy chọn
+                            </button>
+                        </div>
+                        
+                        <div className="space-y-3">
+                            {formData.bienThe.length === 0 ? (
+                                <div className="text-center py-10 bg-white rounded-xl border border-dashed border-gray-300">
+                                    <p className="text-gray-400 text-sm">Sản phẩm này chưa chia biến thể.<br/>Nhấn <b>Thêm tùy chọn</b> để khai báo Size/Màu đồ.</p>
+                                </div>
+                            ) : (
+                                formData.bienThe.map((variant, index) => (
+                                    <div key={index} className="flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-xl shadow-sm hover:border-[#DAA06D]/50 transition-colors">
+                                        <div className="flex-1">
+                                            <input type="text" placeholder="Màu (vd: Đen)" value={variant.mauSac} onChange={(e) => handleVariantChange(index, 'mauSac', e.target.value)} className="w-full text-sm px-3 py-2 border-b border-dashed border-gray-300 focus:border-[#DAA06D] focus:outline-none bg-transparent" />
+                                        </div>
+                                        <div className="flex-1">
+                                            <input type="text" placeholder="Size (vd: XL)" value={variant.size} onChange={(e) => handleVariantChange(index, 'size', e.target.value)} className="w-full text-sm px-3 py-2 border-b border-dashed border-gray-300 focus:border-[#DAA06D] focus:outline-none bg-transparent" />
+                                        </div>
+                                        <div className="flex-1">
+                                            <input type="number" placeholder="Kho (+)" value={variant.soLuong} onChange={(e) => handleVariantChange(index, 'soLuong', e.target.value)} className="w-full text-sm px-3 py-2 border-b border-dashed border-gray-300 focus:border-[#DAA06D] focus:outline-none bg-transparent text-blue-600 font-mono" title="Tồn kho của tuỳ chọn này" />
+                                        </div>
+                                        <div className="flex-1">
+                                            <input type="number" placeholder="Bù giá (Nếu có)" value={variant.gia || ''} onChange={(e) => handleVariantChange(index, 'gia', e.target.value)} className="w-full text-sm px-3 py-2 border-b border-dashed border-gray-300 focus:border-[#DAA06D] focus:outline-none bg-transparent text-amber-600 font-mono" title="Nếu Size XL đắt hơn 10k thì nhập vào đây" />
+                                        </div>
+                                        <button type="button" onClick={() => removeVariant(index)} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+                                            <Trash2 size={18} />
+                                        </button>
+                                    </div>
+                                ))
+                            )}
                         </div>
                     </div>
 

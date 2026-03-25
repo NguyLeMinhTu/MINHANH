@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PostMapping;
 
 @RestController
 @RequestMapping("/api/admin/san-pham")
@@ -32,6 +33,11 @@ public class AdminSanPhamController {
         
         Page<SanPham> result = sanPhamService.getAdminPageSanPhams(page, size, search, danhMucId, thuongHieu);
         return ResponseEntity.ok(result);
+    }
+
+    @PostMapping
+    public ResponseEntity<SanPham> createSanPham(@RequestBody SanPhamRequestDto dto) {
+        return ResponseEntity.ok(sanPhamService.createSanPham(dto));
     }
 
     @PutMapping("/{id}")
