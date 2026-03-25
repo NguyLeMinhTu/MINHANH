@@ -1,8 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import ProductCard from './ProductCard'
+import Title from '../common/Title'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 
-const visibleCount = 5
+const visibleCount = 6.5
 
 const NewProductList = ({ products = [], slideInterval = 3000 }) => {
     const newProducts = useMemo(() => products.filter(p => p.isNew), [products])
@@ -72,14 +74,21 @@ const NewProductList = ({ products = [], slideInterval = 3000 }) => {
             <div className="max-w-7xl mx-auto px-4">
                 <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-4">
-                        <span className="border border-black px-4 py-2 text-md font-semibold tracking-[0.15em] uppercase bg-white hover:bg-stone-200 transition-colors">
-                            SẢN PHẨM MỚI NHẤT
-                        </span>
-                        <span className="hidden md:block h-px w-24 bg-gray-300" />
+                        <div className="px-4 py-2 rounded-xl bg-golden-earth-50 border border-carbon-black-100 shadow-sm">
+                            <Title
+                                size="lg"
+                                title="Sản phẩm mới nhất"
+                                // overline="Gợi ý"
+                                className="leading-tight"
+                                titleClassName="text-carbon-black-900 tracking-[0.12em] uppercase text-sm md:text-base"
+                                overlineClassName="text-brown-bark-700"
+                            />
+                        </div>
+                        <span className="hidden md:block h-px w-24 bg-carbon-black-200" />
                     </div>
                     <Link
                         to="/san-pham"
-                        className="text-sm tracking-[0.15em] uppercase flex items-center gap-1 hover:underline hover:text-[#af7b51]"
+                        className="text-sm font-bold tracking-[0.15em] uppercase flex items-center gap-1 text-brown-bark-700 hover:text-brown-bark-900 hover:underline transition-colors"
                     >
                         Xem thêm
                     </Link>
@@ -91,14 +100,14 @@ const NewProductList = ({ products = [], slideInterval = 3000 }) => {
                         className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 items-center justify-center bg-white/90 hover:bg-white border border-gray-300 rounded-full shadow-sm"
                         onClick={handlePrev}
                     >
-                        <span className="text-sm">&lt;</span>
+                        <ChevronLeft className="text-sm" />
                     </button>
                     <button
                         type="button"
                         className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 z-10 w-8 h-8 items-center justify-center bg-white/90 hover:bg-white border border-gray-300 rounded-full shadow-sm"
                         onClick={handleNext}
                     >
-                        <span className="text-sm">&gt;</span>
+                        <ChevronRight className="text-sm" />
                     </button>
 
                     <div className="overflow-hidden mx-0 md:mx-10">

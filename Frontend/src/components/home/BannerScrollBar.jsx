@@ -6,6 +6,7 @@ import BannerAoThun from '../../assets/Banners/BANNER_AOTHUN.jpg'
 import BannerAoSoMi from '../../assets/Banners/BANNER_SOMI.jpg'
 import BannerDuLich from '../../assets/Banners/BANNER_DULICH.jpg'
 import BannerVest from '../../assets/Banners/BANNER_VEST.jpg'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 const banners = [
     {
@@ -97,14 +98,16 @@ const BannerScrollBar = ({ autoPlayInterval = 7000 }) => {
                     className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 items-center justify-center bg-white/90 hover:bg-white border border-gray-300 rounded-full shadow"
                     onClick={handlePrev}
                 >
-                    <span className="text-lg text-gray-700">&lt;</span>
+                    {/* <span className="text-lg text-gray-700">&lt;</span> */}
+                    <ChevronLeft className="w-6 h-6" />
                 </button>
                 <button
                     type="button"
                     className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 items-center justify-center bg-white/90 hover:bg-white border border-gray-300 rounded-full shadow"
                     onClick={handleNext}
                 >
-                    <span className="text-lg text-gray-700">&gt;</span>
+                    {/* <span className="text-lg text-gray-700">&gt;</span> */}
+                    <ChevronRight className="w-6 h-6" />
                 </button>
 
                 {/* Dots */}

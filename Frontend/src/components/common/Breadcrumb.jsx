@@ -1,5 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
+import { getUiProductById } from "../../assets/catalog";
 
 export default function Breadcrumb() {
     const location = useLocation();
@@ -20,6 +21,18 @@ export default function Breadcrumb() {
         return nameMap[slug] || slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
     };
 
+    const getCrumbLabel = (segment, index) => {
+        const prev = pathnames[index - 1];
+        const isLast = index === pathnames.length - 1;
+
+        if (isLast && prev === 'san-pham') {
+            const p = getUiProductById(segment);
+            if (p?.name) return p.name;
+        }
+
+        return getName(segment);
+    };
+
     if (pathnames.length === 0) return null;
 
     return (
@@ -38,7 +51,7 @@ export default function Breadcrumb() {
                             <li key={name} className="flex items-center">
                                 <span className="mx-2 text-gray-400">/</span>
                                 {isLast ? (
-                                    <span className="text-gray-900 font-medium">{getName(name)}</span>
+                                    <span className="text-gray-900 font-medium">{getCrumbLabel(name, index)}</span>
                                 ) : (
                                     <Link to={routeTo} className="hover:text-[#af7b51] transition-colors">
                                         {getName(name)}
