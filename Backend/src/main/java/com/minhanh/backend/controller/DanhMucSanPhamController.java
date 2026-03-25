@@ -35,15 +35,27 @@ public class DanhMucSanPhamController {
 
     // POST /api/danh-muc-san-pham → tạo mới
     @PostMapping
-    public ResponseEntity<DanhMucSanPham> create(@RequestBody DanhMucSanPham danhMuc) {
-        return ResponseEntity.ok(service.create(danhMuc));
+    public ResponseEntity<?> create(@RequestBody com.minhanh.backend.dto.DanhMucRequestDto req) {
+        try {
+            service.create(req);
+            return ResponseEntity.ok(java.util.Collections.singletonMap("message", "Thêm mới thành công"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(java.util.Collections.singletonMap("message", "Lỗi tạo mới Backend: " + e.getMessage()));
+        }
     }
 
     // PUT /api/danh-muc-san-pham/{id} → cập nhật
     @PutMapping("/{id}")
-    public ResponseEntity<DanhMucSanPham> update(@PathVariable String id,
-                                                  @RequestBody DanhMucSanPham danhMuc) {
-        return ResponseEntity.ok(service.update(id, danhMuc));
+    public ResponseEntity<?> update(@PathVariable String id,
+                                                  @RequestBody com.minhanh.backend.dto.DanhMucRequestDto req) {
+        try {
+            service.update(id, req);
+            return ResponseEntity.ok(java.util.Collections.singletonMap("message", "Cập nhật thành công"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(java.util.Collections.singletonMap("message", "Lỗi update Backend: " + e.getMessage()));
+        }
     }
 
     // DELETE /api/danh-muc-san-pham/{id} → xóa
