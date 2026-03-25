@@ -13,6 +13,42 @@ export const fetchCategories = createAsyncThunk(
     }
 );
 
+export const createCategory = createAsyncThunk(
+    'categories/create',
+    async (data, { rejectWithValue }) => {
+        try {
+            const response = await axiosInstance.post('/danh-muc-san-pham', data);
+            return response;
+        } catch (error) {
+            return rejectWithValue(error.response?.data || error.message);
+        }
+    }
+);
+
+export const updateCategory = createAsyncThunk(
+    'categories/update',
+    async ({ id, data }, { rejectWithValue }) => {
+        try {
+            const response = await axiosInstance.put(`/danh-muc-san-pham/${id}`, data);
+            return response;
+        } catch (error) {
+            return rejectWithValue(error.response?.data || error.message);
+        }
+    }
+);
+
+export const deleteCategory = createAsyncThunk(
+    'categories/delete',
+    async (id, { rejectWithValue }) => {
+        try {
+            await axiosInstance.delete(`/danh-muc-san-pham/${id}`);
+            return id;
+        } catch (error) {
+            return rejectWithValue(error.response?.data || error.message);
+        }
+    }
+);
+
 const categorySlice = createSlice({
     name: 'categories',
     initialState: {
