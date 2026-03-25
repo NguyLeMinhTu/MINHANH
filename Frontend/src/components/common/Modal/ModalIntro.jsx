@@ -45,44 +45,43 @@ export default function ModalIntro({ imageSrc = picModalIntro }) {
     if (!open) return null;
 
     return (
-        <div className="fixed inset-0 z-100 flex items-center justify-center bg-carbon-black-900/60 backdrop-blur-sm px-4 sm:px-6 transition-opacity duration-300">
+        <div className="fixed inset-0 z-100 flex items-center justify-center bg-carbon-black-900/80 backdrop-blur-sm px-4 sm:px-6 transition-opacity duration-300 overflow-y-auto py-8">
             <div
                 ref={dialogRef}
-                className="relative w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col lg:flex-row transform scale-100 transition-transform duration-500"
+                className="relative w-full max-w-5xl bg-white rounded-[32px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] overflow-hidden flex flex-col lg:flex-row transform scale-100 transition-all duration-500 my-auto"
             >
-                {/* Nút đóng */}
+                {/* Nút đóng - Cải tiến hiển thị trên Mobile */}
                 <button
                     onClick={close}
                     aria-label="Close"
-                    className="absolute top-4 right-4 z-50 p-2 bg-white/50 backdrop-blur-md rounded-full text-carbon-black-500 hover:text-carbon-black-900 hover:bg-carbon-black-100 transition-all border border-transparent hover:border-carbon-black-200"
+                    className="absolute top-4 right-4 z-50 p-2.5 bg-brown-bark-900 text-white md:bg-white/80 md:backdrop-blur-md md:text-carbon-black-500 rounded-full shadow-lg hover:scale-110 active:scale-95 transition-all border border-white/20"
                 >
-                    <X className="w-5 h-5" />
+                    <X className="w-5 h-5 md:w-6 md:h-6" />
                 </button>
 
                 {/* Phần Hình ảnh bên trái */}
-                <div className="lg:w-3/5 flex items-center justify-center p-6 relative overflow-hidden bg-white border-r border-carbon-black-100">
+                <div className="hidden sm:flex lg:w-3/5 items-center justify-center p-6 lg:p-10 relative overflow-hidden bg-white border-b lg:border-b-0 lg:border-r border-carbon-black-100">
                     {/* Hình nền mờ đằng sau */}
                     <div className="absolute inset-0 bg-linear-to-br from-carbon-black-50 to-white opacity-80"></div>
                     
                     <img
                         src={imageSrc}
                         alt="Đồng phục Minh Anh - Ưu đãi bùng nổ"
-                        className="relative z-10 max-w-full max-h-[400px] lg:max-h-[500px] object-contain drop-shadow-xl rounded-2xl"
+                        className="relative z-10 max-w-full max-h-[300px] lg:max-h-[550px] object-contain drop-shadow-2xl rounded-2xl transform hover:rotate-1 transition-transform"
                     />
                 </div>
 
                 {/* Phần Form bên phải */}
-                <div className="lg:w-2/5 flex flex-col justify-center p-8 lg:p-10 bg-white relative">
-                    <div className="mb-6 relative z-10">
-                        <span className="inline-block px-3 py-1 mb-3 text-xs font-bold uppercase tracking-wider text-golden-earth-700 bg-golden-earth-100 rounded-full">
+                <div className="lg:w-2/5 flex flex-col justify-center p-7 lg:p-12 bg-white relative">
+                    <div className="mb-8 relative z-10 text-center lg:text-left">
+                        <span className="inline-block px-4 py-1.5 mb-4 text-[10px] font-black uppercase tracking-[0.2em] text-golden-earth-700 bg-golden-earth-100/80 rounded-full">
                             Ưu đãi giới hạn
                         </span>
-                        <h2 className="text-2xl lg:text-3xl font-bold text-brown-bark-900 mb-2 font-serif tracking-tight">
-                            Nhận Báo Giá Ngay 👋
+                        <h2 className="text-2xl lg:text-4xl font-extrabold text-brown-bark-900 mb-3 font-serif leading-tight">
+                            Nhận Báo Giá <span className="text-golden-earth-600 block lg:inline">Ngay Lập Tức</span>
                         </h2>
-                        <p className="text-carbon-black-500 leading-relaxed text-sm">
-                            Điền thông tin để nhận tư vấn chuyên sâu và ưu đãi đặc biệt từ Minh Anh. <br/>
-                            <span className="font-medium text-brown-bark-600">(Nhận đặt từ 10 chiếc)</span>
+                        <p className="text-carbon-black-500 leading-relaxed text-sm md:text-base">
+                            Để lại lời nhắn, đội ngũ Minh Anh sẽ liên hệ tư vấn mẫu vải và báo giá chi tiết trong <span className="text-brown-bark-700 font-bold">5 phút</span>.
                         </p>
                     </div>
 
@@ -94,54 +93,54 @@ export default function ModalIntro({ imageSrc = picModalIntro }) {
                             close();
                         }}
                     >
-                        <div className="space-y-1">
-                            <label className="text-xs font-semibold text-carbon-black-700 uppercase tracking-wide ml-1">Họ và Tên</label>
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-black text-carbon-black-400 uppercase tracking-widest ml-1">Họ và Tên</label>
                             <input
                                 type="text"
                                 name="name"
-                                placeholder="Nhập họ và tên..."
+                                placeholder="Tên của bạn..."
                                 required
-                                className="w-full bg-carbon-black-50 border border-carbon-black-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-golden-earth-400 focus:bg-white transition-all"
+                                className="w-full bg-carbon-black-50/50 border border-carbon-black-100 focus:border-golden-earth-400 rounded-2xl px-5 py-3.5 text-sm outline-none ring-0 focus:ring-4 focus:ring-golden-earth-100 transition-all"
                             />
                         </div>
 
-                        <div className="space-y-1">
-                            <label className="text-xs font-semibold text-carbon-black-700 uppercase tracking-wide ml-1">Số điện thoại</label>
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-black text-carbon-black-400 uppercase tracking-widest ml-1">Số điện thoại</label>
                             <input
                                 type="tel"
                                 name="phone"
-                                placeholder="Nhập số điện thoại..."
+                                placeholder="09xx xxx xxx"
                                 required
-                                className="w-full bg-carbon-black-50 border border-carbon-black-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-golden-earth-400 focus:bg-white transition-all"
+                                className="w-full bg-carbon-black-50/50 border border-carbon-black-100 focus:border-golden-earth-400 rounded-2xl px-5 py-3.5 text-sm outline-none ring-0 focus:ring-4 focus:ring-golden-earth-100 transition-all"
                             />
                         </div>
 
-                        <div className="space-y-1">
-                            <label className="text-xs font-semibold text-carbon-black-700 uppercase tracking-wide ml-1">Số lượng cần báo</label>
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-black text-carbon-black-400 uppercase tracking-widest ml-1">Số lượng dự kiến</label>
                             <input
                                 type="number"
                                 name="quantity"
-                                placeholder="Ví dụ: 50"
+                                placeholder="Ví dụ: 30"
                                 min="10"
                                 required
-                                className="w-full bg-carbon-black-50 border border-carbon-black-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-golden-earth-400 focus:bg-white transition-all"
+                                className="w-full bg-carbon-black-50/50 border border-carbon-black-100 focus:border-golden-earth-400 rounded-2xl px-5 py-3.5 text-sm outline-none ring-0 focus:ring-4 focus:ring-golden-earth-100 transition-all"
                             />
                         </div>
 
                         <button
                             type="submit"
-                            className="w-full flex items-center justify-center gap-2 bg-brown-bark-800 hover:bg-brown-bark-900 text-white font-semibold py-3.5 rounded-xl text-sm uppercase tracking-wider transition-all shadow-md mt-2"
+                            className="w-full flex items-center justify-center gap-3 bg-brown-bark-800 hover:bg-brown-bark-900 text-white font-bold py-4 rounded-2xl text-sm uppercase tracking-[0.15em] transition-all shadow-xl hover:shadow-brown-bark-900/20 active:translate-y-0.5 mt-4"
                         >
-                            Nhận Tư Vấn <Send className="w-4 h-4" />
+                            Gửi yêu cầu <Send className="w-4 h-4" />
                         </button>
                     </form>
 
-                    <p className="mt-6 text-xs text-carbon-black-400 text-center leading-relaxed">
-                        Chúng tôi cam kết bảo mật thông tin của bạn.
-                    </p>
+                    <div className="mt-8 pt-6 border-t border-carbon-black-50 text-[10px] text-carbon-black-400 text-center uppercase tracking-widest font-bold">
+                        Bảo mật thông tin 100%
+                    </div>
                     
                     {/* Decorative Shape */}
-                    <div className="absolute bottom-0 right-0 w-32 h-32 bg-golden-earth-50 rounded-tl-full opacity-50 pointer-events-none"></div>
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-golden-earth-50 rounded-bl-full opacity-30 pointer-events-none"></div>
                 </div>
             </div>
         </div>
