@@ -14,33 +14,37 @@ import Settings from './pages/Settings'
 import Slides from './pages/Slides'
 import FAQ from './pages/FAQ'
 import Contacts from './pages/Contacts'
+import NotificationListener from './components/NotificationListener'
 
 const App = () => {
   return (
-    <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route
-        path="/"
-        element={
-          <ProtectedRoute>
-            <AdminLayout />
-          </ProtectedRoute>
-        }
-      >
-        <Route index element={<Dashboard />} />
-        <Route path="users" element={<Users />} />
-        <Route path="products" element={<Products />} />
-        <Route path="product-categories" element={<ProductCategories />} />
-        <Route path="post-categories" element={<PostCategories />} />
-        <Route path="posts" element={<Posts />} />
-        <Route path="consultations" element={<Consultations />} />
-        <Route path="settings" element={<Settings />} />
-        <Route path="slides" element={<Slides />} />
-        <Route path="faq" element={<FAQ />} />
-        <Route path="contacts" element={<Contacts />} />
-      </Route>
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+    <>
+      <NotificationListener />
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <AdminLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<Dashboard />} />
+          <Route path="users" element={<Users />} />
+          <Route path="products" element={<Products />} />
+          <Route path="product-categories" element={<ProductCategories />} />
+          <Route path="post-categories" element={<PostCategories />} />
+          <Route path="posts" element={<Posts />} />
+          <Route path="consultations" element={<Consultations />} />
+          <Route path="settings" element={<Settings />} />
+          <Route path="slides" element={<Slides />} />
+          <Route path="faq" element={<FAQ />} />
+          <Route path="contacts" element={<Contacts />} />
+        </Route>
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </>
   )
 }
 

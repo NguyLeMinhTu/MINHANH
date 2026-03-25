@@ -35,6 +35,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/trang-chu/**").permitAll()
                 .requestMatchers("/api/san-pham/**").permitAll()
+                .requestMatchers("/api/yeu-cau-tu-van/**").permitAll()
+                .requestMatchers("/api/notifications/**").permitAll()
                 .requestMatchers("/api/ping").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 // Chỉ admin mới được vào
