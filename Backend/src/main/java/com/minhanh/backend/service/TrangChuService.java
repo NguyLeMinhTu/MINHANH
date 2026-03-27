@@ -28,7 +28,8 @@ public class TrangChuService {
          */
     @Transactional(readOnly = true)
     public HomePageResponse getTrangChuData() {
-        String publicStatus = "PUBLISHED";
+        // Trạng thái sản phẩm được hiển thị công khai (khớp với SanPhamService.PUBLISHED)
+        String publicStatus = "cong_khai";
 
         List<SlideDto> slides = slideRepository.findByTrangThaiTrueOrderByThuTuAsc()
                 .stream()
@@ -42,19 +43,19 @@ public class TrangChuService {
                 ))
                 .toList();
 
-        List<CategoryDto> danhMuc = danhMucSanPhamRepository.findByTrangThaiTrueOrderByThuTuAsc()
+        List<CategoryDto> danhMuc = danhMucSanPhamRepository.findTop8ByTrangThaiTrueOrderByThuTuAsc()
                 .stream()
                 .map(this::toCategoryDto)
                 .toList();
 
         List<ProductCardDto> sanPhamNoiBat = sanPhamRepository
-                .findTop8ByTrangThaiAndSpNoiBatTrueOrderByNgayTaoDesc(publicStatus)
+                .findTop10ByTrangThaiAndSpNoiBatTrueOrderByNgayTaoDesc(publicStatus)
                 .stream()
                 .map(this::toProductCardDto)
                 .toList();
 
         List<ProductCardDto> sanPhamMoi = sanPhamRepository
-                .findTop8ByTrangThaiAndSpMoiTrueOrderByNgayTaoDesc(publicStatus)
+                .findTop10ByTrangThaiAndSpMoiTrueOrderByNgayTaoDesc(publicStatus)
                 .stream()
                 .map(this::toProductCardDto)
                 .toList();
@@ -83,11 +84,11 @@ public class TrangChuService {
          * Mapping entity sản phẩm sang DTO dạng card cho list trang chủ.
          */
     ProductCardDto toProductCardDto(SanPham sp) {
-        String firstImage = null;
-        if (sp.getHinhAnh() != null && !sp.getHinhAnh().isEmpty()) {
-            HinhAnhSanPham image = sp.getHinhAnh().get(0);
-            firstImage = image != null ? image.getUrlAnh() : null;
-        }
+        List<String> images = sp.getHinhAnh() != null 
+                ? sp.getHinhAnh().stream().map(HinhAnhSanPham::getUrlAnh).toList() 
+                : List.of();
+        
+        String firstImage = images.isEmpty() ? null : images.get(0);
 
         String danhMucId = sp.getDanhMuc() != null ? sp.getDanhMuc().getDanhMucId() : null;
         String danhMucTen = sp.getDanhMuc() != null ? sp.getDanhMuc().getTenDanhMuc() : null;
@@ -99,6 +100,7 @@ public class TrangChuService {
                 sp.getGiaBan(),
                 sp.getGiaKhuyenMai(),
                 firstImage,
+                images,
                 danhMucId,
                 danhMucTen,
                 sp.getSpMoi(),

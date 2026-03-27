@@ -36,34 +36,44 @@ const banners = [
     },
 ]
 
-const BannerScrollBar = ({ autoPlayInterval = 7000 }) => {
-    const [activeIndex, setActiveIndex] = useState(0)
-    const navigate = useNavigate()
+const BannerScrollBar = ({ slides = [], autoPlayInterval = 7000 }) => {
+    const [activeIndex, setActiveIndex] = useState(0);
+    const navigate = useNavigate();
+
+    // Sử dụng slide từ backend nếu có, nếu không thì dùng banners mặc định
+    const activeBanners = slides.length > 0 
+        ? slides.map(s => ({
+            id: s.slideId,
+            image: s.urlHinh,
+            link: s.link || '/san-pham',
+            title: s.tieuDe
+        }))
+        : banners;
 
     const handlePrev = () => {
-        setActiveIndex(prev => (prev - 1 + banners.length) % banners.length)
+        setActiveIndex(prev => (prev - 1 + activeBanners.length) % activeBanners.length);
     }
 
     const handleNext = () => {
-        setActiveIndex(prev => (prev + 1) % banners.length)
+        setActiveIndex(prev => (prev + 1) % activeBanners.length);
     }
 
     useEffect(() => {
-        if (!autoPlayInterval) return undefined
+        if (!autoPlayInterval || activeBanners.length === 0) return undefined;
         const id = setInterval(() => {
-            setActiveIndex(prev => (prev + 1) % banners.length)
-        }, autoPlayInterval)
-        return () => clearInterval(id)
-    }, [autoPlayInterval])
+            setActiveIndex(prev => (prev + 1) % activeBanners.length);
+        }, autoPlayInterval);
+        return () => clearInterval(id);
+    }, [autoPlayInterval, activeBanners.length]);
 
     const trackStyle = {
-        width: `${banners.length * 100}%`,
-        transform: `translateX(-${activeIndex * (100 / banners.length)}%)`,
+        width: `${activeBanners.length * 100}%`,
+        transform: `translateX(-${activeIndex * (100 / activeBanners.length)}%)`,
         transition: 'transform 700ms ease',
     }
 
     const slideStyle = {
-        width: `${100 / banners.length}%`,
+        width: `${100 / activeBanners.length}%`,
     }
 
     return (
@@ -71,7 +81,7 @@ const BannerScrollBar = ({ autoPlayInterval = 7000 }) => {
             <div className="relative w-full max-w-[1920px] mx-auto overflow-hidden">
                 {/* Slides */}
                 <div className="flex" style={trackStyle}>
-                    {banners.map((banner) => (
+                    {activeBanners.map((banner) => (
                         <div
                             key={banner.id}
                             style={slideStyle}
@@ -80,11 +90,11 @@ const BannerScrollBar = ({ autoPlayInterval = 7000 }) => {
                         >
                             <img
                                 src={banner.image}
-                                alt="Banner"
+                                alt={banner.title || "Banner"}
                                 className="w-full h-full object-cover"
                             />
 
-                            {/* Text overlay - left side (clicking anywhere still đi tới trang sản phẩm) */}
+                            {/* Text overlay - lớp phủ mờ bên trái */}
                             <div className="absolute inset-y-0 left-0 flex items-center pointer-events-none">
                                 <div className="pl-6 md:pl-16 lg:pl-24 pr-6 py-8 bg-gradient-to-r from-white/70 via-white/40 to-transparent max-w-xl" />
                             </div>
@@ -92,36 +102,40 @@ const BannerScrollBar = ({ autoPlayInterval = 7000 }) => {
                     ))}
                 </div>
 
-                {/* Arrows */}
-                <button
-                    type="button"
-                    className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 items-center justify-center bg-white/90 hover:bg-white border border-gray-300 rounded-full shadow"
-                    onClick={handlePrev}
-                >
-                    {/* <span className="text-lg text-gray-700">&lt;</span> */}
-                    <ChevronLeft className="w-6 h-6" />
-                </button>
-                <button
-                    type="button"
-                    className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 items-center justify-center bg-white/90 hover:bg-white border border-gray-300 rounded-full shadow"
-                    onClick={handleNext}
-                >
-                    {/* <span className="text-lg text-gray-700">&gt;</span> */}
-                    <ChevronRight className="w-6 h-6" />
-                </button>
-
-                {/* Dots */}
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-20">
-                    {banners.map((b, idx) => (
+                {/* Arrows - Nút điều hướng */}
+                {activeBanners.length > 1 && (
+                    <>
                         <button
-                            key={b.id}
                             type="button"
-                            onClick={() => setActiveIndex(idx)}
-                            className={`w-2.5 h-2.5 rounded-full border border-white ${idx === activeIndex ? 'bg-white' : 'bg-white/40'
-                                }`}
-                        />
-                    ))}
-                </div>
+                            className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 items-center justify-center bg-white/90 hover:bg-white border border-gray-300 rounded-full shadow"
+                            onClick={handlePrev}
+                        >
+                            <ChevronLeft className="w-6 h-6" />
+                        </button>
+                        <button
+                            type="button"
+                            className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 items-center justify-center bg-white/90 hover:bg-white border border-gray-300 rounded-full shadow"
+                            onClick={handleNext}
+                        >
+                            <ChevronRight className="w-6 h-6" />
+                        </button>
+                    </>
+                )}
+
+                {/* Dots - Dấu chấm chuyển slide */}
+                {activeBanners.length > 1 && (
+                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-20">
+                        {activeBanners.map((b, idx) => (
+                            <button
+                                key={b.id}
+                                type="button"
+                                onClick={() => setActiveIndex(idx)}
+                                className={`w-2.5 h-2.5 rounded-full border border-white ${idx === activeIndex ? 'bg-white' : 'bg-white/40'
+                                    }`}
+                            />
+                        ))}
+                    </div>
+                )}
             </div>
         </section>
     )

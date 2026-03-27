@@ -14,23 +14,31 @@ export const AuthProvider = ({ children }) => {
             const data = await axiosInstance.post('/auth/login', { email, matKhau });
             
             // Xử lý thành công
+            // Lưu ý: data lúc này chỉ chứa thông tin user, không chứa token (token nằm trong Cookie)
             if (data && data.vaiTro === 'admin') {
                 setUser(data)
                 localStorage.setItem('admin_user', JSON.stringify(data))
                 return true
-            } else {
+            } else if (data && data.vaiTro !== 'admin') {
                 console.warn("Tài khoản không có quyền Admin");
                 return false
             }
+            return false
         } catch (error) {
             console.error("Lỗi đăng nhập:", error)
             return false
         }
     }
 
-    const logout = () => {
-        setUser(null)
-        localStorage.removeItem('admin_user')
+    const logout = async () => {
+        try {
+            await axiosInstance.post('/auth/logout');
+        } catch (error) {
+            console.error("Lỗi khi gọi API logout:", error);
+        } finally {
+            setUser(null)
+            localStorage.removeItem('admin_user')
+        }
     }
 
     return (

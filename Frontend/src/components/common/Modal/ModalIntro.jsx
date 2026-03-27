@@ -45,10 +45,10 @@ export default function ModalIntro({ imageSrc = picModalIntro }) {
     if (!open) return null;
 
     return (
-        <div className="fixed inset-0 z-100 flex items-center justify-center bg-carbon-black-900/80 backdrop-blur-sm px-4 sm:px-6 transition-opacity duration-300 overflow-y-auto py-8">
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-carbon-black-900/80 backdrop-blur-sm px-4 sm:px-6 transition-opacity duration-300 overflow-y-auto py-8">
             <div
                 ref={dialogRef}
-                className="relative w-full max-w-5xl bg-white rounded-[32px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] overflow-hidden flex flex-col lg:flex-row transform scale-100 transition-all duration-500 my-auto"
+                className="relative w-full max-w-5xl bg-white rounded-2xl md:rounded-[32px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] overflow-hidden flex flex-col lg:flex-row transform scale-100 transition-all duration-500 my-auto mx-auto"
             >
                 {/* Nút đóng - Cải tiến hiển thị trên Mobile */}
                 <button
@@ -72,16 +72,22 @@ export default function ModalIntro({ imageSrc = picModalIntro }) {
                 </div>
 
                 {/* Phần Form bên phải */}
-                <div className="lg:w-2/5 flex flex-col justify-center p-7 lg:p-12 bg-white relative">
-                    <div className="mb-8 relative z-10 text-center lg:text-left">
-                        <span className="inline-block px-4 py-1.5 mb-4 text-[10px] font-black uppercase tracking-[0.2em] text-golden-earth-700 bg-golden-earth-100/80 rounded-full">
+                <div className="lg:w-2/5 flex flex-col justify-center p-6 sm:p-8 lg:p-12 bg-white relative">
+                    <div className="mb-6 md:mb-8 relative z-10 text-center lg:text-left">
+                        <span className="inline-block px-3 py-1 mb-3 text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-golden-earth-700 bg-golden-earth-100/80 rounded-full">
                             Ưu đãi giới hạn
                         </span>
-                        <h2 className="text-2xl lg:text-4xl font-extrabold text-brown-bark-900 mb-3 font-serif leading-tight">
+                        <h2 
+                            className="text-xl md:text-2xl lg:text-4xl font-semibold text-brown-bark-900 mb-2 md:mb-3 font-sans leading-tight"
+                            style={{ fontFamily: "'Arial', sans-serif" }}
+                        >
                             Nhận Báo Giá <span className="text-golden-earth-600 block lg:inline">Ngay Lập Tức</span>
                         </h2>
-                        <p className="text-carbon-black-500 leading-relaxed text-sm md:text-base">
-                            Để lại lời nhắn, đội ngũ Minh Anh sẽ liên hệ tư vấn mẫu vải và báo giá chi tiết trong <span className="text-brown-bark-700 font-bold">5 phút</span>.
+                        <p 
+                            className="text-carbon-black-500 leading-relaxed text-xs md:text-sm lg:text-base font-sans"
+                            style={{ fontFamily: "'Arial', sans-serif" }}
+                        >
+                            Để lại lời nhắn, Minh Anh sẽ liên hệ tư vấn mẫu vải và báo giá trong <span className="text-brown-bark-700 font-bold">5 phút</span>.
                         </p>
                     </div>
 
@@ -94,48 +100,52 @@ export default function ModalIntro({ imageSrc = picModalIntro }) {
                         }}
                     >
                         <div className="space-y-1.5">
-                            <label className="text-[10px] font-black text-carbon-black-400 uppercase tracking-widest ml-1">Họ và Tên</label>
+                            <label className="text-xs font-bold text-carbon-black-600 uppercase tracking-wider ml-1">Họ và Tên</label>
                             <input
                                 type="text"
                                 name="name"
                                 placeholder="Tên của bạn..."
                                 required
-                                className="w-full bg-carbon-black-50/50 border border-carbon-black-100 focus:border-golden-earth-400 rounded-2xl px-5 py-3.5 text-sm outline-none ring-0 focus:ring-4 focus:ring-golden-earth-100 transition-all"
+                                className="w-full bg-carbon-black-50/50 border border-carbon-black-100 focus:border-golden-earth-400 rounded-2xl px-5 py-3.5 text-sm outline-none ring-0 placeholder:text-carbon-black-300 focus:ring-4 focus:ring-golden-earth-100 transition-all font-sans"
+                                style={{ fontFamily: "Arial, sans-serif" }}
                             />
                         </div>
 
                         <div className="space-y-1.5">
-                            <label className="text-[10px] font-black text-carbon-black-400 uppercase tracking-widest ml-1">Số điện thoại</label>
+                            <label className="text-xs font-bold text-carbon-black-600 uppercase tracking-wider ml-1">Số điện thoại</label>
                             <input
                                 type="tel"
                                 name="phone"
                                 placeholder="09xx xxx xxx"
                                 required
-                                className="w-full bg-carbon-black-50/50 border border-carbon-black-100 focus:border-golden-earth-400 rounded-2xl px-5 py-3.5 text-sm outline-none ring-0 focus:ring-4 focus:ring-golden-earth-100 transition-all"
+                                className="w-full bg-carbon-black-50/50 border border-carbon-black-100 focus:border-golden-earth-400 rounded-2xl px-5 py-3.5 text-sm outline-none ring-0 placeholder:text-carbon-black-300 focus:ring-4 focus:ring-golden-earth-100 transition-all font-sans"
+                                style={{ fontFamily: "Arial, sans-serif" }}
                             />
                         </div>
 
                         <div className="space-y-1.5">
-                            <label className="text-[10px] font-black text-carbon-black-400 uppercase tracking-widest ml-1">Số lượng dự kiến</label>
+                            <label className="text-xs font-bold text-carbon-black-600 uppercase tracking-wider ml-1">Số lượng dự kiến</label>
                             <input
                                 type="number"
                                 name="quantity"
                                 placeholder="Ví dụ: 30"
                                 min="10"
                                 required
-                                className="w-full bg-carbon-black-50/50 border border-carbon-black-100 focus:border-golden-earth-400 rounded-2xl px-5 py-3.5 text-sm outline-none ring-0 focus:ring-4 focus:ring-golden-earth-100 transition-all"
+                                className="w-full bg-carbon-black-50/50 border border-carbon-black-100 focus:border-golden-earth-400 rounded-2xl px-5 py-3.5 text-sm outline-none ring-0 placeholder:text-carbon-black-300 focus:ring-4 focus:ring-golden-earth-100 transition-all font-sans"
+                                style={{ fontFamily: "Arial, sans-serif" }}
                             />
                         </div>
 
                         <button
                             type="submit"
-                            className="w-full flex items-center justify-center gap-3 bg-brown-bark-800 hover:bg-brown-bark-900 text-white font-bold py-4 rounded-2xl text-sm uppercase tracking-[0.15em] transition-all shadow-xl hover:shadow-brown-bark-900/20 active:translate-y-0.5 mt-4"
+                            className="w-full flex items-center justify-center gap-3 bg-brown-bark-800 hover:bg-brown-bark-900 text-white font-bold py-3.5 md:py-4 rounded-xl md:rounded-2xl text-xs md:text-sm uppercase tracking-[0.15em] transition-all shadow-xl hover:shadow-brown-bark-900/20 active:translate-y-0.5 mt-2 md:mt-4 font-sans"
+                            style={{ fontFamily: "Arial, sans-serif" }}
                         >
                             Gửi yêu cầu <Send className="w-4 h-4" />
                         </button>
                     </form>
 
-                    <div className="mt-8 pt-6 border-t border-carbon-black-50 text-[10px] text-carbon-black-400 text-center uppercase tracking-widest font-bold">
+                    <div className="mt-6 md:mt-8 pt-4 md:pt-6 border-t border-carbon-black-50 text-[10px] md:text-xs text-carbon-black-500 text-center uppercase tracking-wider font-bold font-sans" style={{ fontFamily: "Arial, sans-serif" }}>
                         Bảo mật thông tin 100%
                     </div>
                     

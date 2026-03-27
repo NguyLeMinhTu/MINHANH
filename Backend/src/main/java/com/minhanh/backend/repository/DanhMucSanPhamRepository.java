@@ -17,4 +17,6 @@ public interface DanhMucSanPhamRepository extends JpaRepository<DanhMucSanPham, 
     boolean existsBySlug(String slug);
 
     List<DanhMucSanPham> findByTrangThaiTrueOrderByThuTuAsc();
+
+    List<DanhMucSanPham> findTop8ByTrangThaiTrueOrderByThuTuAsc();
 }

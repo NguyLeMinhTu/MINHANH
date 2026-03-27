@@ -4,20 +4,32 @@ import { Image as ImageIcon, ArrowRight, Phone } from 'lucide-react';
 
 const ProductCard = ({ product }) => {
     const navigate = useNavigate();
-    const title = product?.name || product?.title || 'Sản phẩm';
-    const priceFrom = product?.priceFrom ?? product?.price ?? 150000;
-    const image1 = product?.images?.[0] || product?.image || null;
-    const isNew = product?.isNew;
-    const isHot = Boolean(product?.isHot ?? product?.isFeatured ?? product?.featured);
-    const category = product?.subCategory || product?.category || null;
 
+    // Map dữ liệu từ backend DTO hoặc dữ liệu mẫu
+    const title = product?.tenSanPham || product?.name || product?.title || 'Sản phẩm';
+    const priceFrom = product?.giaBan || product?.priceFrom || product?.price || 0;
+    const priceDiscount = product?.giaKhuyenMai || null;
+    
+    // Ảnh đại diện: ưu tiên anhDaiDien từ backend, sau đó là mảng images
+    const image1 = product?.anhDaiDien || product?.images?.[0] || product?.image || null;
+    const image2 = product?.images?.[1] || null;
+    
+    // Các nhãn trạng thái
+    const isNew = product?.spMoi || product?.isNew;
+    const isHot = Boolean(product?.spNoiBat || product?.isHot || product?.isFeatured || product?.featured);
+    
+    // Danh mục hiển thị
+    const category = product?.danhMucTen || product?.subCategory || product?.category || null;
+
+    // Định dạng giá tiền Việt Nam
     const formattedPrice = Number(priceFrom).toLocaleString('vi-VN');
+    const formattedDiscount = priceDiscount ? Number(priceDiscount).toLocaleString('vi-VN') : null;
 
     return (
         <article
             itemScope
             itemType="https://schema.org/Product"
-            className="group relative flex flex-col bg-white rounded-2xl overflow-hidden shadow-[0_2px_10px_-3px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.15)] ring-1 ring-carbon-black-100/60 hover:ring-brown-bark-400/30 transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] cursor-pointer translate-y-0 hover:-translate-y-1"
+            className="group relative flex flex-col bg-white rounded-lg overflow-hidden shadow-[0_2px_10px_-3px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.15)] ring-1 ring-carbon-black-100/60 hover:ring-brown-bark-400/30 transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] cursor-pointer translate-y-0 hover:-translate-y-1"
             onClick={() => product?.id && navigate(`/san-pham/${product.id}`)}
         >
             <meta itemProp="url" content={`/san-pham/${product?.id}`} />
@@ -25,13 +37,25 @@ const ProductCard = ({ product }) => {
             {/* Image Wrapper */}
             <div className="relative w-full aspect-[4/5] sm:aspect-[3/4] overflow-hidden bg-carbon-black-50/50">
                 {image1 ? (
-                    <img
-                        src={image1}
-                        alt={title}
-                        itemProp="image"
-                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-105"
-                        loading="lazy"
-                    />
+                    <>
+                        {/* Ảnh chính (Primary) */}
+                        <img
+                            src={image1}
+                            alt={title}
+                            itemProp="image"
+                            className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-in-out group-hover:scale-110 ${image2 ? 'group-hover:opacity-0' : 'group-hover:scale-105'}`}
+                            loading="lazy"
+                        />
+                        {/* Ảnh thứ 2 (Secondary) - Hiện khi hover */}
+                        {image2 && (
+                            <img
+                                src={image2}
+                                alt={`${title} - 2`}
+                                className="absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-in-out opacity-0 group-hover:opacity-100 group-hover:scale-105 scale-110"
+                                loading="lazy"
+                            />
+                        )}
+                    </>
                 ) : (
                     <div className="w-full h-full flex items-center justify-center text-carbon-black-200 bg-carbon-black-50/30">
                         <ImageIcon className="w-12 h-12 stroke-1" />
@@ -102,9 +126,22 @@ const ProductCard = ({ product }) => {
                         <meta itemProp="priceCurrency" content="VND" />
                         <meta itemProp="price" content={String(priceFrom)} />
                         <span className="text-[10px] text-carbon-black-500 uppercase tracking-wide font-medium mb-0.5">Giá từ</span>
-                        <div className="flex items-baseline gap-1">
-                            <span className="text-base sm:text-[17px] font-black text-brown-bark-800 tabular-nums tracking-tight">{formattedPrice}</span>
-                            <span className="text-sm font-bold text-brown-bark-800/80">đ</span>
+                        <div className="flex flex-col justify-end min-h-[3.2rem]">
+                            {formattedDiscount ? (
+                                <span className="text-xs text-carbon-black-400 line-through tabular-nums decoration-brown-bark-300/50">
+                                    {formattedPrice}đ
+                                </span>
+                            ) : (
+                                <span className="text-xs opacity-0 pointer-events-none select-none">
+                                    {formattedPrice}đ
+                                </span>
+                            )}
+                            <div className="flex items-baseline gap-1">
+                                <span className="text-base sm:text-[17px] font-black text-brown-bark-800 tabular-nums tracking-tight">
+                                    {formattedDiscount || formattedPrice}
+                                </span>
+                                <span className="text-sm font-bold text-brown-bark-800/80">đ</span>
+                            </div>
                         </div>
                     </div>
 

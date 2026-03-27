@@ -4,14 +4,33 @@ import ProductCard from '../product/ProductCard'
 import Title from '../common/Title'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
-const visibleCount = 5
-
 const BestSellers = ({ products = [], slideInterval = 3500 }) => {
-    const bestProducts = useMemo(() => products.filter(p => p.isHot), [products])
-    const [index, setIndex] = useState(0)
-    const [useTransition, setUseTransition] = useState(true)
+    // Lọc danh sách sản phẩm nổi bật (Hot/Featured)
+    const bestProducts = useMemo(() => {
+        return products.filter(p => p.spNoiBat || p.isHot);
+    }, [products]);
 
-    if (!bestProducts.length) return null
+
+    const [visibleCount, setVisibleCount] = useState(5);
+    const [index, setIndex] = useState(0);
+    const [useTransition, setUseTransition] = useState(true);
+
+    // Xử lý responsive cho số lượng sản phẩm hiển thị
+    useEffect(() => {
+        const updateVisibleCount = () => {
+            const width = window.innerWidth;
+            if (width < 640) setVisibleCount(2.2);      // Mobile: hiện 2 cái xíu để gọn hơn
+            else if (width < 768) setVisibleCount(2.2); // Tablet nhỏ
+            else if (width < 1024) setVisibleCount(3);  // Tablet lớn
+            else setVisibleCount(4);                    // Desktop: 4 cái cho TO ĐẸP
+        };
+
+        updateVisibleCount();
+        window.addEventListener('resize', updateVisibleCount);
+        return () => window.removeEventListener('resize', updateVisibleCount);
+    }, []);
+
+    if (!bestProducts.length) return null;
 
     const maxIndex = Math.max(bestProducts.length - visibleCount, 0)
 
@@ -57,16 +76,15 @@ const BestSellers = ({ products = [], slideInterval = 3500 }) => {
         })
     }
 
-    const percentPerItem = 100 / visibleCount
     const trackStyle = {
         display: 'flex',
-        width: `${(bestProducts.length * 100) / visibleCount}%`,
-        transform: `translateX(-${index * percentPerItem}%)`,
+        width: `${(Math.max(bestProducts.length, visibleCount) * 100) / visibleCount}%`,
+        transform: `translateX(-${index * (100 / Math.max(bestProducts.length, visibleCount))}%)`,
         transition: useTransition ? 'transform 500ms ease' : 'none',
     }
 
     const itemStyle = {
-        flex: `0 0 ${100 / visibleCount}%`,
+        flex: `0 0 ${100 / Math.max(bestProducts.length, visibleCount)}%`,
     }
 
     return (
@@ -104,11 +122,11 @@ const BestSellers = ({ products = [], slideInterval = 3500 }) => {
 
                     <div className="overflow-hidden mx-0 md:mx-10">
                         <div style={trackStyle}>
-                            {bestProducts.map(p => (
+                            {bestProducts.map((p, index) => (
                                 <div
-                                    key={p.id}
+                                    key={p.sanPhamId || p.id || p.san_pham_id || `best-${index}`}
                                     style={itemStyle}
-                                    className="px-1 md:px-2 transform scale-95 md:scale-90 origin-top"
+                                    className="px-1 md:px-2 transform transition-transform duration-300 hover:scale-[1.02]"
                                 >
                                     <ProductCard product={p} />
                                 </div>

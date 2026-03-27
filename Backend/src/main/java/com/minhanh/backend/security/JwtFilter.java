@@ -2,6 +2,7 @@ package com.minhanh.backend.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -25,17 +26,22 @@ public class JwtFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
-        // 1. Lấy header Authorization
-        String authHeader = request.getHeader("Authorization");
+        // 1. Lấy token từ Cookie
+        String token = null;
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if ("access_token".equals(cookie.getName())) {
+                    token = cookie.getValue();
+                    break;
+                }
+            }
+        }
 
-        // 2. Nếu không có token → bỏ qua, để Spring Security tự xử lý
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        // 2. Nếu không có token → bỏ qua
+        if (token == null) {
             filterChain.doFilter(request, response);
             return;
         }
-
-        // 3. Tách lấy token (bỏ chữ "Bearer ")
-        String token = authHeader.substring(7);
 
         // 4. Kiểm tra token hợp lệ
         if (!jwtUtil.isValid(token) || !jwtUtil.isAccessToken(token)) {

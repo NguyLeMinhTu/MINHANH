@@ -3,6 +3,7 @@ import axios from 'axios';
 const axiosInstance = axios.create({
     baseURL: 'http://localhost:8080/api', // Đường dẫn tới Backend Java
     timeout: 10000,
+    withCredentials: true, // QUAN TRỌNG: Cho phép gửi và nhận Cookie
     headers: {
         'Content-Type': 'application/json'
     }
@@ -11,19 +12,8 @@ const axiosInstance = axios.create({
 // Interceptor: Trước khi gửi request đi
 axiosInstance.interceptors.request.use(
     (config) => {
-        // Lấy thông tin user (trong đó có token) từ localStorage
-        const storedUser = localStorage.getItem('admin_user');
-        if (storedUser) {
-            try {
-                const user = JSON.parse(storedUser);
-                if (user && user.accessToken) {
-                    // Gắn token vào header Authorization
-                    config.headers['Authorization'] = `Bearer ${user.accessToken}`;
-                }
-            } catch (error) {
-                console.error("Lỗi parse thông tin user từ localStorage", error);
-            }
-        }
+        // Không cần lấy token từ localStorage và gắn vào header nữa
+        // Vì trình duyệt sẽ tự động gửi Cookie kèm theo nếu withCredentials = true
         return config;
     },
     (error) => {

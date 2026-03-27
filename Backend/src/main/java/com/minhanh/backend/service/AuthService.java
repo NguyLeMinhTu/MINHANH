@@ -7,6 +7,8 @@ import com.minhanh.backend.dto.RegisterRequest;
 import com.minhanh.backend.entity.NguoiDung;
 import com.minhanh.backend.repository.NguoiDungRepository;
 import com.minhanh.backend.security.JwtUtil;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,7 +26,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthRateLimitService authRateLimitService;
 
-    public ResponseEntity<?> login(LoginRequest request, String rateLimitKey) {
+    public ResponseEntity<?> login(LoginRequest request, String rateLimitKey, HttpServletResponse response) {
         if (!authRateLimitService.allowLoginAttempt(rateLimitKey)) {
             return ResponseEntity.status(429).body(Map.of(
                     "message", "Bạn đã đăng nhập sai quá nhiều lần, vui lòng thử lại sau"
@@ -50,17 +52,21 @@ public class AuthService {
         String accessToken = jwtUtil.generateAccessToken(user.getEmail(), user.getVaiTro());
         String refreshToken = jwtUtil.generateRefreshToken(user.getEmail(), user.getVaiTro());
 
+        // Thiết lập Cookie
+        addCookie(response, "access_token", accessToken, 24 * 60 * 60); // 1 ngày
+        addCookie(response, "refresh_token", refreshToken, 7 * 24 * 60 * 60); // 7 ngày
+
         return ResponseEntity.ok(new AuthResponse(
-                accessToken,
-                refreshToken,
-                "Bearer",
+                null, // Không gửi token trong body nữa
+                null, 
+                "Cookie",
                 user.getEmail(),
                 user.getTen(),
                 user.getVaiTro()
         ));
     }
 
-    public ResponseEntity<?> register(RegisterRequest request) {
+    public ResponseEntity<?> register(RegisterRequest request, HttpServletResponse response) {
         if (nguoiDungRepository.existsByEmail(request.getEmail())) {
             return ResponseEntity.badRequest().body(Map.of("message", "Email đã tồn tại"));
         }
@@ -79,20 +85,22 @@ public class AuthService {
         String accessToken = jwtUtil.generateAccessToken(savedUser.getEmail(), savedUser.getVaiTro());
         String refreshToken = jwtUtil.generateRefreshToken(savedUser.getEmail(), savedUser.getVaiTro());
 
+        // Thiết lập Cookie
+        addCookie(response, "access_token", accessToken, 24 * 60 * 60);
+        addCookie(response, "refresh_token", refreshToken, 7 * 24 * 60 * 60);
+
         return ResponseEntity.ok(new AuthResponse(
-                accessToken,
-                refreshToken,
-                "Bearer",
+                null,
+                null,
+                "Cookie",
                 savedUser.getEmail(),
                 savedUser.getTen(),
                 savedUser.getVaiTro()
         ));
     }
 
-    public ResponseEntity<?> refreshToken(RefreshTokenRequest request) {
-        String refreshToken = request.getRefreshToken();
-
-        if (!jwtUtil.isValid(refreshToken) || !jwtUtil.isRefreshToken(refreshToken)) {
+    public ResponseEntity<?> refreshToken(String refreshToken, HttpServletResponse response) {
+        if (refreshToken == null || !jwtUtil.isValid(refreshToken) || !jwtUtil.isRefreshToken(refreshToken)) {
             return ResponseEntity.status(401).body(Map.of("message", "Refresh token không hợp lệ"));
         }
 
@@ -108,9 +116,34 @@ public class AuthService {
         }
 
         String newAccessToken = jwtUtil.generateAccessToken(user.getEmail(), user.getVaiTro());
+        addCookie(response, "access_token", newAccessToken, 24 * 60 * 60);
+
         return ResponseEntity.ok(Map.of(
-                "accessToken", newAccessToken,
-                "tokenType", "Bearer"
+                "message", "Token đã được làm mới",
+                "tokenType", "Cookie"
         ));
+    }
+
+    private void addCookie(HttpServletResponse response, String name, String value, int maxAge) {
+        Cookie cookie = new Cookie(name, value);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(false); // Đặt true nếu chạy HTTPS
+        cookie.setPath("/");
+        cookie.setMaxAge(maxAge);
+        response.addCookie(cookie);
+    }
+
+    public void logout(HttpServletResponse response) {
+        clearCookie(response, "access_token");
+        clearCookie(response, "refresh_token");
+    }
+
+    private void clearCookie(HttpServletResponse response, String name) {
+        Cookie cookie = new Cookie(name, null);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(false);
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
     }
 }

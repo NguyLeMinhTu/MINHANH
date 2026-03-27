@@ -442,10 +442,12 @@ public class SanPhamService {
      * Mapping entity sản phẩm sang DTO card để frontend render danh sách.
      */
     private ProductCardDto toProductCardDto(SanPham sp) {
-        String anhDaiDien = null;
-        if (sp.getHinhAnh() != null && !sp.getHinhAnh().isEmpty()) {
-            anhDaiDien = sp.getHinhAnh().get(0).getUrlAnh();
-        }
+        List<String> images = sp.getHinhAnh() != null 
+                ? sp.getHinhAnh().stream().map(HinhAnhSanPham::getUrlAnh).toList() 
+                : List.of();
+        
+        String anhDaiDien = images.isEmpty() ? null : images.get(0);
+
         return new ProductCardDto(
                 sp.getSanPhamId(),
                 sp.getTenSanPham(),
@@ -453,6 +455,7 @@ public class SanPhamService {
                 sp.getGiaBan(),
                 sp.getGiaKhuyenMai(),
                 anhDaiDien,
+                images,
                 sp.getDanhMuc() != null ? sp.getDanhMuc().getDanhMucId() : null,
                 sp.getDanhMuc() != null ? sp.getDanhMuc().getTenDanhMuc() : null,
                 sp.getSpMoi(),

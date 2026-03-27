@@ -1,6 +1,4 @@
 package com.minhanh.backend.controller;
-
-import com.minhanh.backend.dto.RefreshTokenRequest;
 import com.minhanh.backend.dto.RegisterRequest;
 import com.minhanh.backend.dto.LoginRequest;
 import com.minhanh.backend.service.AuthService;
@@ -8,8 +6,11 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.Map;
 
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -22,25 +23,45 @@ public class AuthController {
      * API đăng nhập, có kiểm soát tần suất thử sai theo IP + email.
      */
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request, HttpServletRequest httpRequest) {
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request, 
+                                   HttpServletRequest httpRequest, 
+                                   HttpServletResponse httpResponse) {
         String rateLimitKey = buildRateLimitKey(httpRequest, request.getEmail());
-        return authService.login(request, rateLimitKey);
+        return authService.login(request, rateLimitKey, httpResponse);
     }
 
     /**
      * API đăng ký tài khoản người dùng mới.
      */
     @PostMapping("/register")
-    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
-        return authService.register(request);
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request, HttpServletResponse response) {
+        return authService.register(request, response);
     }
 
     /**
      * API cấp lại access token từ refresh token hợp lệ.
      */
     @PostMapping("/refresh")
-    public ResponseEntity<?> refreshToken(@Valid @RequestBody RefreshTokenRequest request) {
-        return authService.refreshToken(request);
+    public ResponseEntity<?> refreshToken(HttpServletRequest request, HttpServletResponse response) {
+        String refreshToken = null;
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if ("refresh_token".equals(cookie.getName())) {
+                    refreshToken = cookie.getValue();
+                    break;
+                }
+            }
+        }
+        return authService.refreshToken(refreshToken, response);
+    }
+
+    /**
+     * API đăng xuất, xóa cookie token.
+     */
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletResponse response) {
+        authService.logout(response);
+        return ResponseEntity.ok(Map.of("message", "Đã đăng xuất thành công"));
     }
 
     /**

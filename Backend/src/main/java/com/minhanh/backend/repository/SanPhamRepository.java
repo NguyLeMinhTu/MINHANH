@@ -50,7 +50,7 @@ public interface SanPhamRepository extends JpaRepository<SanPham, String>, JpaSp
             Pageable pageable
     );
 
-        List<SanPham> findTop8ByTrangThaiAndSpNoiBatTrueOrderByNgayTaoDesc(String trangThai);
+        List<SanPham> findTop10ByTrangThaiAndSpNoiBatTrueOrderByNgayTaoDesc(String trangThai);
 
-        List<SanPham> findTop8ByTrangThaiAndSpMoiTrueOrderByNgayTaoDesc(String trangThai);
+        List<SanPham> findTop10ByTrangThaiAndSpMoiTrueOrderByNgayTaoDesc(String trangThai);
 }
