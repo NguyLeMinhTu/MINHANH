@@ -25,23 +25,16 @@ export default function Navbar() {
         return () => window.removeEventListener("scroll", onScroll);
     }, []);
 
-    const productCategoryTree = useMemo(() => {
-        const list = (datasetDanhMucSanPham || []).filter((dm) => dm && dm.trang_thai !== false);
+    const [productCategoryTree, setProductCategoryTree] = useState([]);
 
-        const byParentId = new Map();
-        list.forEach((dm) => {
-            const parentKey = dm.parent_id ?? null;
-            if (!byParentId.has(parentKey)) byParentId.set(parentKey, []);
-            byParentId.get(parentKey).push(dm);
-        });
-
-        const sortByOrder = (a, b) => (a?.thu_tu ?? 0) - (b?.thu_tu ?? 0);
-        const parents = (byParentId.get(null) || []).slice().sort(sortByOrder);
-
-        return parents.map((parent) => {
-            const children = (byParentId.get(parent.danh_muc_id) || []).slice().sort(sortByOrder);
-            return { parent, children };
-        });
+    useEffect(() => {
+        // Lấy cây danh mục từ Backend
+        fetch("/api/danh-muc-san-pham/tree")
+            .then(res => res.json())
+            .then(data => {
+                if (Array.isArray(data)) setProductCategoryTree(data);
+            })
+            .catch(err => console.error("Lỗi khi tải danh mục sản phẩm:", err));
     }, []);
 
     const slugify = (s) =>
@@ -128,24 +121,24 @@ export default function Navbar() {
                                     {item.label === "SẢN PHẨM" && (
                                         <div className="absolute left-0 top-full pt-3 invisible opacity-0 pointer-events-none group-hover:visible group-hover:opacity-100 group-hover:pointer-events-auto translate-y-2 group-hover:translate-y-0 transition-all duration-200 min-w-55 z-50">
                                             <div className="bg-white rounded-xl shadow-2xl border border-carbon-black-100 py-2 overflow-hidden">
-                                                {productCategoryTree.map(({ parent, children }) => (
-                                                    <div key={parent.danh_muc_id}>
+                                                {productCategoryTree.map((parent) => (
+                                                    <div key={parent.id}>
                                                         <Link
-                                                            to={`/san-pham?dm=${encodeURIComponent(parent.slug || slugify(parent.ten_danh_muc || ""))}`}
+                                                            to={`/san-pham?dm=${encodeURIComponent(parent.slug || slugify(parent.tenDanhMuc || ""))}`}
                                                             className="flex items-center gap-2.5 px-4 py-2 text-sm font-semibold text-carbon-black-800 hover:bg-golden-earth-50 hover:text-brown-bark-700 transition-colors whitespace-nowrap"
                                                         >
-                                                            {parent.ten_danh_muc}
+                                                            {parent.tenDanhMuc}
                                                         </Link>
-                                                        {children.length > 0 && (
+                                                        {parent.children && parent.children.length > 0 && (
                                                             <div className="flex flex-col pb-1">
-                                                                {children.map((child) => (
+                                                                {parent.children.map((child) => (
                                                                     <Link
-                                                                        key={child.danh_muc_id}
-                                                                        to={`/san-pham?dm=${encodeURIComponent(parent.slug || slugify(parent.ten_danh_muc || ""))}&sub=${encodeURIComponent(child.slug || slugify(child.ten_danh_muc || ""))}`}
+                                                                        key={child.id}
+                                                                        to={`/san-pham?dm=${encodeURIComponent(parent.slug || slugify(parent.tenDanhMuc || ""))}&sub=${encodeURIComponent(child.slug || slugify(child.tenDanhMuc || ""))}`}
                                                                         className="flex items-center gap-2 px-8 py-1.5 text-xs text-carbon-black-600 hover:text-brown-bark-700 hover:bg-golden-earth-50 transition-colors whitespace-nowrap"
                                                                     >
                                                                         <span className="w-1.5 h-1.5 rounded-full bg-dark-goldenrod-400 shrink-0" />
-                                                                        {child.ten_danh_muc}
+                                                                        {child.tenDanhMuc}
                                                                     </Link>
                                                                 ))}
                                                             </div>
@@ -232,24 +225,24 @@ export default function Navbar() {
                                         {openMobileSub === item.id && (
                                             <div className="pb-3 pl-3">
                                                 {item.label === "SẢN PHẨM" ? (
-                                                    productCategoryTree.map(({ parent, children }) => (
-                                                        <div key={parent.danh_muc_id} className="mb-2">
+                                                    productCategoryTree.map((parent) => (
+                                                        <div key={parent.id} className="mb-2">
                                                             <Link
-                                                                to={`/san-pham?dm=${encodeURIComponent(parent.slug || slugify(parent.ten_danh_muc || ""))}`}
+                                                                to={`/san-pham?dm=${encodeURIComponent(parent.slug || slugify(parent.tenDanhMuc || ""))}`}
                                                                 onClick={() => setMobileOpen(false)}
                                                                 className="block px-3 py-1.5 text-sm font-semibold text-carbon-black-900 hover:text-brown-bark-700 transition-colors"
                                                             >
-                                                                {parent.ten_danh_muc}
+                                                                {parent.tenDanhMuc}
                                                             </Link>
-                                                            {children.map((child) => (
+                                                            {parent.children && parent.children.map((child) => (
                                                                 <Link
-                                                                    key={child.danh_muc_id}
-                                                                    to={`/san-pham?dm=${encodeURIComponent(parent.slug || slugify(parent.ten_danh_muc || ""))}&sub=${encodeURIComponent(child.slug || slugify(child.ten_danh_muc || ""))}`}
+                                                                    key={child.id}
+                                                                    to={`/san-pham?dm=${encodeURIComponent(parent.slug || slugify(parent.tenDanhMuc || ""))}&sub=${encodeURIComponent(child.slug || slugify(child.tenDanhMuc || ""))}`}
                                                                     onClick={() => setMobileOpen(false)}
                                                                     className="flex items-center gap-2 px-6 py-1.5 text-xs text-carbon-black-600 hover:text-brown-bark-700 transition-colors"
                                                                 >
                                                                     <span className="w-1 h-1 rounded-full bg-dark-goldenrod-400 shrink-0" />
-                                                                    {child.ten_danh_muc}
+                                                                    {child.tenDanhMuc}
                                                                 </Link>
                                                             ))}
                                                         </div>

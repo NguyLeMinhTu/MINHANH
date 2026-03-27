@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import static org.springframework.data.jpa.domain.Specification.where;
+
 
 @Service
 @RequiredArgsConstructor
@@ -341,14 +341,20 @@ public class SanPhamService {
             int page,
             int size,
             String q,
-            String danhMucId,
-            Boolean spMoi,
-            Boolean spNoiBat,
+            String categorySlug,
+            String subCategorySlug,
+            Boolean isNew,
+            Boolean isFeatured,
+            java.math.BigDecimal minPrice,
+            java.math.BigDecimal maxPrice,
+            String brand,
+            String material,
+            String origin,
             String sort
     ) {
         Sort sortValue = buildSort(sort);
         Pageable pageable = PageRequest.of(page, size, sortValue);
-        Specification<SanPham> spec = buildPublicProductSpec(q, danhMucId, spMoi, spNoiBat);
+        Specification<SanPham> spec = buildPublicProductSpec(q, categorySlug, subCategorySlug, isNew, isFeatured, minPrice, maxPrice, brand, material, origin);
 
         Page<SanPham> productPage = sanPhamRepository.findAll(spec, pageable);
 
@@ -373,41 +379,79 @@ public class SanPhamService {
 
     /**
      * Tạo specification cho bộ lọc sản phẩm public (q, danh mục, sản phẩm mới, nổi bật).
+     * Hỗ trợ lọc theo Slug của Danh mục cha và Danh mục con.
      */
     private Specification<SanPham> buildPublicProductSpec(
             String q,
-            String danhMucId,
+            String categorySlug,
+            String subCategorySlug,
             Boolean spMoi,
-            Boolean spNoiBat
+            Boolean spNoiBat,
+            java.math.BigDecimal minPrice,
+            java.math.BigDecimal maxPrice,
+            String brand,
+            String material,
+            String origin
     ) {
-        Specification<SanPham> isPublished =
-                (root, query, cb) -> cb.equal(root.get("trangThai"), PUBLISHED);
+        Specification<SanPham> spec = (root, query, cb) -> cb.equal(root.get("trangThai"), PUBLISHED);
 
-        Specification<SanPham> byKeyword = (root, query, cb) -> {
-            if (q == null || q.trim().isEmpty()) {
-                return cb.conjunction();
-            }
-            return cb.like(cb.lower(root.get("tenSanPham")), "%" + q.trim().toLowerCase() + "%");
-        };
+        // Lọc theo từ khóa
+        if (q != null && !q.trim().isEmpty()) {
+            String qLower = "%" + q.trim().toLowerCase() + "%";
+            spec = spec.and((root, query, cb) -> cb.like(cb.lower(root.get("tenSanPham")), qLower));
+        }
 
-        Specification<SanPham> byCategory = (root, query, cb) -> {
-            if (danhMucId == null || danhMucId.trim().isEmpty()) {
-                return cb.conjunction();
-            }
-            return cb.equal(root.join("danhMuc").get("danhMucId"), danhMucId.trim());
-        };
+        // Lọc theo Danh mục Con (Nghiêm ngặt hơn)
+        if (subCategorySlug != null && !subCategorySlug.trim().isEmpty()) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.join("danhMuc").get("slug"), subCategorySlug.trim()));
+        } 
+        // Lọc theo Danh mục Cha (Bao gồm tất cả con của nó)
+        else if (categorySlug != null && !categorySlug.trim().isEmpty()) {
+            spec = spec.and((root, query, cb) -> {
+                // Ta cần tìm ID của cha trước, rồi tìm tất cả con + chính nó
+                // Hoặc dùng JOIN linh hoạt:
+                jakarta.persistence.criteria.Join<Object, Object> dmJoin = root.join("danhMuc");
+                return cb.or(
+                    cb.equal(dmJoin.get("slug"), categorySlug.trim()), // Chính nó (nêu là cha mà có sp)
+                    cb.equal(dmJoin.join("parent", jakarta.persistence.criteria.JoinType.LEFT).get("slug"), categorySlug.trim()) // Các con của nó
+                );
+            });
+        }
 
-        Specification<SanPham> byNewFlag =
-                (root, query, cb) -> spMoi == null ? cb.conjunction() : cb.equal(root.get("spMoi"), spMoi);
+        // Lọc sp mới
+        if (spMoi != null) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("spMoi"), spMoi));
+        }
 
-        Specification<SanPham> byFeaturedFlag =
-                (root, query, cb) -> spNoiBat == null ? cb.conjunction() : cb.equal(root.get("spNoiBat"), spNoiBat);
+        // Lọc sp nổi bật
+        if (spNoiBat != null) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("spNoiBat"), spNoiBat));
+        }
 
-        return where(isPublished)
-                .and(byKeyword)
-                .and(byCategory)
-                .and(byNewFlag)
-                .and(byFeaturedFlag);
+        // Lọc theo giá
+        if (minPrice != null) {
+            spec = spec.and((root, query, cb) -> cb.greaterThanOrEqualTo(root.get("giaBan"), minPrice));
+        }
+        if (maxPrice != null) {
+            spec = spec.and((root, query, cb) -> cb.lessThanOrEqualTo(root.get("giaBan"), maxPrice));
+        }
+
+        // Lọc theo thương hiệu
+        if (brand != null && !brand.trim().isEmpty()) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("thuongHieu"), brand.trim()));
+        }
+
+        // Lọc theo chất liệu
+        if (material != null && !material.trim().isEmpty()) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("chatLieu"), material.trim()));
+        }
+
+        // Lọc theo xuất xứ
+        if (origin != null && !origin.trim().isEmpty()) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("xuatXu"), origin.trim()));
+        }
+
+        return spec;
     }
 
     /**
@@ -458,6 +502,9 @@ public class SanPhamService {
                 images,
                 sp.getDanhMuc() != null ? sp.getDanhMuc().getDanhMucId() : null,
                 sp.getDanhMuc() != null ? sp.getDanhMuc().getTenDanhMuc() : null,
+                sp.getThuongHieu(),
+                sp.getChatLieu(),
+                sp.getXuatXu(),
                 sp.getSpMoi(),
                 sp.getSpNoiBat()
         );

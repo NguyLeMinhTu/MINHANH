@@ -103,6 +103,9 @@ public class TrangChuService {
                 images,
                 danhMucId,
                 danhMucTen,
+                sp.getThuongHieu(),
+                sp.getChatLieu(),
+                sp.getXuatXu(),
                 sp.getSpMoi(),
                 sp.getSpNoiBat()
         );

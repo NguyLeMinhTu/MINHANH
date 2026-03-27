@@ -1,10 +1,12 @@
 package com.minhanh.backend.service;
 
+import com.minhanh.backend.dto.DanhMucMenuDto;
 import com.minhanh.backend.entity.DanhMucSanPham;
 import com.minhanh.backend.repository.DanhMucSanPhamRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -12,6 +14,37 @@ import org.springframework.transaction.annotation.Transactional;
 public class DanhMucSanPhamService {
 
     private final DanhMucSanPhamRepository repository;
+
+    // Lấy cây danh mục (Cha -> Con) cho Menu
+    public List<DanhMucMenuDto> getCategoryTree() {
+        List<DanhMucSanPham> all = repository.findAll();
+        
+        // Lọc danh mục cha (parent == null) và đang hoạt động
+        return all.stream()
+                .filter(dm -> dm.getParent() == null && Boolean.TRUE.equals(dm.getTrangThai()))
+                .sorted(java.util.Comparator.comparingInt(dm -> dm.getThuTu() != null ? dm.getThuTu() : 0))
+                .map(this::mapToMenuDto)
+                .collect(Collectors.toList());
+    }
+
+    private DanhMucMenuDto mapToMenuDto(DanhMucSanPham dm) {
+        List<DanhMucMenuDto> children = repository.findByParentOrderByThuTuAsc(dm).stream()
+                .filter(child -> Boolean.TRUE.equals(child.getTrangThai()))
+                .map(child -> DanhMucMenuDto.builder()
+                        .id(child.getDanhMucId())
+                        .tenDanhMuc(child.getTenDanhMuc())
+                        .slug(child.getSlug())
+                        .children(null) // Chỉ hỗ trợ 2 cấp
+                        .build())
+                .collect(Collectors.toList());
+
+        return DanhMucMenuDto.builder()
+                .id(dm.getDanhMucId())
+                .tenDanhMuc(dm.getTenDanhMuc())
+                .slug(dm.getSlug())
+                .children(children)
+                .build();
+    }
 
     // Lấy tất cả danh mục
     public List<DanhMucSanPham> getAll() {

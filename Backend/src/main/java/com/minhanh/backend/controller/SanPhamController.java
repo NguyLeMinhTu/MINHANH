@@ -35,21 +35,20 @@ public class SanPhamController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "12") int size,
             @RequestParam(required = false) String keyword,
-            @RequestParam(required = false) String categoryId,
+            @RequestParam(required = false) String categorySlug,
+            @RequestParam(required = false) String subCategorySlug,
             @RequestParam(required = false) Boolean isNew,
             @RequestParam(required = false) Boolean isFeatured,
+            @RequestParam(required = false) java.math.BigDecimal minPrice,
+            @RequestParam(required = false) java.math.BigDecimal maxPrice,
+            @RequestParam(required = false) String brand,
+            @RequestParam(required = false) String material,
+            @RequestParam(required = false) String origin,
             @RequestParam(defaultValue = "newest") String sort
     ) {
-        ProductPageResponse response = sanPhamService.getProductPage(
-                page,
-                size,
-                keyword,
-                categoryId,
-                isNew,
-                isFeatured,
-                sort
-        );
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(sanPhamService.getProductPage(
+                page, size, keyword, categorySlug, subCategorySlug, isNew, isFeatured, minPrice, maxPrice, brand, material, origin, sort
+        ));
     }
 
     /**

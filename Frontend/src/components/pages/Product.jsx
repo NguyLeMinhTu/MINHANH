@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import CategoryMenu from '../product/CategoryMenu'
+import CustomSelect from '../common/CustomSelect'
+import Pagination from '../common/Pagination'
 import SupportPanel from '../product/SupportPanel'
 import ProductList from '../product/ProductList'
-import { uiCategories, uiProducts } from '../../assets/catalog'
 import Title from '../common/Title'
 
 const Product = () => {
@@ -25,100 +26,122 @@ const Product = () => {
     const [onlyHot, setOnlyHot] = useState(false)
     const [brand, setBrand] = useState('')
     const [material, setMaterial] = useState('')
+    const [origin, setOrigin] = useState('') // Mới thêm: Lọc theo Xuất xứ
     const [size, setSize] = useState('')
     const [minPrice, setMinPrice] = useState('')
     const [maxPrice, setMaxPrice] = useState('')
+
+    // Tự động quay về trang 0 khi thay đổi bất kỳ bộ lọc nào (trừ tham số 'page')
+    useEffect(() => {
+        setPage(0)
+    }, [keyword, selectedCategory, selectedSub, onlyNew, onlyHot, sort, brand, material, origin, minPrice, maxPrice])
+
+    const [categories, setCategories] = useState([])
 
     useEffect(() => {
         setSelectedCategory(dm)
         setSelectedSub(sub)
     }, [dm, sub])
 
-    const categories = uiCategories
-    const products = uiProducts
+    useEffect(() => {
+        // Tải danh mục từ Backend cho Sidebar
+        fetch("/api/danh-muc-san-pham/tree")
+            .then(res => res.json())
+            .then(data => {
+                if (Array.isArray(data)) {
+                    // Map từ DTO Backend sang format của UI Sidebar
+                    const mapped = data.map(parent => ({
+                        id: parent.id,
+                        name: parent.tenDanhMuc,
+                        slug: parent.slug,
+                        subs: (parent.children || []).map(child => ({
+                            id: child.id,
+                            name: child.tenDanhMuc,
+                            slug: child.slug
+                        }))
+                    }));
+                    setCategories(mapped);
+                }
+            })
+            .catch(err => console.error("Lỗi khi tải danh mục Sidebar:", err));
+    }, []);
+
+    const [products, setProducts] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [page, setPage] = useState(0)
+    const [totalElements, setTotalElements] = useState(0)
 
     const brandOptions = useMemo(() => {
         const values = (products || [])
-            .map((p) => (p?.raw?.thuong_hieu || '').trim())
+            .map((p) => (p?.thuongHieu || '').trim())
             .filter(Boolean)
         return Array.from(new Set(values)).sort((a, b) => a.localeCompare(b, 'vi'))
     }, [products])
 
     const materialOptions = useMemo(() => {
         const values = (products || [])
-            .map((p) => (p?.raw?.chat_lieu || '').trim())
+            .map((p) => (p?.chatLieu || '').trim())
+            .filter(Boolean)
+        return Array.from(new Set(values)).sort((a, b) => a.localeCompare(b, 'vi'))
+    }, [products])
+
+    const originOptions = useMemo(() => {
+        const values = (products || [])
+            .map((p) => (p?.xuatXu || '').trim())
             .filter(Boolean)
         return Array.from(new Set(values)).sort((a, b) => a.localeCompare(b, 'vi'))
     }, [products])
 
     const sizeOptions = useMemo(() => {
-        const values = (products || []).flatMap((p) => p?.sizes || []).filter(Boolean)
-        const order = ['S', 'M', 'L', 'XL', 'XXL']
-        return Array.from(new Set(values)).sort((a, b) => {
-            const ia = order.indexOf(a)
-            const ib = order.indexOf(b)
-            if (ia !== -1 && ib !== -1) return ia - ib
-            if (ia !== -1) return -1
-            if (ib !== -1) return 1
-            return String(a).localeCompare(String(b))
-        })
+        // Hiện tại DTO card chưa có data size các biến thể, để trống tạm thời
+        return []
     }, [products])
 
-    const filteredProducts = useMemo(() => {
-        let list = products
+    useEffect(() => {
+        setLoading(true)
+        // Ánh xạ các bộ lọc sang query params cho API
+        const params = new URLSearchParams()
+        params.set('page', page)
+        params.set('size', 12)
+        if (keyword) params.set('keyword', keyword)
+        if (selectedCategory) params.set('categorySlug', selectedCategory)
+        if (selectedSub) params.set('subCategorySlug', selectedSub)
+        if (onlyNew) params.set('isNew', true)
+        if (onlyHot) params.set('isFeatured', true)
+        if (minPrice) params.set('minPrice', minPrice)
+        if (maxPrice) params.set('maxPrice', maxPrice)
+        if (brand) params.set('brand', brand)
+        if (material) params.set('material', material)
+        if (origin) params.set('origin', origin)
 
-        if (selectedCategory) list = list.filter((p) => p.categorySlug === selectedCategory)
-        if (selectedSub) list = list.filter((p) => p.subCategorySlug === selectedSub)
+        // Quy đổi cách sắp xếp React UI sang Backend Enum
+        let backendSort = 'newest'
+        if (sort === 'price-asc') backendSort = 'price_asc'
+        if (sort === 'price-desc') backendSort = 'price_desc'
+        params.set('sort', backendSort)
 
-        if (keyword) {
-            const q = keyword.toLowerCase()
-            list = list.filter((p) => (p.name || '').toLowerCase().includes(q))
-        }
+        fetch(`/api/san-pham?${params.toString()}`)
+            .then(res => res.json())
+            .then(data => {
+                // Backend trả về 'sanPham' trong ProductPageResponse DTO
+                setProducts(data.sanPham || [])
+                setTotalElements(data.totalElements || 0)
+                setLoading(false)
+            })
+            .catch(err => {
+                console.error("Lỗi khi tải sản phẩm:", err)
+                setLoading(false)
+            })
+    }, [page, keyword, selectedCategory, selectedSub, onlyNew, onlyHot, sort, brand, material, origin, minPrice, maxPrice])
 
-        if (onlyNew) list = list.filter((p) => Boolean(p?.isNew))
-        if (onlyHot) list = list.filter((p) => Boolean(p?.isHot))
-        if (brand) list = list.filter((p) => String(p?.raw?.thuong_hieu || '').trim() === brand)
-        if (material) list = list.filter((p) => String(p?.raw?.chat_lieu || '').trim() === material)
-        if (size) list = list.filter((p) => (p?.sizes || []).includes(size))
-
-        const min = minPrice === '' ? null : Number(minPrice)
-        const max = maxPrice === '' ? null : Number(maxPrice)
-        if (min !== null && !Number.isNaN(min)) list = list.filter((p) => (p?.price ?? 0) >= min)
-        if (max !== null && !Number.isNaN(max)) list = list.filter((p) => (p?.price ?? 0) <= max)
-
-        const sorted = list.slice()
-        sorted.sort((a, b) => {
-            if (sort === 'price-asc') return (a?.price ?? 0) - (b?.price ?? 0)
-            if (sort === 'price-desc') return (b?.price ?? 0) - (a?.price ?? 0)
-            // “new”: ưu tiên mới/nổi bật trước; fallback theo views
-            const hotDiff = Number(Boolean(b?.isHot)) - Number(Boolean(a?.isHot))
-            if (hotDiff !== 0) return hotDiff
-            const newDiff = Number(Boolean(b?.isNew)) - Number(Boolean(a?.isNew))
-            if (newDiff !== 0) return newDiff
-            return (b?.raw?.views ?? 0) - (a?.raw?.views ?? 0)
-        })
-
-        return sorted
-    }, [
-        products,
-        selectedCategory,
-        selectedSub,
-        keyword,
-        onlyNew,
-        onlyHot,
-        brand,
-        material,
-        size,
-        minPrice,
-        maxPrice,
-        sort,
-    ])
+    const filteredProducts = products // Bây giờ products đã được lọc từ Backend
 
     const resetFieldFilters = () => {
         setOnlyNew(false)
         setOnlyHot(false)
         setBrand('')
         setMaterial('')
+        setOrigin('')
         setSize('')
         setMinPrice('')
         setMaxPrice('')
@@ -214,53 +237,33 @@ const Product = () => {
                                     </label>
                                 </div>
 
-                                <label className="block">
-                                    <span className="block text-xs font-semibold text-carbon-black-700 mb-1">Thương hiệu</span>
-                                    <select
-                                        value={brand}
-                                        onChange={(e) => setBrand(e.target.value)}
-                                        className="w-full text-sm px-3 py-2 rounded-xl border border-carbon-black-100 bg-white focus:outline-none focus:ring-2 focus:ring-golden-earth-100/70 focus:border-carbon-black-200 cursor-pointer"
-                                    >
-                                        <option value="">Tất cả</option>
-                                        {brandOptions.map((x) => (
-                                            <option key={x} value={x}>
-                                                {x}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </label>
+                                <CustomSelect
+                                    label="Thương hiệu"
+                                    value={brand}
+                                    options={brandOptions}
+                                    onChange={setBrand}
+                                />
 
-                                <label className="block">
-                                    <span className="block text-xs font-semibold text-carbon-black-700 mb-1">Chất liệu</span>
-                                    <select
-                                        value={material}
-                                        onChange={(e) => setMaterial(e.target.value)}
-                                        className="w-full text-sm px-3 py-2 rounded-xl border border-carbon-black-100 bg-white focus:outline-none focus:ring-2 focus:ring-golden-earth-100/70 focus:border-carbon-black-200 cursor-pointer"
-                                    >
-                                        <option value="">Tất cả</option>
-                                        {materialOptions.map((x) => (
-                                            <option key={x} value={x}>
-                                                {x}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </label>
+                                <CustomSelect
+                                    label="Chất liệu"
+                                    value={material}
+                                    options={materialOptions}
+                                    onChange={setMaterial}
+                                />
 
-                                <label className="block">
-                                    <span className="block text-xs font-semibold text-carbon-black-700 mb-1">Kích thước</span>
-                                    <select
-                                        value={size}
-                                        onChange={(e) => setSize(e.target.value)}
-                                        className="w-full text-sm px-3 py-2 rounded-xl border border-carbon-black-100 bg-white focus:outline-none focus:ring-2 focus:ring-golden-earth-100/70 focus:border-carbon-black-200 cursor-pointer"
-                                    >
-                                        <option value="">Tất cả</option>
-                                        {sizeOptions.map((x) => (
-                                            <option key={x} value={x}>
-                                                {x}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </label>
+                                <CustomSelect
+                                    label="Xuất xứ"
+                                    value={origin}
+                                    options={originOptions}
+                                    onChange={setOrigin}
+                                />
+
+                                <CustomSelect
+                                    label="Kích thước"
+                                    value={size}
+                                    options={sizeOptions}
+                                    onChange={setSize}
+                                />
 
                                 <div className="grid grid-cols-2 gap-2">
                                     <label className="flex items-center gap-2 rounded-xl border border-carbon-black-100 bg-carbon-black-50 px-3 py-2 cursor-pointer">
@@ -299,30 +302,56 @@ const Product = () => {
                     {/* Product grid */}
                     <div className="flex-1 min-w-0">
                         {keyword && (
-                            <p className="mb-4 text-sm text-gray-500">
+                            <p className="mb-4 text-sm text-gray-500 italic">
                                 Kết quả tìm kiếm cho <span className="font-semibold text-gray-800">"{keyword}"</span>
                             </p>
                         )}
 
                         <div className="flex items-center justify-between gap-3 mb-6">
                             <p className="text-sm text-carbon-black-600">
-                                <span className="font-bold text-carbon-black-900">{filteredProducts.length}</span> sản phẩm
+                                <span className="font-bold text-carbon-black-900">{totalElements}</span> sản phẩm
                             </p>
                             <div className="flex items-center gap-2">
                                 <span className="text-xs text-carbon-black-400 hidden sm:inline">Sắp xếp:</span>
-                                <select
-                                    value={sort}
-                                    onChange={(e) => setSort(e.target.value)}
-                                    className="text-sm border border-carbon-black-100 rounded-xl px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-golden-earth-100/70 focus:border-carbon-black-200 cursor-pointer"
-                                >
-                                    <option value="new">Mới nhất</option>
-                                    <option value="price-asc">Giá: thấp → cao</option>
-                                    <option value="price-desc">Giá: cao → thấp</option>
-                                </select>
+                                <div className="w-48">
+                                    <CustomSelect
+                                        value={sort}
+                                        options={[
+                                            { label: 'Mặc định', value: 'new' },
+                                            { label: 'Giá: thấp → cao', value: 'price-asc' },
+                                            { label: 'Giá: cao → thấp', value: 'price-desc' }
+                                        ]}
+                                        onChange={setSort}
+                                        placeholder="Mặc định"
+                                        hideAllOption={true}
+                                    />
+                                </div>
                             </div>
                         </div>
 
-                        <ProductList products={filteredProducts} />
+                        {loading ? (
+                            <div className="flex flex-col items-center justify-center py-24">
+                                <div className="w-12 h-12 border-4 border-brown-bark-200 border-t-brown-bark-800 rounded-full animate-spin"></div>
+                                <p className="mt-4 text-gray-500 font-medium">Đang tải sản phẩm...</p>
+                            </div>
+                        ) : products.length > 0 ? (
+                            <ProductList products={products} />
+                        ) : (
+                            <div className="flex flex-col items-center justify-center py-24 text-center">
+                                <svg className="w-12 h-12 text-gray-200 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <p className="text-lg font-bold text-gray-300">Không tìm thấy sản phẩm</p>
+                                <p className="text-sm text-gray-400 mt-1">Thử chọn danh mục khác hoặc điều chỉnh bộ lọc</p>
+                            </div>
+                        )}
+
+                        <Pagination
+                            currentPage={page}
+                            totalElements={totalElements}
+                            pageSize={12}
+                            onPageChange={setPage}
+                        />
                     </div>
                 </div>
             </div>

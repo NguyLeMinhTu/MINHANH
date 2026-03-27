@@ -18,6 +18,9 @@ public class ProductCardDto {
     private List<String> images; // Danh sách ảnh để hiển thị hover ở frontend
     private String danhMucId;
     private String danhMucTen;
+    private String thuongHieu; // Thêm để lọc ở frontend
+    private String chatLieu;   // Thêm để lọc ở frontend
+    private String xuatXu;     // Thêm để lọc ở frontend (ví dụ: Việt Nam, Hàn Quốc)
     private Boolean spMoi;
     private Boolean spNoiBat;
 }

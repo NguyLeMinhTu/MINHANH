@@ -19,4 +19,6 @@ public interface DanhMucSanPhamRepository extends JpaRepository<DanhMucSanPham, 
     List<DanhMucSanPham> findByTrangThaiTrueOrderByThuTuAsc();
 
     List<DanhMucSanPham> findTop8ByTrangThaiTrueOrderByThuTuAsc();
+
+    List<DanhMucSanPham> findByParentOrderByThuTuAsc(DanhMucSanPham parent);
 }

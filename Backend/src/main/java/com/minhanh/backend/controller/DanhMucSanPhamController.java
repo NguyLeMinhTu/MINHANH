@@ -1,5 +1,6 @@
 package com.minhanh.backend.controller;
 
+import com.minhanh.backend.dto.DanhMucMenuDto;
 import com.minhanh.backend.entity.DanhMucSanPham;
 import com.minhanh.backend.service.DanhMucSanPhamService;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,12 @@ import java.util.List;
 public class DanhMucSanPhamController {
 
     private final DanhMucSanPhamService service;
+
+    // GET /api/danh-muc-san-pham/tree → Lấy cây danh mục cho Menu
+    @GetMapping("/tree")
+    public List<DanhMucMenuDto> getTree() {
+        return service.getCategoryTree();
+    }
 
     // GET /api/danh-muc-san-pham → lấy tất cả
     @GetMapping

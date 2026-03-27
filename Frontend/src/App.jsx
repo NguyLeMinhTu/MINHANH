@@ -26,7 +26,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/gioi-thieu" element={<About />} />
         <Route path="/san-pham" element={<Product />} />
-        <Route path="/san-pham/:id" element={<ProductDetail />} />
+        <Route path="/san-pham/:slug" element={<ProductDetail />} />
         <Route path="/dong-phuc" element={<DongPhucMaySan />} />
         <Route path="/dong-phuc-may-san" element={<DongPhucMaySan />} />
         <Route path="/news" element={<News />} />

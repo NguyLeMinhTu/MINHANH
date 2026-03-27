@@ -30,9 +30,9 @@ const ProductCard = ({ product }) => {
             itemScope
             itemType="https://schema.org/Product"
             className="group relative flex flex-col bg-white rounded-lg overflow-hidden shadow-[0_2px_10px_-3px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.15)] ring-1 ring-carbon-black-100/60 hover:ring-brown-bark-400/30 transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] cursor-pointer translate-y-0 hover:-translate-y-1"
-            onClick={() => product?.id && navigate(`/san-pham/${product.id}`)}
+            onClick={() => product?.slug && navigate(`/san-pham/${product.slug}`)}
         >
-            <meta itemProp="url" content={`/san-pham/${product?.id}`} />
+            <meta itemProp="url" content={`/san-pham/${product?.slug}`} />
 
             {/* Image Wrapper */}
             <div className="relative w-full aspect-[4/5] sm:aspect-[3/4] overflow-hidden bg-carbon-black-50/50">
@@ -66,12 +66,12 @@ const ProductCard = ({ product }) => {
                 {(isNew || isHot) && (
                     <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10 inline">
                         {isNew && (
-                            <span className="bg-brown-bark-800 text-golden-earth-50 text-[10px] font-bold tracking-widest uppercase px-2.5 py-1 rounded shadow-sm mr-1">
+                            <span className="bg-[#303187] text-white text-[10px] font-black tracking-widest uppercase px-2.5 py-1 rounded shadow-sm mr-1">
                                 Mới
                             </span>
                         )}
                         {isHot && (
-                            <span className="bg-gradient-to-r from-golden-earth-100 to-golden-earth-50 text-brown-bark-800 text-[10px] font-bold tracking-widest uppercase px-2.5 py-1 rounded shadow-sm ring-1 ring-brown-bark-800/10">
+                            <span className="bg-[#be123c] text-white text-[10px] font-black tracking-widest uppercase px-2.5 py-1 rounded shadow-sm">
                                 Hot
                             </span>
                         )}
