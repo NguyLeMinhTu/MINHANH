@@ -36,14 +36,14 @@ const banners = [
     },
 ]
 
-const BannerScrollBar = ({ slides = [], autoPlayInterval = 7000 }) => {
+const BannerScrollBar = ({ slides = [], autoPlayInterval = 5000 }) => {
     const [activeIndex, setActiveIndex] = useState(0);
     const navigate = useNavigate();
 
     // Sử dụng slide từ backend nếu có, nếu không thì dùng banners mặc định
     const activeBanners = slides.length > 0 
         ? slides.map(s => ({
-            id: s.slideId,
+            id: s.id || s.slideId,
             image: s.urlHinh,
             link: s.link || '/san-pham',
             title: s.tieuDe
@@ -69,7 +69,7 @@ const BannerScrollBar = ({ slides = [], autoPlayInterval = 7000 }) => {
     const trackStyle = {
         width: `${activeBanners.length * 100}%`,
         transform: `translateX(-${activeIndex * (100 / activeBanners.length)}%)`,
-        transition: 'transform 700ms ease',
+        transition: 'transform 600ms ease',
     }
 
     const slideStyle = {

@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Menu, Bell, Search, ChevronDown, LogOut, User, Settings } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
+import axiosInstance from '../../utils/axiosConfig'
 
 const routeTitles = {
     '/': 'Dashboard',
@@ -37,9 +38,27 @@ const Header = ({ isOpen, onToggle }) => {
     const location = useLocation()
     const navigate = useNavigate()
     const [userMenuOpen, setUserMenuOpen] = useState(false)
+    const [notificationsOpen, setNotificationsOpen] = useState(false)
     const userMenuRef = useRef(null)
+    const notificationsRef = useRef(null)
     const title = routeTitles[location.pathname] || 'Admin'
     const breadcrumbs = getBreadcrumb(location.pathname)
+
+    const [unhandledConsultations, setUnhandledConsultations] = useState([])
+    const [loading, setLoading] = useState(false)
+
+    const fetchNotifications = async () => {
+        try {
+            setLoading(true)
+            const res = await axiosInstance.get('/admin/yeu-cau-tu-van?daXuLy=false&size=5')
+            // res ở đây đã là data do interceptor trong axiosConfig
+            setUnhandledConsultations(res.content || [])
+        } catch (err) {
+            console.error('Lỗi khi tải thông báo:', err)
+        } finally {
+            setLoading(false)
+        }
+    }
 
     const handleLogout = () => {
         logout()
@@ -47,13 +66,30 @@ const Header = ({ isOpen, onToggle }) => {
     }
 
     useEffect(() => {
+        fetchNotifications()
+        const interval = setInterval(fetchNotifications, 10000) // 10s fallback
+        
+        const handleNewConsultation = () => {
+            fetchNotifications()
+        }
+
         const handleClickOutside = (e) => {
             if (userMenuRef.current && !userMenuRef.current.contains(e.target)) {
                 setUserMenuOpen(false)
             }
+            if (notificationsRef.current && !notificationsRef.current.contains(e.target)) {
+                setNotificationsOpen(false)
+            }
         }
+
         document.addEventListener('mousedown', handleClickOutside)
-        return () => document.removeEventListener('mousedown', handleClickOutside)
+        window.addEventListener('new-consultation', handleNewConsultation)
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside)
+            window.removeEventListener('new-consultation', handleNewConsultation)
+            clearInterval(interval)
+        }
     }, [])
 
     return (
@@ -108,10 +144,76 @@ const Header = ({ isOpen, onToggle }) => {
                 </div>
 
                 {/* Notifications */}
-                <button className="relative p-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors">
-                    <Bell size={20} />
-                    <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white" />
-                </button>
+                <div className="relative" ref={notificationsRef}>
+                    <button 
+                        onClick={() => setNotificationsOpen(!notificationsOpen)}
+                        className={`relative p-2.5 rounded-xl transition-all group ${notificationsOpen ? 'bg-[#DAA06D]/10 text-[#DAA06D]' : 'text-gray-500 hover:bg-gray-50 hover:text-[#DAA06D]'}`}
+                    >
+                        <Bell size={21} strokeWidth={1.5} className={notificationsOpen ? 'rotate-12' : 'group-hover:rotate-12 transition-transform'} />
+                        {unhandledConsultations.length > 0 && (
+                            <span className="absolute top-1.5 right-1.5 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] font-black flex items-center justify-center rounded-full ring-2 ring-white shadow-sm animate-bounce-subtle">
+                                {unhandledConsultations.length}
+                            </span>
+                        )}
+                    </button>
+
+                    {/* Notification Dropdown */}
+                    {notificationsOpen && (
+                        <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-50 animate-in fade-in zoom-in duration-200">
+                            <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+                                <h3 className="text-sm font-black text-gray-800 tracking-tight">Thông báo mới</h3>
+                                <span className="text-[10px] font-bold text-[#DAA06D] bg-[#DAA06D]/10 px-2 py-0.5 rounded-full uppercase tracking-widest">
+                                    {unhandledConsultations.length} yêu cầu
+                                </span>
+                            </div>
+                            <div className="max-h-[400px] overflow-y-auto">
+                                {unhandledConsultations.length > 0 ? (
+                                    unhandledConsultations.slice(0, 5).map((noti) => (
+                                        <div 
+                                            key={noti.yeuCauId} 
+                                            onClick={() => {
+                                                navigate(`/consultations?search=${noti.soDienThoai}`)
+                                                setNotificationsOpen(false)
+                                            }}
+                                            className="px-5 py-4 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 cursor-pointer group"
+                                        >
+                                            <div className="flex gap-4">
+                                                <div className="w-10 h-10 rounded-xl bg-[#DAA06D]/10 text-[#DAA06D] flex items-center justify-center font-black text-xs shrink-0 group-hover:bg-[#DAA06D] group-hover:text-white transition-all">
+                                                    {(noti.tenKhach || 'K').charAt(0)}
+                                                </div>
+                                                <div className="space-y-0.5">
+                                                    <p className="text-sm text-gray-800 font-bold leading-tight line-clamp-1">{noti.tenKhach}</p>
+                                                    <p className="text-xs text-gray-400 font-medium">{noti.soDienThoai}</p>
+                                                    <p className="text-[10px] text-gray-300 font-bold mt-1 uppercase tracking-tighter">
+                                                        {new Date(noti.ngayGui).toLocaleDateString('vi-VN')}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="px-5 py-10 text-center">
+                                        <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3">
+                                            <Bell size={20} className="text-gray-300" />
+                                        </div>
+                                        <p className="text-xs text-gray-400 font-bold uppercase tracking-widest">Không có thông báo mới</p>
+                                    </div>
+                                )}
+                            </div>
+                            {unhandledConsultations.length > 0 && (
+                                <button 
+                                    onClick={() => {
+                                        navigate('/consultations')
+                                        setNotificationsOpen(false)
+                                    }}
+                                    className="w-full py-3.5 text-xs font-black text-gray-500 hover:text-[#DAA06D] hover:bg-[#DAA06D]/5 transition-all uppercase tracking-widest border-t border-gray-50"
+                                >
+                                    Xem tất cả yêu cầu
+                                </button>
+                            )}
+                        </div>
+                    )}
+                </div>
 
                 {/* User Dropdown */}
                 <div className="relative" ref={userMenuRef}>

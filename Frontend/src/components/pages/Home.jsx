@@ -50,7 +50,7 @@ const Home = () => {
             
             <BestSellers products={homeData.sanPhamNoiBat.length > 0 ? homeData.sanPhamNoiBat : uiProducts} />
             
-            <FeaturedCollection />
+            <FeaturedCollection collections={homeData.collections} />
             <Testimonials />
         </div>
     )

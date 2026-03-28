@@ -31,6 +31,7 @@ const managementItems = [
 const configItems = [
     { to: '/settings', icon: Settings, label: 'Cấu hình' },
     { to: '/slides', icon: Images, label: 'Slide' },
+    { to: '/collections', icon: Images, label: 'Bộ sưu tập' },
     { to: '/faq', icon: HelpCircle, label: 'FAQ' },
     { to: '/contacts', icon: Mail, label: 'Liên hệ' },
 ]

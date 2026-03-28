@@ -36,18 +36,20 @@ const FAQ = () => {
                                     {item.trang_thai ? 'Hiển' : 'Ẩn'}
                                 </span>
                                 <div className="flex gap-1">
-                                    <button
+                                    <div
                                         onClick={(e) => { e.stopPropagation() }}
-                                        className="p-1.5 rounded-lg hover:bg-[#DAA06D]/10 text-gray-400 hover:text-[#DAA06D] transition-colors"
+                                        className="p-1.5 rounded-lg hover:bg-[#DAA06D]/10 text-gray-400 hover:text-[#DAA06D] transition-colors cursor-pointer"
+                                        role="button"
                                     >
                                         <Pencil size={14} />
-                                    </button>
-                                    <button
+                                    </div>
+                                    <div
                                         onClick={(e) => { e.stopPropagation() }}
-                                        className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors"
+                                        className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors cursor-pointer"
+                                        role="button"
                                     >
                                         <Trash2 size={14} />
-                                    </button>
+                                    </div>
                                 </div>
                                 {expanded === item.faq_id ? (
                                     <ChevronDown size={18} className="text-gray-400" />

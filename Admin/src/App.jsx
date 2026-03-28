@@ -1,5 +1,6 @@
 import React from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
+import { Toaster } from 'react-hot-toast'
 import AdminLayout from './components/layout/AdminLayout'
 import ProtectedRoute from './components/ProtectedRoute'
 import Login from './pages/Login'
@@ -12,6 +13,7 @@ import Posts from './pages/Posts'
 import Consultations from './pages/Consultations'
 import Settings from './pages/Settings'
 import Slides from './pages/Slides'
+import Collections from './pages/Collections'
 import FAQ from './pages/FAQ'
 import Contacts from './pages/Contacts'
 import NotificationListener from './components/NotificationListener'
@@ -19,6 +21,7 @@ import NotificationListener from './components/NotificationListener'
 const App = () => {
   return (
     <>
+      <Toaster position="top-right" reverseOrder={false} />
       <NotificationListener />
       <Routes>
         <Route path="/login" element={<Login />} />
@@ -39,6 +42,7 @@ const App = () => {
           <Route path="consultations" element={<Consultations />} />
           <Route path="settings" element={<Settings />} />
           <Route path="slides" element={<Slides />} />
+          <Route path="collections" element={<Collections />} />
           <Route path="faq" element={<FAQ />} />
           <Route path="contacts" element={<Contacts />} />
         </Route>

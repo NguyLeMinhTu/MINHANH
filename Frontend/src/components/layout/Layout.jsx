@@ -6,7 +6,7 @@ import ModalIntro from "../common/Modal/ModalIntro";
 import FloatingHotline from "../common/FloatingHotline";
 import FloatingZalo from "../common/FloatingZalo";
 import Breadcrumb from "../common/Breadcrumb";
-import ScrollToTopButton from "./ScrollToTopButton";
+import ScrollToTop from "../common/ScrollToTop";
 
 export default function Layout({ children }) {
     const location = useLocation();
@@ -26,7 +26,7 @@ export default function Layout({ children }) {
                 <FloatingHotline />
                 <FloatingZalo />
             </div>
-            <ScrollToTopButton />
+            <ScrollToTop />
         </div>
     );
 }

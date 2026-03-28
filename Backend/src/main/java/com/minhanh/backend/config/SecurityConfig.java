@@ -41,6 +41,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/yeu-cau-tu-van/**").permitAll()
                 .requestMatchers("/api/notifications/**").permitAll()
                 .requestMatchers("/api/ping").permitAll()
+                .requestMatchers("/api/slides/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 // Chỉ admin mới được vào
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")

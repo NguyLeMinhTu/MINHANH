@@ -4,10 +4,7 @@ import com.minhanh.backend.dto.*;
 import com.minhanh.backend.entity.DanhMucSanPham;
 import com.minhanh.backend.entity.HinhAnhSanPham;
 import com.minhanh.backend.entity.SanPham;
-import com.minhanh.backend.repository.DanhMucSanPhamRepository;
-import com.minhanh.backend.repository.FaqRepository;
-import com.minhanh.backend.repository.SanPhamRepository;
-import com.minhanh.backend.repository.SlideRepository;
+import com.minhanh.backend.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +19,7 @@ public class TrangChuService {
     private final DanhMucSanPhamRepository danhMucSanPhamRepository;
     private final SanPhamRepository sanPhamRepository;
     private final FaqRepository faqRepository;
+    private final CollectionRepository collectionRepository;
 
         /**
          * Tổng hợp dữ liệu cần cho trang chủ trong một response.
@@ -39,7 +37,21 @@ public class TrangChuService {
                         s.getMoTa(),
                         s.getUrlHinh(),
                         s.getLink(),
-                        s.getThuTu()
+                        s.getThuTu(),
+                        s.getTrangThai()
+                ))
+                .toList();
+        
+        List<CollectionDto> collections = collectionRepository.findByTrangThaiOrderByThuTuAsc("hien")
+                .stream()
+                .map(c -> new CollectionDto(
+                        c.getId(),
+                        c.getTieuDe(),
+                        c.getMoTa(),
+                        c.getUrlHinh(),
+                        c.getLink(),
+                        c.getThuTu(),
+                        c.getTrangThai()
                 ))
                 .toList();
 
@@ -65,7 +77,7 @@ public class TrangChuService {
                 .map(f -> new FaqDto(f.getFaqId(), f.getCauHoi(), f.getTraLoi(), f.getThuTu()))
                 .toList();
 
-        return new HomePageResponse(slides, danhMuc, sanPhamNoiBat, sanPhamMoi, faq);
+        return new HomePageResponse(slides, danhMuc, sanPhamNoiBat, sanPhamMoi, collections, faq);
     }
 
         /**

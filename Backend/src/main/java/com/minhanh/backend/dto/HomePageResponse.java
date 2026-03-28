@@ -12,5 +12,6 @@ public class HomePageResponse {
     private List<CategoryDto> danhMuc;
     private List<ProductCardDto> sanPhamNoiBat;
     private List<ProductCardDto> sanPhamMoi;
+    private List<CollectionDto> collections;
     private List<FaqDto> faq;
 }

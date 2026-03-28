@@ -20,7 +20,13 @@ public class YeuCauTuVanService {
     private NotificationService notificationService;
 
     public Page<YeuCauTuVan> search(String search, Boolean daXuLy, Pageable pageable) {
-        return repository.searchByAdmin(search, daXuLy, pageable);
+        if (search == null || search.trim().isEmpty()) {
+            return getAll(pageable, daXuLy);
+        }
+        if (daXuLy != null) {
+            return repository.findBySoDienThoaiAndDaXuLyOrderByNgayGuiDesc(search, daXuLy, pageable);
+        }
+        return repository.findBySoDienThoaiOrderByNgayGuiDesc(search, pageable);
     }
 
     public Page<YeuCauTuVan> getAll(Pageable pageable, Boolean daXuLy) {

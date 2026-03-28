@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Phone, MessageSquare, Clock, CheckCircle2, Trash2, Search, AlertCircle, Save, X } from 'lucide-react'
 import { useDispatch, useSelector } from 'react-redux'
+import { useSearchParams } from 'react-router-dom'
 import { fetchConsultations, updateConsultationStatus, deleteConsultation } from '../app/slices/consultationSlice'
 import { fetchProducts } from '../app/slices/productSlice'
 
@@ -11,13 +12,19 @@ const statusStyle = {
 
 const Consultations = () => {
     const dispatch = useDispatch()
+    const [searchParams] = useSearchParams()
     const { items: consultations, pagination, status } = useSelector(state => state.consultations || { items: [] })
     const { data: productData } = useSelector(state => state.products)
     
     const [activeTab, setActiveTab] = useState('Tất cả')
     const [editingId, setEditingId] = useState(null)
     const [note, setNote] = useState('')
-    const [searchTerm, setSearchTerm] = useState('')
+    const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '')
+
+    useEffect(() => {
+        const s = searchParams.get('search')
+        if (s) setSearchTerm(s)
+    }, [searchParams])
 
     useEffect(() => {
         const daXuLy = activeTab === 'Mới' ? false : activeTab === 'Đã xử lý' ? true : null

@@ -2,7 +2,6 @@ import React, { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import Title from '../common/Title'
-import ScrollToTopButton from '../common/ScrollToTopButton'
 import bannerLienHe from '../../assets/banner-lienhe.jpg'
 import logoMinhAnh from '../../assets/logo.png'
 import { thong_tin_lien_he } from '../../assets/dataset'
@@ -57,7 +56,6 @@ const Contact = () => {
     return (
         <main className="bg-carbon-black-50">
             <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd }} />
-            <ScrollToTopButton />
 
             <section className="relative w-full overflow-hidden bg-carbon-black-950">
                 <img

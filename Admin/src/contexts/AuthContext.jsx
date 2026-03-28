@@ -10,27 +10,43 @@ export const AuthProvider = ({ children }) => {
     })
     const intervalRef = useRef(null)
 
-    // Polling: cứ 30 giây check /auth/me một lần
-    // Nếu token hết hạn, backend trả 401 → axiosConfig redirect về /login
+    // Polling & Idle Timer
     useEffect(() => {
+        let logoutTimer = null;
+
+        const resetTimer = () => {
+            if (logoutTimer) clearTimeout(logoutTimer);
+            // 10 phút không tương tác thì logout
+            logoutTimer = setTimeout(() => {
+                console.warn("User idle for 10 minutes. Logging out...");
+                logout();
+            }, 10 * 60 * 1000);
+        };
+
         if (user) {
+            // 1. Polling check session (30s)
             intervalRef.current = setInterval(async () => {
                 try {
-                    await axiosInstance.get('/auth/me')
+                    await axiosInstance.get('/auth/me');
                 } catch (error) {
-                    // axiosConfig đã xử lý redirect về /login khi 401
-                    // Dọn dẹp state local
-                    setUser(null)
-                    localStorage.removeItem('admin_user')
-                    clearInterval(intervalRef.current)
+                    setUser(null);
+                    localStorage.removeItem('admin_user');
+                    clearInterval(intervalRef.current);
                 }
-            }, 30 * 1000) // 30 giây poll 1 lần
-        }
+            }, 30 * 1000);
 
-        return () => {
-            if (intervalRef.current) clearInterval(intervalRef.current)
+            // 2. Idle Timer listeners
+            const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
+            events.forEach(event => window.addEventListener(event, resetTimer));
+            resetTimer(); // Khởi tạo timer lần đầu
+
+            return () => {
+                if (intervalRef.current) clearInterval(intervalRef.current);
+                if (logoutTimer) clearTimeout(logoutTimer);
+                events.forEach(event => window.removeEventListener(event, resetTimer));
+            };
         }
-    }, [user])
+    }, [user]);
 
     const login = async (email, matKhau) => {
         try {
