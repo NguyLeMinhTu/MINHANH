@@ -26,6 +26,7 @@ export default function Navbar() {
     }, []);
 
     const [productCategoryTree, setProductCategoryTree] = useState([]);
+    const [postCategories, setPostCategories] = useState([]);
 
     useEffect(() => {
         // Lấy cây danh mục từ Backend
@@ -35,6 +36,16 @@ export default function Navbar() {
                 if (Array.isArray(data)) setProductCategoryTree(data);
             })
             .catch(err => console.error("Lỗi khi tải danh mục sản phẩm:", err));
+    }, []);
+
+    useEffect(() => {
+        // Lấy danh mục bài viết từ Backend
+        fetch("/api/danh-muc-bai-viet")
+            .then(res => res.json())
+            .then(data => {
+                if (Array.isArray(data)) setPostCategories(data.filter(d => d.trangThai));
+            })
+            .catch(err => console.error("Lỗi khi tải danh mục bài viết:", err));
     }, []);
 
     const slugify = (s) =>
@@ -56,7 +67,7 @@ export default function Navbar() {
     };
 
     return (
-        <header className="w-full sticky top-0 z-50">
+        <header className="w-full sticky top-0 z-[100]">
             {/* <div className="hidden md:block bg-golden-earth-50 text-golden-earth-900 text-xs py-1 px-2">
                 <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
                     <span className="hidden font-bold sm:inline opacity-60 tracking-wide">Minh Anh Uniform – Đồng phục cao cấp</span>
@@ -157,7 +168,31 @@ export default function Navbar() {
                                         </div>
                                     )}
 
-                                    {item.hasSubmenu && item.label !== "SẢN PHẨM" && (
+                                    {item.label === "TIN TỨC" && postCategories.length > 0 && (
+                                        <div className="absolute left-0 top-full pt-3 invisible opacity-0 pointer-events-none group-hover:visible group-hover:opacity-100 group-hover:pointer-events-auto translate-y-2 group-hover:translate-y-0 transition-all duration-200 min-w-55 z-50">
+                                            <div className="bg-white rounded-xl shadow-2xl border border-carbon-black-100 py-2 overflow-hidden">
+                                                {postCategories.map((cat) => (
+                                                    <Link
+                                                        key={cat.danhMucBaiVietId}
+                                                        to={`/tin-tuc?dm=${encodeURIComponent(cat.slug || cat.tenDanhMuc)}`}
+                                                        className="flex items-center gap-2.5 px-4 py-2 text-sm font-semibold text-carbon-black-800 hover:bg-golden-earth-50 hover:text-brown-bark-700 transition-colors whitespace-nowrap"
+                                                    >
+                                                        {cat.tenDanhMuc}
+                                                    </Link>
+                                                ))}
+                                                <div className="border-t border-carbon-black-100 mt-1 pt-2 pb-1">
+                                                    <Link
+                                                        to="/tin-tuc"
+                                                        className="flex items-center justify-center gap-1.5 px-4 text-xs font-bold text-brown-bark-700 hover:underline transition-colors whitespace-nowrap"
+                                                    >
+                                                        Xem tất cả tin tức
+                                                    </Link>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {item.hasSubmenu && item.label !== "SẢN PHẨM" && item.label !== "TIN TỨC" && (
                                         <div className="absolute left-0 top-full pt-3 invisible opacity-0 pointer-events-none group-hover:visible group-hover:opacity-100 group-hover:pointer-events-auto translate-y-2 group-hover:translate-y-0 transition-all duration-200 min-w-55">
                                             <div className="bg-white rounded-xl shadow-2xl border border-carbon-black-100 py-2 overflow-hidden">
                                                 {item.submenu?.map((sub) => (

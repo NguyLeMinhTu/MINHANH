@@ -53,8 +53,8 @@ public class AuthService {
         String refreshToken = jwtUtil.generateRefreshToken(user.getEmail(), user.getVaiTro());
 
         // Thiết lập Cookie
-        addCookie(response, "access_token", accessToken, 24 * 60 * 60); // 1 ngày
-        addCookie(response, "refresh_token", refreshToken, 7 * 24 * 60 * 60); // 7 ngày
+        addCookie(response, "access_token", accessToken, 10 * 60); // 10 phút
+        addCookie(response, "refresh_token", refreshToken, 24 * 60 * 60); // 1 ngày
 
         return ResponseEntity.ok(new AuthResponse(
                 null, // Không gửi token trong body nữa
@@ -86,8 +86,8 @@ public class AuthService {
         String refreshToken = jwtUtil.generateRefreshToken(savedUser.getEmail(), savedUser.getVaiTro());
 
         // Thiết lập Cookie
-        addCookie(response, "access_token", accessToken, 24 * 60 * 60);
-        addCookie(response, "refresh_token", refreshToken, 7 * 24 * 60 * 60);
+        addCookie(response, "access_token", accessToken, 10 * 60); // 10 phút
+        addCookie(response, "refresh_token", refreshToken, 24 * 60 * 60); // 1 ngày
 
         return ResponseEntity.ok(new AuthResponse(
                 null,
@@ -116,7 +116,7 @@ public class AuthService {
         }
 
         String newAccessToken = jwtUtil.generateAccessToken(user.getEmail(), user.getVaiTro());
-        addCookie(response, "access_token", newAccessToken, 24 * 60 * 60);
+        addCookie(response, "access_token", newAccessToken, 10 * 60); // 10 phút
 
         return ResponseEntity.ok(Map.of(
                 "message", "Token đã được làm mới",

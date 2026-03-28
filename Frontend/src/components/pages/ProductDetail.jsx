@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import ProductCard from '../product/ProductCard'
 import Title from '../common/Title'
@@ -23,6 +23,31 @@ export default function ProductDetail() {
     const [qty, setQty] = useState(1)
     const [isLightboxOpen, setIsLightboxOpen] = useState(false)
     const [activeTab, setActiveTab] = useState('description')
+    const scrollRef = useRef(null)
+    const [isHovered, setIsHovered] = useState(false)
+
+    const scroll = (direction) => {
+        if (scrollRef.current) {
+            const { scrollLeft, clientWidth, scrollWidth } = scrollRef.current
+            let scrollTo
+            if (direction === 'left') {
+                scrollTo = scrollLeft <= 10 ? scrollWidth - clientWidth : scrollLeft - clientWidth
+            } else {
+                scrollTo = scrollLeft + clientWidth + 10 >= scrollWidth ? 0 : scrollLeft + clientWidth
+            }
+            scrollRef.current.scrollTo({ left: scrollTo, behavior: 'smooth' })
+        }
+    }
+
+    // Autoplay logic
+    useEffect(() => {
+        if (related.length > 0 && !isHovered) {
+            const interval = setInterval(() => {
+                scroll('right')
+            }, 4000)
+            return () => clearInterval(interval)
+        }
+    }, [related, isHovered])
 
     // Lấy dữ liệu sản phẩm chi tiết
     useEffect(() => {
@@ -39,7 +64,7 @@ export default function ProductDetail() {
                 setSelectedSize(null)
                 setSelectedColor(null)
                 if (data.danhMuc?.slug) {
-                    fetch(`/api/san-pham?categorySlug=${data.danhMuc.slug}&size=5&sort=newest`)
+                    fetch(`/api/san-pham?categorySlug=${data.danhMuc.slug}&size=11&sort=newest`)
                         .then(r => r.json())
                         .then(relData => {
                             // Lọc bỏ chính sản phẩm hiện tại
@@ -262,14 +287,16 @@ export default function ProductDetail() {
                         <div className="bg-white rounded-3xl p-6 border border-carbon-black-100 shadow-sm space-y-6">
                             {/* Header Info */}
                             <div>
-                                <h1 className="text-2xl font-black text-carbon-black-900 leading-tight mb-2">{name}</h1>
+                                <h1 className="text-2xl lg:text-3xl font-bold text-carbon-black-900 leading-tight mb-3">
+                            {product.tenSanPham}
+                        </h1>
                             </div>
 
                             {/* Price Section */}
                             <div className="bg-carbon-black-50/50 rounded-2xl p-4 border border-carbon-black-100">
-                                <p className="text-xs font-black text-carbon-black-500 uppercase tracking-[0.15em] mb-1">Giá dự kiến từ</p>
+                                <p className="text-xs font-bold text-carbon-black-500 uppercase tracking-[0.15em] mb-1">Giá dự kiến từ</p>
                                 <div className="flex items-baseline gap-2">
-                                    <p className="text-3xl font-black text-brown-bark-900">
+                                    <p className="text-3xl font-bold text-brown-bark-900">
                                         {formattedDiscount || formattedPrice}
                                         <span className="text-base font-bold ml-1">₫</span>
                                     </p>
@@ -313,7 +340,9 @@ export default function ProductDetail() {
                                                 <button
                                                     key={c}
                                                     onClick={() => setSelectedColor(c)}
-                                                    className={`px-4 py-2 rounded-lg text-sm font-bold transition-all border ${selectedColor === c ? 'bg-brown-bark-900 text-white border-brown-bark-900 shadow-md' : 'bg-white border-carbon-black-200 text-carbon-black-700 hover:border-brown-bark-400'}`}
+                                                    className={`px-5 py-2.5 rounded-xl text-sm font-black transition-all border-2 ${selectedColor === c 
+                                                        ? 'bg-[#ffd776] text-carbon-black-900 border-[#ffd776] shadow-lg scale-105 z-10' 
+                                                        : 'bg-white border-carbon-black-100 text-carbon-black-600 hover:border-[#ffd776] hover:bg-[#fff9e6] hover:text-carbon-black-900'}`}
                                                 >
                                                     {c}
                                                 </button>
@@ -333,7 +362,9 @@ export default function ProductDetail() {
                                                 <button
                                                     key={s}
                                                     onClick={() => setSelectedSize(s)}
-                                                    className={`w-12 h-12 rounded-lg text-sm font-bold transition-all border ${selectedSize === s ? 'bg-brown-bark-900 text-white border-brown-bark-900 shadow-md' : 'bg-white border-carbon-black-200 text-carbon-black-700 hover:border-brown-bark-400'}`}
+                                                    className={`w-14 h-14 rounded-xl text-sm font-black transition-all border-2 ${selectedSize === s 
+                                                        ? 'bg-[#ffd776] text-carbon-black-900 border-[#ffd776] shadow-lg scale-105 z-10' 
+                                                        : 'bg-white border-carbon-black-100 text-carbon-black-600 hover:border-[#ffd776] hover:bg-[#fff9e6] hover:text-carbon-black-900'}`}
                                                 >
                                                     {s}
                                                 </button>
@@ -391,7 +422,7 @@ export default function ProductDetail() {
                         <div className="flex items-end justify-between mb-6">
                             <div>
                                 <p className="text-[10px] font-bold text-brown-bark-700 tracking-[0.18em] uppercase mb-1">Gợi ý</p>
-                                <h2 className="text-2xl font-black text-carbon-black-900 tracking-tight">Sản phẩm liên quan</h2>
+                                <h2 className="text-2xl font-bold text-carbon-black-900 tracking-tight">Sản phẩm liên quan</h2>
                             </div>
                             <Link
                                 to={`/san-pham`}
@@ -404,16 +435,44 @@ export default function ProductDetail() {
                             </Link>
                         </div>
 
-                        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
-                            {related.map((p) => (
-                                <div
-                                    key={p.slug}
-                                    onClick={() => navigate(`/san-pham/${p.slug}`)}
-                                    className="cursor-pointer"
-                                >
-                                    <ProductCard product={p} />
-                                </div>
-                            ))}
+                        <div 
+                            className="relative group/slider"
+                            onMouseEnter={() => setIsHovered(true)}
+                            onMouseLeave={() => setIsHovered(false)}
+                        >
+                            {/* Navigation Buttons */}
+                            <button
+                                onClick={() => scroll('left')}
+                                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 w-10 h-10 rounded-full bg-white shadow-lg border border-carbon-black-100 flex items-center justify-center text-carbon-black-700 hover:bg-brown-bark-700 hover:text-white transition-all opacity-0 group-hover/slider:opacity-100 group-hover/slider:translate-x-0 disabled:opacity-0"
+                            >
+                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+                                </svg>
+                            </button>
+                            <button
+                                onClick={() => scroll('right')}
+                                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 w-10 h-10 rounded-full bg-white shadow-lg border border-carbon-black-100 flex items-center justify-center text-carbon-black-700 hover:bg-brown-bark-700 hover:text-white transition-all opacity-0 group-hover/slider:opacity-100 group-hover/slider:translate-x-0 disabled:opacity-0"
+                            >
+                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                                </svg>
+                            </button>
+
+                            {/* Scrollable Container */}
+                            <div 
+                                ref={scrollRef}
+                                className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth snap-x snap-mandatory pb-4"
+                            >
+                                {related.map((p) => (
+                                    <div
+                                        key={p.slug}
+                                        onClick={() => navigate(`/san-pham/${p.slug}`)}
+                                        className="min-w-[240px] md:min-w-[280px] xl:min-w-[240px] flex-shrink-0 snap-start cursor-pointer"
+                                    >
+                                        <ProductCard product={p} />
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     </div>
                 )}

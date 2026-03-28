@@ -36,6 +36,7 @@ public class SanPhamService {
 
     private final SanPhamRepository sanPhamRepository;
     private final DanhMucSanPhamRepository danhMucSanPhamRepository;
+    private final FileUploadService fileUploadService;
 
     /**
      * Lấy danh sách sản phẩm public có phân trang.
@@ -311,7 +312,13 @@ public class SanPhamService {
 
         if (dto.getHinhAnh() != null) {
             if (sp.getHinhAnh() != null) {
-                sp.getHinhAnh().clear(); // Sẽ kích hoạt orphanRemoval
+                // Tìm ảnh đã bị xóa (có trong DB nhưng không có trong danh sách mới gửi lên)
+                List<String> newUrls = dto.getHinhAnh();
+                sp.getHinhAnh().stream()
+                        .map(HinhAnhSanPham::getUrlAnh)
+                        .filter(url -> !newUrls.contains(url))
+                        .forEach(fileUploadService::deleteFile); // ← Xóa ảnh thừa khỏi Cloudinary
+                sp.getHinhAnh().clear(); // Sẽ kích hoạt orphanRemoval trong DB
             } else {
                 sp.setHinhAnh(new ArrayList<>());
             }
@@ -330,6 +337,10 @@ public class SanPhamService {
     public void softDeleteSanPham(String id) {
         SanPham sp = sanPhamRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy sản phẩm: " + id));
+        // Xóa toàn bộ ảnh của sản phẩm khỏi Cloudinary trước khi ẩn
+        if (sp.getHinhAnh() != null) {
+            sp.getHinhAnh().forEach(img -> fileUploadService.deleteFile(img.getUrlAnh()));
+        }
         sp.setTrangThai("an");
         sanPhamRepository.save(sp);
     }

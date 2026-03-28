@@ -8,6 +8,7 @@ import Product from './components/pages/Product';
 import ProductDetail from './components/pages/ProductDetail';
 import DongPhucMaySan from './components/pages/DongPhucMaySan';
 import News from './components/pages/News';
+import NewsDetail from './components/pages/NewsDetail';
 import Store from './components/pages/Store';
 import Contact from './components/pages/Contact';
 
@@ -31,6 +32,7 @@ function App() {
         <Route path="/dong-phuc-may-san" element={<DongPhucMaySan />} />
         <Route path="/news" element={<News />} />
         <Route path="/tin-tuc" element={<News />} />
+        <Route path="/tin-tuc/:slug" element={<NewsDetail />} />
         <Route path="/store" element={<Store />} />
         <Route path="/cua-hang" element={<Store />} />
         <Route path="/lien-he" element={<Contact />} />

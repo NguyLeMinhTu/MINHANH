@@ -6,7 +6,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.Map;
 
 @RestController
@@ -24,9 +23,10 @@ public class UploadController {
         try {
             String imageUrl = fileUploadService.uploadFile(file);
             return ResponseEntity.ok(Map.of("url", imageUrl));
-        } catch (IOException e) {
+        } catch (Exception e) {
+            System.err.println("[Upload] Lỗi upload ảnh: " + e.getClass().getName() + " - " + e.getMessage());
             e.printStackTrace();
-            return ResponseEntity.status(500).body(Map.of("message", "Lỗi Cổng Cloudinary: " + e.getMessage()));
+            return ResponseEntity.status(500).body(Map.of("message", "Lỗi upload: " + e.getMessage()));
         }
     }
 }

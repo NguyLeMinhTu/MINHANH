@@ -13,7 +13,8 @@ const ProductAddForm = ({ categories, onClose }) => {
         giaThamKhao: 0, giaBan: 0, giaKhuyenMai: 0,
         soLuongTon: null, donViTinh: 'Áo', thuongHieu: '', xuatXu: '',
         chatLieu: '', baoQuan: '', tags: '',
-        spNoiBat: false, spMoi: true, trangThai: 'cong_khai', danhMucId: '', images: [], bienThe: []
+        spNoiBat: false, spMoi: true, trangThai: 'cong_khai', danhMucId: '', images: [], bienThe: [],
+        groupedVariants: [{ color: '', sizes: [{ size: '', soLuong: 0, gia: '' }] }]
     });
 
     const handleChange = (e) => {
@@ -63,35 +64,83 @@ const ProductAddForm = ({ categories, onClose }) => {
         });
     };
 
-    const handleVariantChange = (index, field, value) => {
+    const handleVariantChange = (colorIndex, sizeIndex, field, value) => {
         setFormData(prev => {
-            const newBienThe = [...prev.bienThe];
-            newBienThe[index] = { ...newBienThe[index], [field]: value };
+            const newGrouped = [...prev.groupedVariants];
+            newGrouped[colorIndex].sizes[sizeIndex] = { ...newGrouped[colorIndex].sizes[sizeIndex], [field]: value };
             
-            let newTotalStock = prev.soLuongTon;
-            if (field === 'soLuong') {
-                newTotalStock = newBienThe.reduce((sum, item) => sum + (Number(item.soLuong) || 0), 0);
-            }
-            return { ...prev, bienThe: newBienThe, soLuongTon: field === 'soLuong' ? newTotalStock : prev.soLuongTon };
+            // Re-flatten to update bienThe and soLuongTon
+            const flattened = [];
+            newGrouped.forEach(group => {
+                group.sizes.forEach(s => {
+                    flattened.push({ mauSac: group.color, ...s });
+                });
+            });
+            const totalStock = flattened.reduce((sum, item) => sum + (Number(item.soLuong) || 0), 0);
+            
+            return { ...prev, groupedVariants: newGrouped, bienThe: flattened, soLuongTon: totalStock };
         });
     };
 
-    const addVariant = () => {
+    const handleColorNameChange = (colorIndex, newColorName) => {
+        setFormData(prev => {
+            const newGrouped = [...prev.groupedVariants];
+            newGrouped[colorIndex].color = newColorName;
+            
+            // Re-flatten
+            const flattened = [];
+            newGrouped.forEach(group => {
+                group.sizes.forEach(s => {
+                    flattened.push({ mauSac: group.color, ...s });
+                });
+            });
+            return { ...prev, groupedVariants: newGrouped, bienThe: flattened };
+        });
+    };
+
+    const addColorGroup = () => {
         setFormData(prev => ({
             ...prev,
-            bienThe: [...prev.bienThe, { mauSac: '', size: '', gia: '', soLuong: 0 }]
+            groupedVariants: [...(prev.groupedVariants || []), { color: '', sizes: [{ size: '', soLuong: 0, gia: '' }] }]
         }));
     };
 
-    const removeVariant = (index) => {
+    const addSizeToGroup = (colorIndex) => {
         setFormData(prev => {
-            const newBienThe = prev.bienThe.filter((_, i) => i !== index);
-            const newTotalStock = newBienThe.reduce((sum, item) => sum + (Number(item.soLuong) || 0), 0);
-            return {
-                ...prev,
-                bienThe: newBienThe,
-                soLuongTon: newBienThe.length > 0 ? newTotalStock : prev.soLuongTon
-            };
+            const newGrouped = [...prev.groupedVariants];
+            newGrouped[colorIndex].sizes.push({ size: '', soLuong: 0, gia: '' });
+            return { ...prev, groupedVariants: newGrouped };
+        });
+    };
+
+    const removeSizeFromGroup = (colorIndex, sizeIndex) => {
+        setFormData(prev => {
+            const newGrouped = [...prev.groupedVariants];
+            newGrouped[colorIndex].sizes = newGrouped[colorIndex].sizes.filter((_, i) => i !== sizeIndex);
+            
+            // If color has no sizes, remove color group? No, keep it or let user remove it.
+            const flattened = [];
+            newGrouped.forEach(group => {
+                group.sizes.forEach(s => {
+                    flattened.push({ mauSac: group.color, ...s });
+                });
+            });
+            const totalStock = flattened.reduce((sum, item) => sum + (Number(item.soLuong) || 0), 0);
+            return { ...prev, groupedVariants: newGrouped, bienThe: flattened, soLuongTon: totalStock };
+        });
+    };
+
+    const removeColorGroup = (colorIndex) => {
+        setFormData(prev => {
+            const newGrouped = prev.groupedVariants.filter((_, i) => i !== colorIndex);
+            const flattened = [];
+            newGrouped.forEach(group => {
+                group.sizes.forEach(s => {
+                    flattened.push({ mauSac: group.color, ...s });
+                });
+            });
+            const totalStock = flattened.reduce((sum, item) => sum + (Number(item.soLuong) || 0), 0);
+            return { ...prev, groupedVariants: newGrouped, bienThe: flattened, soLuongTon: totalStock };
         });
     };
 
@@ -204,37 +253,102 @@ const ProductAddForm = ({ categories, onClose }) => {
                     <div className={activeTab === 'bien_the' ? 'block' : 'hidden'}>
                         <div className="mb-5 flex items-center justify-between bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
                             <div>
-                                <h4 className="font-bold text-gray-800 text-sm">Danh sách Phân loại hàng (SKU)</h4>
-                                <p className="text-xs text-gray-500 mt-1">Quản lý kích cỡ, màu sắc và tự động cộng dồn tồn kho.</p>
+                                <h4 className="font-bold text-gray-800 text-sm">Quản lý Phân loại hàng (Grouped by Color)</h4>
+                                <p className="text-xs text-gray-500 mt-1">Nhóm các kích cỡ dưới cùng một màu sắc để dễ dàng quản lý.</p>
                             </div>
-                            <button type="button" onClick={addVariant} className="px-4 py-2 bg-[#DAA06D]/10 text-[#DAA06D] hover:bg-[#DAA06D] hover:text-white rounded-lg font-semibold text-sm transition-colors flex items-center gap-2">
-                                <Plus size={16} /> Thêm tùy chọn
+                            <button type="button" onClick={addColorGroup} className="px-4 py-2 bg-[#DAA06D] text-white hover:bg-[#c08850] rounded-lg font-semibold text-sm transition-colors flex items-center gap-2 shadow-sm">
+                                <Plus size={16} /> Thêm Màu Mới
                             </button>
                         </div>
                         
-                        <div className="space-y-3">
-                            {formData.bienThe.length === 0 ? (
+                        <div className="space-y-6">
+                            {(!formData.groupedVariants || formData.groupedVariants.length === 0) ? (
                                 <div className="text-center py-10 bg-white rounded-xl border border-dashed border-gray-300">
-                                    <p className="text-gray-400 text-sm">Sản phẩm này chưa chia biến thể.<br/>Nhấn <b>Thêm tùy chọn</b> để khai báo Size/Màu đồ.</p>
+                                    <p className="text-gray-400 text-sm">Chưa có màu sắc nào.<br/>Nhấn <b>Thêm Màu Mới</b> để bắt đầu.</p>
                                 </div>
                             ) : (
-                                formData.bienThe.map((variant, index) => (
-                                    <div key={index} className="flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-xl shadow-sm hover:border-[#DAA06D]/50 transition-colors">
-                                        <div className="flex-1">
-                                            <input type="text" placeholder="Màu (vd: Đen)" value={variant.mauSac} onChange={(e) => handleVariantChange(index, 'mauSac', e.target.value)} className="w-full text-sm px-3 py-2 border-b border-dashed border-gray-300 focus:border-[#DAA06D] focus:outline-none bg-transparent" />
+                                formData.groupedVariants.map((group, colorIndex) => (
+                                    <div key={colorIndex} className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm transition-all hover:shadow-md">
+                                        {/* Color Header */}
+                                        <div className="bg-gray-50 px-4 py-3 border-b border-gray-100 flex items-center gap-4">
+                                            <div className="flex-1 flex items-center gap-3">
+                                                <div className="w-2 h-8 bg-[#DAA06D] rounded-full"></div>
+                                                <input 
+                                                    type="text" 
+                                                    placeholder="Tên Màu (vd: Đen, Trắng, Navy...)" 
+                                                    value={group.color} 
+                                                    onChange={(e) => handleColorNameChange(colorIndex, e.target.value)}
+                                                    className="flex-1 bg-transparent font-bold text-gray-800 focus:outline-none placeholder-gray-400 border-b border-transparent focus:border-[#DAA06D]"
+                                                />
+                                            </div>
+                                            <button 
+                                                type="button" 
+                                                onClick={() => removeColorGroup(colorIndex)}
+                                                className="text-gray-400 hover:text-red-500 p-1.5 hover:bg-red-50 rounded-lg transition-all"
+                                                title="Xóa toàn bộ nhóm màu này"
+                                            >
+                                                <Trash2 size={18} />
+                                            </button>
                                         </div>
-                                        <div className="flex-1">
-                                            <input type="text" placeholder="Size (vd: XL)" value={variant.size} onChange={(e) => handleVariantChange(index, 'size', e.target.value)} className="w-full text-sm px-3 py-2 border-b border-dashed border-gray-300 focus:border-[#DAA06D] focus:outline-none bg-transparent" />
+
+                                        {/* Sizes List */}
+                                        <div className="p-4 space-y-3">
+                                            <div className="grid grid-cols-12 gap-3 mb-1 px-2">
+                                                <div className="col-span-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Kích thước (Size)</div>
+                                                <div className="col-span-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Số lượng kho</div>
+                                                <div className="col-span-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Giá chênh lệch (nếu có)</div>
+                                                <div className="col-span-1"></div>
+                                            </div>
+                                            
+                                            {group.sizes.map((s, sizeIndex) => (
+                                                <div key={sizeIndex} className="grid grid-cols-12 gap-3 items-center group/row">
+                                                    <div className="col-span-4">
+                                                        <input 
+                                                            type="text" 
+                                                            placeholder="Size (S, M, L...)" 
+                                                            value={s.size} 
+                                                            onChange={(e) => handleVariantChange(colorIndex, sizeIndex, 'size', e.target.value)}
+                                                            className="w-full text-sm px-3 py-2 border border-gray-200 rounded-xl focus:border-[#DAA06D] focus:ring-1 focus:ring-[#DAA06D] outline-none bg-gray-50/50 group-hover/row:bg-white transition-all"
+                                                        />
+                                                    </div>
+                                                    <div className="col-span-3">
+                                                        <input 
+                                                            type="number" 
+                                                            placeholder="0" 
+                                                            value={s.soLuong} 
+                                                            onChange={(e) => handleVariantChange(colorIndex, sizeIndex, 'soLuong', e.target.value)}
+                                                            className="w-full text-sm px-3 py-2 border border-gray-200 rounded-xl focus:border-[#DAA06D] outline-none bg-gray-50/50 group-hover/row:bg-white transition-all font-mono text-blue-600"
+                                                        />
+                                                    </div>
+                                                    <div className="col-span-4">
+                                                        <input 
+                                                            type="number" 
+                                                            placeholder="VD: 10000" 
+                                                            value={s.gia} 
+                                                            onChange={(e) => handleVariantChange(colorIndex, sizeIndex, 'gia', e.target.value)}
+                                                            className="w-full text-sm px-3 py-2 border border-gray-200 rounded-xl focus:border-[#DAA06D] outline-none bg-gray-50/50 group-hover/row:bg-white transition-all font-mono text-amber-600"
+                                                        />
+                                                    </div>
+                                                    <div className="col-span-1 flex justify-center">
+                                                        <button 
+                                                            type="button" 
+                                                            onClick={() => removeSizeFromGroup(colorIndex, sizeIndex)}
+                                                            className="text-gray-300 hover:text-red-400 transition-colors"
+                                                        >
+                                                            <X size={16} />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                            
+                                            <button 
+                                                type="button" 
+                                                onClick={() => addSizeToGroup(colorIndex)}
+                                                className="mt-2 w-full py-2 border-2 border-dashed border-gray-100 rounded-xl text-gray-400 hover:border-[#DAA06D]/30 hover:text-[#DAA06D] hover:bg-[#DAA06D]/5 text-xs font-bold uppercase tracking-widest transition-all"
+                                            >
+                                                + Thêm Size mới cho màu {group.color || 'này'}
+                                            </button>
                                         </div>
-                                        <div className="flex-1">
-                                            <input type="number" placeholder="Kho (+)" value={variant.soLuong} onChange={(e) => handleVariantChange(index, 'soLuong', e.target.value)} className="w-full text-sm px-3 py-2 border-b border-dashed border-gray-300 focus:border-[#DAA06D] focus:outline-none bg-transparent text-blue-600 font-mono" title="Tồn kho của tuỳ chọn này" />
-                                        </div>
-                                        <div className="flex-1">
-                                            <input type="number" placeholder="Bù giá (Nếu có)" value={variant.gia || ''} onChange={(e) => handleVariantChange(index, 'gia', e.target.value)} className="w-full text-sm px-3 py-2 border-b border-dashed border-gray-300 focus:border-[#DAA06D] focus:outline-none bg-transparent text-amber-600 font-mono" title="Nếu Size XL đắt hơn 10k thì nhập vào đây" />
-                                        </div>
-                                        <button type="button" onClick={() => removeVariant(index)} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
-                                            <Trash2 size={18} />
-                                        </button>
                                     </div>
                                 ))
                             )}

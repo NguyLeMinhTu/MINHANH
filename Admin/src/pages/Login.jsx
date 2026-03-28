@@ -17,22 +17,23 @@ const Login = () => {
         if (error) setError('')
     }
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault()
         if (!form.email || !form.password) {
             setError('Vui lòng nhập đầy đủ thông tin.')
             return
         }
         setLoading(true)
-        setTimeout(() => {
-            const ok = login(form.email, form.password)
+        try {
+            const ok = await login(form.email, form.password)
             if (ok) {
                 navigate('/', { replace: true })
             } else {
                 setError('Email hoặc mật khẩu không đúng, hoặc tài khoản không có quyền admin.')
             }
+        } finally {
             setLoading(false)
-        }, 400)
+        }
     }
 
     return (

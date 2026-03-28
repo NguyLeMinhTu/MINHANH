@@ -28,12 +28,13 @@ const CategoryMenu = ({ categories = [], onFilter = () => { }, selectedCategory 
                         <li className="py-2 px-3 text-sm text-carbon-black-400">Không có danh mục</li>
                     ) : (
                         categories.map((c, i) => (
-                            <li key={c.slug || c.name}>
+                            <li
+                                key={c.slug || c.name}
+                                onMouseEnter={() => setOpenIdx(i)}
+                                onMouseLeave={() => setOpenIdx(null)}
+                            >
                                 <button
-                                    onClick={() => {
-                                        setOpenIdx(openIdx === i ? null : i)
-                                        onFilter(c.slug || null, null)
-                                    }}
+                                    onClick={() => onFilter(c.slug || null, null)}
                                     className={`w-full flex items-center justify-between py-2 px-3 rounded-xl text-sm transition-colors ${selectedCategory === (c.slug || null)
                                         ? 'bg-golden-earth-50 text-brown-bark-700 font-bold'
                                         : 'text-carbon-black-700 hover:bg-carbon-black-50 font-medium'

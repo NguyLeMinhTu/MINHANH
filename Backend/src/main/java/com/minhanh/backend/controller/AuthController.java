@@ -65,6 +65,15 @@ public class AuthController {
     }
 
     /**
+     * API kiểm tra token còn hợp lệ không (dùng cho frontend polling).
+     * Spring Security tự trả 401 nếu cookie hết hạn hoặc không hợp lệ.
+     */
+    @GetMapping("/me")
+    public ResponseEntity<?> me(org.springframework.security.core.Authentication authentication) {
+        return ResponseEntity.ok(Map.of("email", authentication.getName()));
+    }
+
+    /**
      * Tạo key rate-limit dạng IP:email để phân biệt từng nguồn đăng nhập.
      */
     private String buildRateLimitKey(HttpServletRequest request, String email) {

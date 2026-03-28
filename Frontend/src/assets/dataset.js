@@ -681,7 +681,7 @@ export const san_pham = [
     },
     {
         san_pham_id: IDs.spBaoHo5,
-        ten_san_pham: "Quần Áo Bảo Hộ Lao Động Kaki - Ghi Xám",
+        ten_san_pham: "Quần Áo Bảo Hộ Lao Động Kaki - Ghi Bạc",
         slug: "quan-ao-bao-ho-lao-dong-kaki-ghi-xam",
         mo_ta: "Quần áo bảo hộ kaki màu ghi xám sạch sẽ.",
         meta_title: "Quần Áo Bảo Hộ Kaki Ghi Xám",
@@ -733,10 +733,10 @@ export const bien_the_san_pham = [
 
             // Bảo hộ
             [IDs.spBaoHo1, 'Ghi đậm'],
-            [IDs.spBaoHo2, 'Xám'],
+            [IDs.spBaoHo2, 'Ghi Bạc'],
             [IDs.spBaoHo3, 'Phản quang'],
             [IDs.spBaoHo4, 'Xanh phối xám'],
-            [IDs.spBaoHo5, 'Ghi xám'],
+            [IDs.spBaoHo5, 'Ghi Bạc'],
         ]);
 
         let variantIndex = 1;

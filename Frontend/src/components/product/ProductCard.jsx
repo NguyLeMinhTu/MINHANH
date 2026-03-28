@@ -29,13 +29,13 @@ const ProductCard = ({ product }) => {
         <article
             itemScope
             itemType="https://schema.org/Product"
-            className="group relative flex flex-col bg-white rounded-lg overflow-hidden shadow-[0_2px_10px_-3px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.15)] ring-1 ring-carbon-black-100/60 hover:ring-brown-bark-400/30 transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] cursor-pointer translate-y-0 hover:-translate-y-1"
+            className="group relative flex flex-col h-full bg-white rounded-lg overflow-hidden shadow-[0_2px_10px_-3px_rgba(0,0,0,0.08)] hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.15)] ring-1 ring-carbon-black-100/60 hover:ring-brown-bark-400/30 transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] cursor-pointer translate-y-0 hover:-translate-y-1"
             onClick={() => product?.slug && navigate(`/san-pham/${product.slug}`)}
         >
             <meta itemProp="url" content={`/san-pham/${product?.slug}`} />
 
             {/* Image Wrapper */}
-            <div className="relative w-full aspect-[4/5] sm:aspect-[3/4] overflow-hidden bg-carbon-black-50/50">
+            <div className="relative w-full h-[320px] flex-shrink-0 overflow-hidden bg-carbon-black-50/50">
                 {image1 ? (
                     <>
                         {/* Ảnh chính (Primary) */}
@@ -115,7 +115,7 @@ const ProductCard = ({ product }) => {
 
                 <h3
                     itemProp="name"
-                    className="text-[14px] font-semibold text-carbon-black-900 leading-snug line-clamp-2 mb-3 min-h-[2.5rem] group-hover:text-brown-bark-700 transition-colors"
+                    className="text-[14px] font-semibold text-carbon-black-900 leading-snug line-clamp-2 mb-2 min-h-[2.2rem] group-hover:text-brown-bark-700 transition-colors"
                     title={title}
                 >
                     {title}
@@ -125,22 +125,22 @@ const ProductCard = ({ product }) => {
                     <div itemProp="offers" itemScope itemType="https://schema.org/Offer" className="flex flex-col">
                         <meta itemProp="priceCurrency" content="VND" />
                         <meta itemProp="price" content={String(priceFrom)} />
-                        <span className="text-[10px] text-carbon-black-500 uppercase tracking-wide font-medium mb-0.5">Giá từ</span>
-                        <div className="flex flex-col justify-end min-h-[3.2rem]">
+                        <span className="text-[10px] text-carbon-black-500 uppercase tracking-wide font-medium mb-0">Giá từ</span>
+                        <div className="flex flex-col justify-end h-[2.8rem]">
                             {formattedDiscount ? (
-                                <span className="text-xs text-carbon-black-400 line-through tabular-nums decoration-brown-bark-300/50">
+                                <span className="text-xs text-carbon-black-400 line-through tabular-nums decoration-brown-bark-300/50 leading-none mb-1">
                                     {formattedPrice}đ
                                 </span>
                             ) : (
-                                <span className="text-xs opacity-0 pointer-events-none select-none">
+                                <span className="text-xs opacity-0 pointer-events-none select-none leading-none mb-1">
                                     {formattedPrice}đ
                                 </span>
                             )}
                             <div className="flex items-baseline gap-1">
-                                <span className="text-base sm:text-[17px] font-black text-brown-bark-800 tabular-nums tracking-tight">
+                                <span className="text-base sm:text-[17px] font-black text-brown-bark-800 tabular-nums tracking-tight leading-none">
                                     {formattedDiscount || formattedPrice}
                                 </span>
-                                <span className="text-sm font-bold text-brown-bark-800/80">đ</span>
+                                <span className="text-sm font-bold text-brown-bark-800/80 leading-none">đ</span>
                             </div>
                         </div>
                     </div>

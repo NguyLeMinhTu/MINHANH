@@ -49,6 +49,6 @@ export const categories = [
         id: 6,
         label: "TIN TỨC",
         href: "/tin-tuc",
-        hasSubmenu: false,
+        hasSubmenu: true,
     },
 ];

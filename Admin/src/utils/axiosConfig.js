@@ -27,10 +27,13 @@ axiosInstance.interceptors.response.use(
         return response.data; // Trả về data luôn cho gọn
     },
     (error) => {
-        // Xử lý lỗi chung (Ví dụ: Token hết hạn -> logout)
         if (error.response && error.response.status === 401) {
-            // Có thể emit event hoặc xử lý logic logout ở đây nếu cần thiết
-            console.error("Lỗi 401 Unauthorized - Token có thể đã hết hạn");
+            // Chỉ redirect nếu chưa ở trang login (tránh vòng lặp)
+            if (window.location.pathname !== '/login') {
+                console.warn("Phiên đăng nhập hết hạn. Chuyển về trang đăng nhập...");
+                localStorage.removeItem('admin_user'); // Xóa trước khi redirect
+                window.location.href = '/login';
+            }
         }
         return Promise.reject(error);
     }

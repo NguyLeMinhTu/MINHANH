@@ -13,11 +13,26 @@ const ProductFormModal = ({ product, categories, onClose }) => {
         giaThamKhao: 0, giaBan: 0, giaKhuyenMai: 0,
         soLuongTon: 0, donViTinh: 'Áo', thuongHieu: '', xuatXu: '',
         chatLieu: '', baoQuan: '', tags: '',
-        spNoiBat: false, spMoi: false, trangThai: 'cong_khai', danhMucId: '', images: [], bienThe: []
+        spNoiBat: false, spMoi: false, trangThai: 'cong_khai', danhMucId: '', images: [], bienThe: [],
+        groupedVariants: [] // Sẽ được đổ dữ liệu từ unflatten logic
     });
 
     useEffect(() => {
         if (product) {
+            const flattened = Array.isArray(product.bienThe) ? product.bienThe.map(v => ({ ...v })) : [];
+            
+            // Logic "Unflatten": Từ Array phẳng [{mauSac, size...}, ...] -> Grouped { color: 'Đen', sizes: [...] }
+            const groups = {};
+            flattened.forEach(v => {
+                const color = v.mauSac || '';
+                if (!groups[color]) groups[color] = [];
+                groups[color].push({ size: v.size || '', soLuong: v.soLuong || 0, gia: v.gia || '' });
+            });
+            const groupedVariants = Object.keys(groups).map(color => ({
+                color: color,
+                sizes: groups[color]
+            }));
+
             setFormData({
                 tenSanPham: product.tenSanPham || '', slug: product.slug || '', moTa: product.moTa || '',
                 metaTitle: product.metaTitle || '', metaDescription: product.metaDescription || '',
@@ -29,7 +44,8 @@ const ProductFormModal = ({ product, categories, onClose }) => {
                 danhMucId: product.danhMuc?.danhMucId || '',
                 trangThai: product.trangThai || 'cong_khai',
                 images: Array.isArray(product.hinhAnh) ? product.hinhAnh.map(img => img.urlAnh || img.url).filter(Boolean) : [],
-                bienThe: Array.isArray(product.bienThe) ? product.bienThe.map(v => ({ ...v })) : []
+                bienThe: flattened,
+                groupedVariants: groupedVariants.length > 0 ? groupedVariants : [{ color: '', sizes: [{ size: '', soLuong: 0, gia: '' }] }]
             });
         }
     }, [product]);
@@ -82,39 +98,82 @@ const ProductFormModal = ({ product, categories, onClose }) => {
     };
 
     // Hàm gánh trọng trách bắt lỗi khi User gõ phím vào 1 ô dữ liệu bấy kỳ của 1 dòng Size/Màu
-    const handleVariantChange = (index, field, value) => {
+    const handleVariantChange = (colorIndex, sizeIndex, field, value) => {
         setFormData(prev => {
-            const newBienThe = [...prev.bienThe];
-            newBienThe[index] = { ...newBienThe[index], [field]: value }; // Cập nhật lại Object tại dòng đó
+            const newGrouped = [...prev.groupedVariants];
+            newGrouped[colorIndex].sizes[sizeIndex] = { ...newGrouped[colorIndex].sizes[sizeIndex], [field]: value };
             
-            let newTotalStock = prev.soLuongTon;
-            // Thuật toán: Nếu người dùng đang chỉnh sửa ô TỒN KHO chứ không phải gõ ô Màu Sắc/Kích Cỡ
-            // -> Thì kích hoạt quét quyét quyét dọc vòng lặp tự cộng dồn các ô Kho biến thể lại cho ta 1 Tổng kho chốt đơn
-            if (field === 'soLuong') {
-                newTotalStock = newBienThe.reduce((sum, item) => sum + (Number(item.soLuong) || 0), 0);
-            }
-            return { ...prev, bienThe: newBienThe, soLuongTon: field === 'soLuong' ? newTotalStock : prev.soLuongTon };
+            // Re-flatten to update bienThe and soLuongTon
+            const flattened = [];
+            newGrouped.forEach(group => {
+                group.sizes.forEach(s => {
+                    flattened.push({ mauSac: group.color, ...s });
+                });
+            });
+            const totalStock = flattened.reduce((sum, item) => sum + (Number(item.soLuong) || 0), 0);
+            
+            return { ...prev, groupedVariants: newGrouped, bienThe: flattened, soLuongTon: totalStock };
         });
     };
 
-    // Hàm tạo phôi rỗng 1 dòng Biến Thể Size/Màu mới toanh (Nhấn nút "Thêm tùy chọn")
-    const addVariant = () => {
+    const handleColorNameChange = (colorIndex, newColorName) => {
+        setFormData(prev => {
+            const newGrouped = [...prev.groupedVariants];
+            newGrouped[colorIndex].color = newColorName;
+            
+            // Re-flatten
+            const flattened = [];
+            newGrouped.forEach(group => {
+                group.sizes.forEach(s => {
+                    flattened.push({ mauSac: group.color, ...s });
+                });
+            });
+            return { ...prev, groupedVariants: newGrouped, bienThe: flattened };
+        });
+    };
+
+    const addColorGroup = () => {
         setFormData(prev => ({
             ...prev,
-            bienThe: [...prev.bienThe, { mauSac: '', size: '', gia: '', soLuong: 0 }]
+            groupedVariants: [...(prev.groupedVariants || []), { color: '', sizes: [{ size: '', soLuong: 0, gia: '' }] }]
         }));
     };
 
-    // Hàm đá đít (xóa) 1 dòng Biến Thể lúc nhấn icon Thùng Rác mini
-    const removeVariant = (index) => {
+    const addSizeToGroup = (colorIndex) => {
         setFormData(prev => {
-            const newBienThe = prev.bienThe.filter((_, i) => i !== index); // Lấy những thằng không bị click
-            const newTotalStock = newBienThe.reduce((sum, item) => sum + (Number(item.soLuong) || 0), 0); // Vẫn phải tuân thủ Auto-Sync ngay lập tức
-            return {
-                ...prev,
-                bienThe: newBienThe,
-                soLuongTon: newBienThe.length > 0 ? newTotalStock : prev.soLuongTon
-            };
+            const newGrouped = [...prev.groupedVariants];
+            newGrouped[colorIndex].sizes.push({ size: '', soLuong: 0, gia: '' });
+            return { ...prev, groupedVariants: newGrouped };
+        });
+    };
+
+    const removeSizeFromGroup = (colorIndex, sizeIndex) => {
+        setFormData(prev => {
+            const newGrouped = [...prev.groupedVariants];
+            newGrouped[colorIndex].sizes = newGrouped[colorIndex].sizes.filter((_, i) => i !== sizeIndex);
+            
+            const flattened = [];
+            newGrouped.forEach(group => {
+                group.sizes.forEach(s => {
+                    flattened.push({ mauSac: group.color, ...s });
+                });
+            });
+            const totalStock = flattened.reduce((sum, item) => sum + (Number(item.soLuong) || 0), 0);
+            return { ...prev, groupedVariants: newGrouped, bienThe: flattened, soLuongTon: totalStock };
+        });
+    };
+
+    const removeColorGroup = (colorIndex) => {
+        setFormData(prev => {
+            const newGrouped = prev.groupedVariants.filter((_, i) => i !== colorIndex);
+            const flattened = [];
+            newGrouped.forEach(group => {
+                group.sizes.forEach(s => {
+                    flattened.push({ mauSac: group.color, ...s });
+                });
+            });
+            const totalStock = flattened.reduce((sum, item) => sum + (Number(item.soLuong) || 0), 0);
+            return { ...prev, groupedVariants: newGrouped, bienThe: flattened, soLuongTon: totalStock };
         });
     };
 
@@ -227,37 +286,102 @@ const ProductFormModal = ({ product, categories, onClose }) => {
                     <div className={activeTab === 'bien_the' ? 'block' : 'hidden'}>
                         <div className="mb-5 flex items-center justify-between bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
                             <div>
-                                <h4 className="font-bold text-gray-800 text-sm">Danh sách Phân loại hàng (SKU)</h4>
-                                <p className="text-xs text-gray-500 mt-1">Quản lý kích cỡ, màu sắc và tự động cộng dồn tồn kho.</p>
+                                <h4 className="font-bold text-gray-800 text-sm">Quản lý Phân loại hàng (Grouped by Color)</h4>
+                                <p className="text-xs text-gray-500 mt-1">Nhóm các kích cỡ dưới cùng một màu sắc để dễ dàng quản lý.</p>
                             </div>
-                            <button type="button" onClick={addVariant} className="px-4 py-2 bg-[#DAA06D]/10 text-[#DAA06D] hover:bg-[#DAA06D] hover:text-white rounded-lg font-semibold text-sm transition-colors flex items-center gap-2">
-                                <Plus size={16} /> Thêm tùy chọn
+                            <button type="button" onClick={addColorGroup} className="px-4 py-2 bg-[#DAA06D] text-white hover:bg-[#c08850] rounded-lg font-semibold text-sm transition-colors flex items-center gap-2 shadow-sm">
+                                <Plus size={16} /> Thêm Màu Mới
                             </button>
                         </div>
                         
-                        <div className="space-y-3">
-                            {formData.bienThe.length === 0 ? (
+                        <div className="space-y-6">
+                            {(!formData.groupedVariants || formData.groupedVariants.length === 0) ? (
                                 <div className="text-center py-10 bg-white rounded-xl border border-dashed border-gray-300">
-                                    <p className="text-gray-400 text-sm">Sản phẩm này chưa chia biến thể.<br/>Nhấn <b>Thêm tùy chọn</b> để khai báo Size/Màu đồ.</p>
+                                    <p className="text-gray-400 text-sm">Chưa có màu sắc nào.<br/>Nhấn <b>Thêm Màu Mới</b> để bắt đầu.</p>
                                 </div>
                             ) : (
-                                formData.bienThe.map((variant, index) => (
-                                    <div key={index} className="flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-xl shadow-sm hover:border-[#DAA06D]/50 transition-colors">
-                                        <div className="flex-1">
-                                            <input type="text" placeholder="Màu (vd: Đen)" value={variant.mauSac} onChange={(e) => handleVariantChange(index, 'mauSac', e.target.value)} className="w-full text-sm px-3 py-2 border-b border-dashed border-gray-300 focus:border-[#DAA06D] focus:outline-none bg-transparent" />
+                                formData.groupedVariants.map((group, colorIndex) => (
+                                    <div key={colorIndex} className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm transition-all hover:shadow-md">
+                                        {/* Color Header */}
+                                        <div className="bg-gray-50 px-4 py-3 border-b border-gray-100 flex items-center gap-4">
+                                            <div className="flex-1 flex items-center gap-3">
+                                                <div className="w-2 h-8 bg-[#DAA06D] rounded-full"></div>
+                                                <input 
+                                                    type="text" 
+                                                    placeholder="Tên Màu (vd: Đen, Trắng, Navy...)" 
+                                                    value={group.color} 
+                                                    onChange={(e) => handleColorNameChange(colorIndex, e.target.value)}
+                                                    className="flex-1 bg-transparent font-bold text-gray-800 focus:outline-none placeholder-gray-400 border-b border-transparent focus:border-[#DAA06D]"
+                                                />
+                                            </div>
+                                            <button 
+                                                type="button" 
+                                                onClick={() => removeColorGroup(colorIndex)}
+                                                className="text-gray-400 hover:text-red-500 p-1.5 hover:bg-red-50 rounded-lg transition-all"
+                                                title="Xóa toàn bộ nhóm màu này"
+                                            >
+                                                <Trash2 size={18} />
+                                            </button>
                                         </div>
-                                        <div className="flex-1">
-                                            <input type="text" placeholder="Size (vd: XL)" value={variant.size} onChange={(e) => handleVariantChange(index, 'size', e.target.value)} className="w-full text-sm px-3 py-2 border-b border-dashed border-gray-300 focus:border-[#DAA06D] focus:outline-none bg-transparent" />
+
+                                        {/* Sizes List */}
+                                        <div className="p-4 space-y-3">
+                                            <div className="grid grid-cols-12 gap-3 mb-1 px-2">
+                                                <div className="col-span-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Kích thước (Size)</div>
+                                                <div className="col-span-3 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Số lượng kho</div>
+                                                <div className="col-span-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Giá chênh lệch (nếu có)</div>
+                                                <div className="col-span-1"></div>
+                                            </div>
+                                            
+                                            {group.sizes.map((s, sizeIndex) => (
+                                                <div key={sizeIndex} className="grid grid-cols-12 gap-3 items-center group/row">
+                                                    <div className="col-span-4">
+                                                        <input 
+                                                            type="text" 
+                                                            placeholder="Size (S, M, L...)" 
+                                                            value={s.size} 
+                                                            onChange={(e) => handleVariantChange(colorIndex, sizeIndex, 'size', e.target.value)}
+                                                            className="w-full text-sm px-3 py-2 border border-gray-200 rounded-xl focus:border-[#DAA06D] focus:ring-1 focus:ring-[#DAA06D] outline-none bg-gray-50/50 group-hover/row:bg-white transition-all"
+                                                        />
+                                                    </div>
+                                                    <div className="col-span-3">
+                                                        <input 
+                                                            type="number" 
+                                                            placeholder="0" 
+                                                            value={s.soLuong} 
+                                                            onChange={(e) => handleVariantChange(colorIndex, sizeIndex, 'soLuong', e.target.value)}
+                                                            className="w-full text-sm px-3 py-2 border border-gray-200 rounded-xl focus:border-[#DAA06D] outline-none bg-gray-50/50 group-hover/row:bg-white transition-all font-mono text-blue-600"
+                                                        />
+                                                    </div>
+                                                    <div className="col-span-4">
+                                                        <input 
+                                                            type="number" 
+                                                            placeholder="VD: 10000" 
+                                                            value={s.gia} 
+                                                            onChange={(e) => handleVariantChange(colorIndex, sizeIndex, 'gia', e.target.value)}
+                                                            className="w-full text-sm px-3 py-2 border border-gray-200 rounded-xl focus:border-[#DAA06D] outline-none bg-gray-50/50 group-hover/row:bg-white transition-all font-mono text-amber-600"
+                                                        />
+                                                    </div>
+                                                    <div className="col-span-1 flex justify-center">
+                                                        <button 
+                                                            type="button" 
+                                                            onClick={() => removeSizeFromGroup(colorIndex, sizeIndex)}
+                                                            className="text-gray-300 hover:text-red-400 transition-colors"
+                                                        >
+                                                            <X size={16} />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                            
+                                            <button 
+                                                type="button" 
+                                                onClick={() => addSizeToGroup(colorIndex)}
+                                                className="mt-2 w-full py-2 border-2 border-dashed border-gray-100 rounded-xl text-gray-400 hover:border-[#DAA06D]/30 hover:text-[#DAA06D] hover:bg-[#DAA06D]/5 text-xs font-bold uppercase tracking-widest transition-all"
+                                            >
+                                                + Thêm Size mới cho màu {group.color || 'này'}
+                                            </button>
                                         </div>
-                                        <div className="flex-1">
-                                            <input type="number" placeholder="Kho (+)" value={variant.soLuong} onChange={(e) => handleVariantChange(index, 'soLuong', e.target.value)} className="w-full text-sm px-3 py-2 border-b border-dashed border-gray-300 focus:border-[#DAA06D] focus:outline-none bg-transparent text-blue-600 font-mono" title="Tồn kho của tuỳ chọn này" />
-                                        </div>
-                                        <div className="flex-1">
-                                            <input type="number" placeholder="Bù giá (Nếu có)" value={variant.gia || ''} onChange={(e) => handleVariantChange(index, 'gia', e.target.value)} className="w-full text-sm px-3 py-2 border-b border-dashed border-gray-300 focus:border-[#DAA06D] focus:outline-none bg-transparent text-amber-600 font-mono" title="Nếu Size XL đắt hơn 10k thì nhập vào đây" />
-                                        </div>
-                                        <button type="button" onClick={() => removeVariant(index)} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
-                                            <Trash2 size={18} />
-                                        </button>
                                     </div>
                                 ))
                             )}

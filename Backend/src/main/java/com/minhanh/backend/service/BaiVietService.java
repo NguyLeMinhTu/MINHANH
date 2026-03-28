@@ -35,6 +35,27 @@ public class BaiVietService {
         return repository.findAllOrderByNgayDangDesc(pageable).map(this::toDto);
     }
 
+    /**
+     * Lấy bài viết public (PUBLISHED), filter theo slug danh mục nếu có
+     */
+    public Page<BaiVietResponseDto> getPublic(Pageable pageable, String danhMucSlug) {
+        if (danhMucSlug != null && !danhMucSlug.isBlank()) {
+            return repository.findPublishedByDanhMucSlug(danhMucSlug, pageable).map(this::toDto);
+        }
+        return repository.findPublishedOrderByNgayDangDesc(pageable).map(this::toDto);
+    }
+
+    /**
+     * Lấy bài viết liên quan cùng danh mục, loại trừ bài hiện tại
+     */
+    public List<BaiVietResponseDto> getRelated(String slug, int size) {
+        BaiViet current = repository.findBySlug(slug).orElse(null);
+        if (current == null || current.getDanhMuc() == null) return List.of();
+        String catSlug = current.getDanhMuc().getSlug();
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(0, size);
+        return repository.findRelated(catSlug, slug, pageable).stream().map(this::toDto).toList();
+    }
+
     public BaiViet getById(String id) {
         return repository.findById(id).orElseThrow(() -> new RuntimeException("Không tìm thấy bài viết với ID: " + id));
     }

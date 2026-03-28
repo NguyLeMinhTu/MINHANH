@@ -32,16 +32,19 @@ public class SecurityConfig {
                 // CORS Preflight
                 .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                 // Công khai (không cần token)
-                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/auth/login", "/api/auth/register", "/api/auth/refresh", "/api/auth/logout").permitAll()
                 .requestMatchers("/api/trang-chu/**").permitAll()
                 .requestMatchers("/api/san-pham/**").permitAll()
+                .requestMatchers("/api/danh-muc-san-pham/**").permitAll()
+                .requestMatchers("/api/danh-muc-bai-viet/**").permitAll()
+                .requestMatchers("/api/bai-viet/**").permitAll()
                 .requestMatchers("/api/yeu-cau-tu-van/**").permitAll()
                 .requestMatchers("/api/notifications/**").permitAll()
                 .requestMatchers("/api/ping").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 // Chỉ admin mới được vào
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                // Còn lại cần đăng nhập
+                // Còn lại cần đăng nhập (bao gồm /api/auth/me)
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
