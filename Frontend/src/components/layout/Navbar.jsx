@@ -82,11 +82,11 @@ export default function Navbar() {
 
             <nav className={`bg-gradient-to-b from-brown-bark-800/95 to-brown-bark-700 transition-shadow duration-300 ${scrolled ? "shadow-md" : "shadow-sm border-b border-carbon-black-100"}`}>
                 <div className="max-w-6xl mx-auto px-3 lg:px-4">
-                    <div className="flex items-center h-12 md:h-16 lg:h-20 gap-3 md:gap-4">
+                    <div className="flex items-center h-14 md:h-20 lg:h-24 gap-3 md:gap-4">
                         <button
                             type="button"
                             onClick={() => setMobileOpen((s) => !s)}
-                            className="md:hidden inline-flex items-center gap-2 px-2.5 py-2 rounded-md text-carbon-black-50 hover:text-brown-bark-700 hover:bg-golden-earth-50 transition-colors"
+                            className="md:hidden inline-flex items-center gap-2 px-4.5 py-4 rounded-md text-carbon-black-50 hover:text-brown-bark-700 hover:bg-golden-earth-50 transition-colors"
                             aria-label="Danh mục"
                             aria-expanded={mobileOpen}
                         >
@@ -99,7 +99,7 @@ export default function Navbar() {
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                                 </svg>
                             )}
-                            <span className="text-sm font-semibold">Danh mục</span>
+                            {/* <span className="text-sm font-semibold">Danh mục</span> */}
                         </button>
 
                         <Link to="/" className="shrink-0 flex-1 md:flex-none flex items-center justify-center md:justify-start">
@@ -209,7 +209,7 @@ export default function Navbar() {
                         </ul>
 
                         <div className="flex items-center gap-1 shrink-0">
-                            <button
+                            {/* <button
                                 type="button"
                                 className="hidden md:flex w-9 h-9 rounded-full items-center justify-center text-carbon-black-50 hover:text-brown-bark-200 hover:bg-golden-earth-50 transition-colors"
                                 aria-label="Tài khoản"
@@ -229,7 +229,7 @@ export default function Navbar() {
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.25 3h1.5l1.5 13.5h12.75l2.25-9H6" />
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
                                 </svg>
-                            </button>
+                            </button> */}
 
                             <button onClick={() => setSearchOpen(true)} className="w-9 h-9 rounded-full flex items-center justify-center text-carbon-black-50 hover:text-brown-bark-200 hover:bg-golden-earth-50 transition-colors" aria-label="Tìm kiếm">
                                 <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
