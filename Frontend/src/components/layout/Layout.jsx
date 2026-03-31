@@ -22,7 +22,7 @@ export default function Layout({ children }) {
             <Footer />
 
             {/* Floating hotline and Zalo buttons (bottom-center) */}
-            <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-9999 flex flex-col sm:flex-row items-center gap-3 px-3">
+            <div className="fixed bottom-2 md:bottom-4 left-1/2 -translate-x-1/2 z-9999 flex flex-row items-center gap-2 md:gap-4 px-2 w-max max-w-full">
                 <FloatingHotline />
                 <FloatingZalo />
             </div>

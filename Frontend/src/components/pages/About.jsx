@@ -47,7 +47,7 @@ const About = () => {
                 <div className="relative z-10 max-w-7xl mx-auto px-4 w-full text-left font-heading">
                     <div className="max-w-2xl animate-in fade-in slide-in-from-left duration-1000">
                         <p className="text-golden-earth-400 font-bold tracking-[0.3em] uppercase mb-4 text-sm sm:text-base">Tinh hoa đồng phục</p>
-                        <h1 className="text-4xl md:text-6xl font-black text-white leading-[1.1] mb-6 tracking-tighter">
+                        <h1 className="text-4xl md:text-6xl font-bold text-white leading-[1.1] mb-6 tracking-tighter">
                             Nâng tầm nhận diện <br /> <span className="text-golden-earth-400">Vững bước thành công</span>
                         </h1>
                         <p className="text-lg text-white/80 font-medium max-w-md leading-relaxed font-sans">
@@ -58,13 +58,13 @@ const About = () => {
             </section>
 
             <div className="max-w-7xl mx-auto px-4 py-20 space-y-32">
-                
+
                 {/* --- WHO WE ARE (SPLIT SECTION) --- */}
                 <section className="grid lg:grid-cols-2 gap-12 items-center">
                     <div className="space-y-6">
-                        <div className="inline-block p-1 px-3 rounded-full bg-brown-bark-50 border border-brown-bark-100 text-brown-bark-700 text-[10px] font-black uppercase tracking-widest">Về chúng tôi</div>
-                        <h2 className="text-3xl md:text-4xl font-black text-brown-bark-950 tracking-tight leading-tight uppercase font-heading">
-                            Minh Anh Uniform: <br/> Đối tác đồng phục tin cậy của hàng nghìn doanh nghiệp
+                        <div className="inline-block p-1 px-3 rounded-full bg-brown-bark-50 border border-brown-bark-100 text-brown-bark-700 text-[10px] font-bold uppercase tracking-widest">Về chúng tôi</div>
+                        <h2 className="text-3xl md:text-4xl font-bold text-brown-bark-950 tracking-tight leading-tight uppercase font-heading">
+                            Minh Anh Uniform: <br /> Đối tác đồng phục tin cậy của hàng nghìn doanh nghiệp
                         </h2>
                         <div className="space-y-4 text-carbon-black-600 leading-relaxed text-base font-medium font-sans">
                             <p>
@@ -82,7 +82,7 @@ const About = () => {
                             ].map((item, i) => (
                                 <div key={i} className="flex items-center gap-2 bg-white shadow-sm border border-carbon-black-100 p-3 rounded-2xl transition-transform hover:scale-105">
                                     <div className="text-golden-earth-600 font-bold">{item.icon}</div>
-                                    <span className="text-xs font-black text-carbon-black-800 uppercase tracking-tighter">{item.label}</span>
+                                    <span className="text-xs font-bold text-carbon-black-800 uppercase tracking-tighter">{item.label}</span>
                                 </div>
                             ))}
                         </div>
@@ -98,7 +98,7 @@ const About = () => {
                 {/* --- SERVICES GRID --- */}
                 <section className="space-y-12">
                     <div className="text-center max-w-2xl mx-auto space-y-4 font-heading">
-                        <h2 className="text-3xl font-black text-carbon-black-900 uppercase tracking-tighter leading-tight">Mô hình dịch vụ chuyên nghiệp</h2>
+                        <h2 className="text-3xl font-bold text-carbon-black-900 uppercase tracking-tighter leading-tight">Mô hình dịch vụ chuyên nghiệp</h2>
                         <div className="w-16 h-1.5 bg-golden-earth-500 mx-auto rounded-full" />
                         <p className="text-carbon-black-500 font-medium font-sans italic text-sm">Tối ưu hóa hình ảnh thương hiệu thông qua các dòng sản phẩm đồng phục được chọn lọc kỹ lưỡng.</p>
                     </div>
@@ -116,7 +116,7 @@ const About = () => {
                                     <div className="w-14 h-14 mx-auto rounded-2xl bg-golden-earth-100 text-brown-bark-700 flex items-center justify-center transition-colors group-hover:bg-golden-earth-500 group-hover:text-white shadow-lg group-hover:rotate-12 duration-300">
                                         {i === 0 ? <Zap className="w-6 h-6" /> : i === 1 ? <Users className="w-6 h-6" /> : i === 2 ? <Award className="w-6 h-6" /> : <Truck className="w-6 h-6" />}
                                     </div>
-                                    <h3 className="text-lg font-black text-carbon-black-900 uppercase tracking-tight font-heading">{item.title}</h3>
+                                    <h3 className="text-lg font-bold text-carbon-black-900 uppercase tracking-tight font-heading">{item.title}</h3>
                                     <p className="text-xs text-carbon-black-500 font-medium leading-relaxed font-sans">{item.desc}</p>
                                 </div>
                             </Link>
@@ -132,7 +132,7 @@ const About = () => {
                     <div className="relative z-10 space-y-16">
                         <div className="flex flex-col md:flex-row justify-between items-end gap-6 font-heading">
                             <div className="space-y-4">
-                                <h2 className="text-3xl font-black uppercase tracking-tighter">Quy trình sản xuất chuyên nghiệp</h2>
+                                <h2 className="text-3xl font-bold uppercase tracking-tighter">Quy trình sản xuất chuyên nghiệp</h2>
                                 <p className="text-white/60 font-medium max-w-sm font-sans text-sm italic">Quy trình 4 bước tiêu chuẩn đảm bảo chất lượng từ khâu tư vấn đến khi sản phẩm tới tay khách hàng.</p>
                             </div>
                             <div className="flex gap-2">
@@ -150,8 +150,8 @@ const About = () => {
                             ].map((item, i) => (
                                 <div key={i} className="group/item relative border-l-2 border-white/10 pl-8 space-y-4 hover:border-golden-earth-500 transition-colors duration-500">
                                     <div className="absolute -left-0.5 top-0 w-1 h-0 bg-golden-earth-500 transition-all duration-700 group-hover/item:h-full" />
-                                    <div className="text-5xl font-black text-white/5 group-hover/item:text-golden-earth-500 transition-colors italic tracking-tighter duration-500">{item.step}</div>
-                                    <h4 className="text-xl font-black uppercase tracking-tighter text-golden-earth-400 font-heading leading-tight">{item.title}</h4>
+                                    <div className="text-5xl font-bold text-white/5 group-hover/item:text-golden-earth-500 transition-colors italic tracking-tighter duration-500">{item.step}</div>
+                                    <h4 className="text-xl font-bold uppercase tracking-tighter text-golden-earth-400 font-heading leading-tight">{item.title}</h4>
                                     <p className="text-xs text-white/60 font-medium leading-relaxed font-sans">{item.desc}</p>
                                 </div>
                             ))}
@@ -163,7 +163,7 @@ const About = () => {
                 <section className="flex flex-col lg:flex-row rounded-[40px] bg-white border border-carbon-black-100 overflow-hidden shadow-sm group/quality">
                     <div className="lg:w-1/2 p-10 md:p-16 space-y-10 flex flex-col justify-center">
                         <div className="space-y-4 font-heading">
-                            <h2 className="text-3xl font-black text-carbon-black-900 uppercase tracking-tighter leading-[0.9]">Cam kết về <br /> <span className="text-golden-earth-600">từng đường kim mũi chỉ</span></h2>
+                            <h2 className="text-3xl font-bold text-carbon-black-900 uppercase tracking-tighter leading-[0.9]">Cam kết về <br /> <span className="text-golden-earth-600">từng đường kim mũi chỉ</span></h2>
                             <p className="text-carbon-black-400 font-medium text-sm font-sans italic">Chúng tôi không chỉ may áo, chúng tôi may niềm tự hào cho doanh nghiệp bạn.</p>
                         </div>
                         <div className="space-y-6">
@@ -177,14 +177,14 @@ const About = () => {
                                         <CheckCircle2 className="w-5 h-5" />
                                     </div>
                                     <div className="space-y-1">
-                                        <h5 className="text-base font-black text-carbon-black-800 uppercase tracking-tighter font-heading">{item.title}</h5>
+                                        <h5 className="text-base font-bold text-carbon-black-800 uppercase tracking-tighter font-heading">{item.title}</h5>
                                         <p className="text-xs text-carbon-black-500 font-medium leading-relaxed font-sans">{item.desc}</p>
                                     </div>
                                 </div>
                             ))}
                         </div>
                         <div className="pt-4">
-                            <Link to="/lien-he" className="inline-flex items-center gap-2 bg-golden-earth-500 text-brown-bark-950 px-10 py-5 rounded-2xl font-black uppercase tracking-tighter text-sm transition-all hover:bg-brown-bark-700 hover:text-white hover:scale-[1.02] shadow-xl">
+                            <Link to="/lien-he" className="inline-flex items-center gap-2 bg-golden-earth-500 text-brown-bark-950 px-10 py-5 rounded-2xl font-bold uppercase tracking-tighter text-sm transition-all hover:bg-brown-bark-700 hover:text-white hover:scale-[1.02] shadow-xl">
                                 Liên hệ nhận tư vấn ngay
                             </Link>
                         </div>
@@ -199,13 +199,13 @@ const About = () => {
                     <div className="grid lg:grid-cols-3 gap-16 items-start">
                         <div className="space-y-8 sticky top-20">
                             <div className="space-y-4 font-heading">
-                                <h2 className="text-4xl font-black text-carbon-black-900 uppercase tracking-tighter leading-tight">Câu hỏi <br/> thường gặp</h2>
+                                <h2 className="text-4xl font-bold text-carbon-black-900 uppercase tracking-tighter leading-tight">Câu hỏi <br /> thường gặp</h2>
                                 <div className="w-12 h-1.5 bg-golden-earth-500 rounded-full" />
                             </div>
                             <p className="text-carbon-black-500 font-medium text-sm leading-relaxed font-sans italic">
                                 Một vài thắc mắc phổ biến của các doanh nghiệp khi lần đầu triển khai đặt may tại Minh Anh Uniform.
                             </p>
-                            <Link to="/faq" className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-widest text-brown-bark-800 hover:text-golden-earth-600 transition-colors">
+                            <Link to="/faq" className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-brown-bark-800 hover:text-golden-earth-600 transition-colors">
                                 Xem tất cả FAQ <ArrowRightToLine className="w-4 h-4" />
                             </Link>
                         </div>
@@ -217,7 +217,7 @@ const About = () => {
                             ].map((item, i) => (
                                 <details key={i} className="group bg-white border border-carbon-black-100 rounded-[24px] overflow-hidden transition-all hover:border-golden-earth-400 shadow-sm active:scale-[0.99] duration-200">
                                     <summary className="p-8 cursor-pointer list-none flex items-center justify-between">
-                                        <span className="font-black text-brown-bark-950 uppercase tracking-tighter text-base font-heading">{item.q}</span>
+                                        <span className="font-bold text-brown-bark-950 uppercase tracking-tighter text-base font-heading">{item.q}</span>
                                         <div className="w-10 h-10 rounded-full bg-brown-bark-50 flex items-center justify-center transition-transform group-open:rotate-180 group-open:bg-golden-earth-500 group-open:text-white">
                                             <svg className="w-5 h-5 text-brown-bark-400 group-open:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" /></svg>
                                         </div>
@@ -231,14 +231,14 @@ const About = () => {
                     </div>
                 </section>
             </div>
-            
+
             <div className="max-w-7xl mx-auto flex justify-center pb-20 px-4">
-                 <Link
+                <Link
                     to="/san-pham"
                     className="group relative inline-flex items-center gap-4 bg-white border-2 border-golden-earth-500 px-12 py-6 rounded-3xl overflow-hidden transition-all hover:gap-6"
                 >
                     <div className="absolute inset-0 bg-golden-earth-500 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-                    <span className="relative z-10 text-lg font-black text-brown-bark-900 uppercase tracking-widest group-hover:text-white transition-colors">Xem bộ sưu tập sản phẩm</span>
+                    <span className="relative z-10 text-lg font-bold text-brown-bark-900 uppercase tracking-widest group-hover:text-white transition-colors">Xem bộ sưu tập sản phẩm</span>
                     <ArrowRightToLine className="relative z-10 h-6 w-6 text-brown-bark-900 group-hover:text-white transition-colors" />
                 </Link>
             </div>

@@ -56,10 +56,10 @@ export default function Footer({ primary = "#af7b51" }) {
                             <li><Link to="/tuyen-dung" className="hover:underline">Tin tuyển dụng</Link></li>
                         </ul>
 
-                        <div className="text-base font-semibold mb-3">CÁC HÌNH THỨC THANH TOÁN</div>
+                        {/* <div className="text-base font-semibold mb-3">CÁC HÌNH THỨC THANH TOÁN</div>
                         <div className="flex items-center gap-3">
                             <img src={CongThanhToan} alt="Cổng thanh toán" className="h-14" />
-                        </div>
+                        </div> */}
                     </div>
                 </div>
             </div>

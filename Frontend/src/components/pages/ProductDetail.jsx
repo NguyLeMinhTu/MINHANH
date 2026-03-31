@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import ProductCard from '../product/ProductCard'
 import Title from '../common/Title'
-import { Factory, Truck, CheckCircle } from "lucide-react"
+import { Factory, Truck, CheckCircle, Users } from "lucide-react"
 
 const slugify = (s) =>
     s?.toString().toLowerCase().trim()
@@ -110,7 +110,7 @@ export default function ProductDetail() {
     const description = product.moTa
     const images = product.hinhAnh ? product.hinhAnh.map(img => img.urlAnh) : []
     const categoryName = product.danhMuc ? product.danhMuc.tenDanhMuc : 'Đang cập nhật'
-    
+
     // Xử lý các biến thể (bienThe) để lấy danh sách Size và Màu sắc duy nhất
     const sizeOptions = product.bienThe ? Array.from(new Set(product.bienThe.map(b => b.size).filter(Boolean))) : []
     const colorOptions = product.bienThe ? Array.from(new Set(product.bienThe.map(b => b.mauSac).filter(Boolean))) : []
@@ -128,7 +128,7 @@ export default function ProductDetail() {
                     {/* ── Left: Main Image & Content (Col 7) ── */}
                     <div className="lg:col-span-7 space-y-8">
                         <div className="flex flex-col sm:flex-row gap-4">
-                             {/* Thumbnail strip */}
+                            {/* Thumbnail strip */}
                             {images.length > 1 && (
                                 <div className="hidden sm:flex flex-col gap-2.5 w-20 shrink-0">
                                     {images.map((img, i) => (
@@ -147,7 +147,7 @@ export default function ProductDetail() {
                             )}
 
                             {/* Main image container */}
-                            <div 
+                            <div
                                 className="flex-1 relative rounded-2xl overflow-hidden bg-white shadow-sm border border-carbon-black-100 cursor-zoom-in group"
                                 onClick={() => setIsLightboxOpen(true)}
                             >
@@ -184,8 +184,8 @@ export default function ProductDetail() {
                                     <button
                                         key={tab.id}
                                         onClick={() => setActiveTab(tab.id)}
-                                        className={`px-6 py-4 text-sm font-bold uppercase tracking-widest transition-all relative ${activeTab === tab.id 
-                                            ? 'text-brown-bark-800 bg-white' 
+                                        className={`px-6 py-4 text-sm font-bold uppercase tracking-widest transition-all relative ${activeTab === tab.id
+                                            ? 'text-brown-bark-800 bg-white'
                                             : 'text-carbon-black-400 hover:text-carbon-black-600'}`}
                                     >
                                         {tab.label}
@@ -205,25 +205,21 @@ export default function ProductDetail() {
                                         </div>
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                                             {[
-                                                { 
-                                                    title: 'Chất vải cao cấp', 
-                                                    desc: 'Sợi vải ngoại nhập 100% cotton, co giãn 4 chiều, thấm hút mồ hôi cực tốt.',
+                                                {
+                                                    title: 'Chất vải cao cấp',
                                                     icon: <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
                                                 },
-                                                { 
-                                                    title: 'Kỹ thuật may tinh xảo', 
-                                                    desc: 'Đường kim mũi chỉ được thực hiện bởi thợ lành nghề, 100% sản phẩm được kiểm tra trước khi xuất xưởng.',
+                                                {
+                                                    title: 'Kỹ thuật may tinh xảo',
                                                     icon: <path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.77 3.77z" />
                                                 },
-                                                { 
-                                                    title: 'Công nghệ in tân tiến', 
-                                                    desc: 'Sử dụng mực in nhập khẩu Hàn Quốc, không bong tróc, sắc nét, bền màu tuyệt đối.',
+                                                {
+                                                    title: 'Công nghệ in tân tiến',
                                                     icon: <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                                                 },
-                                                { 
-                                                    title: 'Thiết kế độc quyền', 
-                                                    desc: 'Đội ngũ thiết kế trẻ trung, sáng tạo, miễn phí lên market theo yêu cầu khách hàng.',
-                                                    icon: <path d="M12 19l7-7 3 3-7 7-3-3zM18 13l-1.5-1.5M14 11l-1.5-1.5M10 9l-1.5-1.5" />
+                                                {
+                                                    title: 'Đội ngũ giàu kinh nghiệm',
+                                                    icon: <Users size={20} />
                                                 }
                                             ].map((item, i) => (
                                                 <div key={i} className="group relative bg-[#fdfdf7] border border-[#ffd776]/50 rounded-3xl p-6 transition-all hover:shadow-xl hover:-translate-y-2 overflow-hidden">
@@ -288,8 +284,8 @@ export default function ProductDetail() {
                             {/* Header Info */}
                             <div>
                                 <h1 className="text-2xl lg:text-3xl font-bold text-carbon-black-900 leading-tight mb-3">
-                            {product.tenSanPham}
-                        </h1>
+                                    {product.tenSanPham}
+                                </h1>
                             </div>
 
                             {/* Price Section */}
@@ -340,8 +336,8 @@ export default function ProductDetail() {
                                                 <button
                                                     key={c}
                                                     onClick={() => setSelectedColor(c)}
-                                                    className={`px-5 py-2.5 rounded-xl text-sm font-black transition-all border-2 ${selectedColor === c 
-                                                        ? 'bg-[#ffd776] text-carbon-black-900 border-[#ffd776] shadow-lg scale-105 z-10' 
+                                                    className={`px-5 py-2.5 rounded-xl text-sm font-black transition-all border-2 ${selectedColor === c
+                                                        ? 'bg-[#ffd776] text-carbon-black-900 border-[#ffd776] shadow-lg scale-105 z-10'
                                                         : 'bg-white border-carbon-black-100 text-carbon-black-600 hover:border-[#ffd776] hover:bg-[#fff9e6] hover:text-carbon-black-900'}`}
                                                 >
                                                     {c}
@@ -362,8 +358,8 @@ export default function ProductDetail() {
                                                 <button
                                                     key={s}
                                                     onClick={() => setSelectedSize(s)}
-                                                    className={`w-14 h-14 rounded-xl text-sm font-black transition-all border-2 ${selectedSize === s 
-                                                        ? 'bg-[#ffd776] text-carbon-black-900 border-[#ffd776] shadow-lg scale-105 z-10' 
+                                                    className={`w-14 h-14 rounded-xl text-sm font-black transition-all border-2 ${selectedSize === s
+                                                        ? 'bg-[#ffd776] text-carbon-black-900 border-[#ffd776] shadow-lg scale-105 z-10'
                                                         : 'bg-white border-carbon-black-100 text-carbon-black-600 hover:border-[#ffd776] hover:bg-[#fff9e6] hover:text-carbon-black-900'}`}
                                                 >
                                                     {s}
@@ -435,7 +431,7 @@ export default function ProductDetail() {
                             </Link>
                         </div>
 
-                        <div 
+                        <div
                             className="relative group/slider"
                             onMouseEnter={() => setIsHovered(true)}
                             onMouseLeave={() => setIsHovered(false)}
@@ -459,7 +455,7 @@ export default function ProductDetail() {
                             </button>
 
                             {/* Scrollable Container */}
-                            <div 
+                            <div
                                 ref={scrollRef}
                                 className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth snap-x snap-mandatory pb-4"
                             >
@@ -480,11 +476,11 @@ export default function ProductDetail() {
 
             {/* Lightbox / Zoom Overlay */}
             {isLightboxOpen && (
-                <div 
+                <div
                     className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-sm flex items-center justify-center p-4 sm:p-10 animate-in fade-in duration-300"
                     onClick={() => setIsLightboxOpen(false)}
                 >
-                    <button 
+                    <button
                         className="absolute top-6 right-6 w-12 h-12 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors z-[110]"
                         onClick={(e) => { e.stopPropagation(); setIsLightboxOpen(false); }}
                     >
@@ -493,12 +489,12 @@ export default function ProductDetail() {
                         </svg>
                     </button>
 
-                    <div 
+                    <div
                         className="relative max-w-5xl w-full h-full flex items-center justify-center"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <img 
-                            src={images[activeImg]} 
+                        <img
+                            src={images[activeImg]}
                             alt={name}
                             className="max-w-full max-h-full object-contain rounded-lg shadow-2xl animate-in zoom-in-95 duration-300"
                         />
@@ -531,13 +527,13 @@ export default function ProductDetail() {
                         )}
 
                         <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-2">
-                             {images.map((_, i) => (
+                            {images.map((_, i) => (
                                 <button
                                     key={i}
                                     onClick={() => setActiveImg(i)}
                                     className={`w-2 h-2 rounded-full transition-all ${activeImg === i ? 'bg-white w-6' : 'bg-white/40'}`}
                                 />
-                             ))}
+                            ))}
                         </div>
                     </div>
                 </div>
