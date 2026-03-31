@@ -161,7 +161,7 @@ export default function ProductDetail() {
                                 </div>
                                 <div className="absolute top-4 left-4 flex flex-col gap-2">
                                     {product.isNew && (
-                                        <span className="bg-[#303187] text-white text-xs font-black tracking-widest uppercase px-3 py-1 rounded-lg shadow-sm">Mới</span>
+                                        <span className="bg-[#303187] text-white text-xs font-bold tracking-widest uppercase px-3 py-1 rounded-lg shadow-sm">Mới</span>
                                     )}
                                 </div>
                                 {/* Expand icon */}
@@ -200,7 +200,7 @@ export default function ProductDetail() {
                                 {activeTab === 'diff' && (
                                     <div className="space-y-12">
                                         <div className="text-center">
-                                            <h3 className="text-xl font-black text-brown-bark-900 uppercase tracking-tight mb-2">Điểm khác biệt tại Minh Anh</h3>
+                                            <h3 className="text-xl font-bold text-brown-bark-900 uppercase tracking-tight mb-2">Điểm khác biệt tại Minh Anh</h3>
                                             <p className="text-xs text-carbon-black-500 font-medium">Chúng tôi không chỉ bán áo, chúng tôi mang lại niềm kiêu hãnh cho tập thể của bạn</p>
                                         </div>
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -224,7 +224,7 @@ export default function ProductDetail() {
                                             ].map((item, i) => (
                                                 <div key={i} className="group relative bg-[#fdfdf7] border border-[#ffd776]/50 rounded-3xl p-6 transition-all hover:shadow-xl hover:-translate-y-2 overflow-hidden">
                                                     {/* Background decorative number */}
-                                                    <div className="absolute -bottom-4 -right-2 text-7xl font-black text-[#ffd776]/20 group-hover:text-[#ffd776]/40 transition-colors pointer-events-none">
+                                                    <div className="absolute -bottom-4 -right-2 text-7xl font-bold text-[#ffd776]/20 group-hover:text-[#ffd776]/40 transition-colors pointer-events-none">
                                                         {i + 1}
                                                     </div>
                                                     <div className="w-14 h-14 rounded-2xl bg-white border border-[#ffd776] flex items-center justify-center text-[#c29a3d] mb-6 group-hover:bg-[#ffd776] group-hover:text-carbon-black-900 transition-all duration-300">
@@ -232,7 +232,7 @@ export default function ProductDetail() {
                                                             {item.icon}
                                                         </svg>
                                                     </div>
-                                                    <h4 className="text-lg font-black text-carbon-black-800 mb-3 group-hover:text-[#c29a3d] transition-colors uppercase tracking-tighter leading-tight">{item.title}</h4>
+                                                    <h4 className="text-lg font-bold text-carbon-black-800 mb-3 group-hover:text-[#c29a3d] transition-colors uppercase tracking-tighter leading-tight">{item.title}</h4>
                                                     <p className="text-xs text-carbon-black-600 leading-relaxed font-medium line-clamp-4">{item.desc}</p>
                                                 </div>
                                             ))}
@@ -242,7 +242,7 @@ export default function ProductDetail() {
                                 {activeTab === 'process' && (
                                     <div className="space-y-12">
                                         <div className="text-center">
-                                            <h3 className="text-xl font-black text-brown-bark-900 uppercase tracking-tight mb-2">Quy trình đặt may chuyên nghiệp</h3>
+                                            <h3 className="text-xl font-bold text-brown-bark-900 uppercase tracking-tight mb-2">Quy trình đặt may chuyên nghiệp</h3>
                                             <p className="text-xs text-carbon-black-500 font-medium">Quy trình 5 bước đảm bảo chất lượng tuyệt đối cho từng sản phẩm</p>
                                         </div>
                                         <div className="flex flex-col md:flex-row justify-between gap-10 relative">
@@ -257,8 +257,8 @@ export default function ProductDetail() {
                                                     <div className="relative w-24 h-24 flex items-center justify-center mb-6">
                                                         {/* Step number on top left */}
                                                         <div className="absolute -top-1 -left-2 z-10">
-                                                            <p className="text-[10px] font-black text-brown-bark-300 uppercase tracking-tighter leading-none mb-1">Bước</p>
-                                                            <p className={`text-4xl font-black italic leading-none transition-colors ${i === 0 ? 'text-blue-500' : 'text-blue-400'}`}>{i + 1}</p>
+                                                            <p className="text-[10px] font-bold text-brown-bark-300 uppercase tracking-tighter leading-none mb-1">Bước</p>
+                                                            <p className={`text-4xl font-bold italic leading-none transition-colors ${i === 0 ? 'text-blue-500' : 'text-blue-400'}`}>{i + 1}</p>
                                                         </div>
                                                         {/* Circular border wrapper */}
                                                         <div className="absolute inset-0 border-[3px] border-blue-400 rounded-full border-t-transparent -rotate-45 group-hover:rotate-0 transition-transform duration-500" />
@@ -268,7 +268,7 @@ export default function ProductDetail() {
                                                             </svg>
                                                         </div>
                                                     </div>
-                                                    <p className="text-sm font-black text-carbon-black-800 uppercase tracking-tighter text-center leading-tight group-hover:text-blue-600 transition-colors">{item.label}</p>
+                                                    <p className="text-sm font-bold text-carbon-black-800 uppercase tracking-tighter text-center leading-tight group-hover:text-blue-600 transition-colors">{item.label}</p>
                                                 </div>
                                             ))}
                                         </div>
@@ -305,7 +305,7 @@ export default function ProductDetail() {
                             <div className="bg-[#fdfdf7] border-2 border-[#ffd776] rounded-2xl overflow-hidden shadow-sm">
                                 <div className="bg-[#ffd776] px-4 py-2 flex items-center gap-2">
                                     <img src="https://dongphuchaianh.vn/wp-content/uploads/2025/06/icon-gift.png" className="w-5 h-5" alt="gift" />
-                                    <span className="text-xs font-black text-carbon-black-900 uppercase">Ưu đãi khi đặt hàng</span>
+                                    <span className="text-xs font-bold text-carbon-black-900 uppercase">Ưu đãi khi đặt hàng</span>
                                 </div>
                                 <div className="p-4 space-y-3">
                                     {[
@@ -328,15 +328,15 @@ export default function ProductDetail() {
 
                             {/* Variants Selection */}
                             <div className="space-y-5">
-                                {colorOptions.length > 0 && (
+                                {/* {colorOptions.length > 0 && (
                                     <div>
-                                        <p className="text-xs font-black text-carbon-black-500 uppercase tracking-widest mb-3">Màu sắc khả dụng</p>
+                                        <p className="text-xs font-bold text-carbon-black-500 uppercase tracking-widest mb-3">Màu sắc khả dụng</p>
                                         <div className="flex flex-wrap gap-2">
                                             {colorOptions.map(c => (
                                                 <button
                                                     key={c}
                                                     onClick={() => setSelectedColor(c)}
-                                                    className={`px-5 py-2.5 rounded-xl text-sm font-black transition-all border-2 ${selectedColor === c
+                                                    className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all border-2 ${selectedColor === c
                                                         ? 'bg-[#ffd776] text-carbon-black-900 border-[#ffd776] shadow-lg scale-105 z-10'
                                                         : 'bg-white border-carbon-black-100 text-carbon-black-600 hover:border-[#ffd776] hover:bg-[#fff9e6] hover:text-carbon-black-900'}`}
                                                 >
@@ -345,12 +345,12 @@ export default function ProductDetail() {
                                             ))}
                                         </div>
                                     </div>
-                                )}
+                                )} */}
 
                                 {sizeOptions.length > 0 && (
                                     <div>
                                         <div className="flex items-center justify-between mb-3">
-                                            <p className="text-xs font-black text-carbon-black-500 uppercase tracking-widest">Kích cỡ (Size)</p>
+                                            <p className="text-xs font-bold text-carbon-black-500 uppercase tracking-widest">Kích cỡ (Size)</p>
                                             <button className="text-xs font-bold text-brown-bark-700 underline">Bảng size</button>
                                         </div>
                                         <div className="flex flex-wrap gap-2">
@@ -358,7 +358,7 @@ export default function ProductDetail() {
                                                 <button
                                                     key={s}
                                                     onClick={() => setSelectedSize(s)}
-                                                    className={`w-14 h-14 rounded-xl text-sm font-black transition-all border-2 ${selectedSize === s
+                                                    className={`w-14 h-14 rounded-xl text-sm font-bold transition-all border-2 ${selectedSize === s
                                                         ? 'bg-[#ffd776] text-carbon-black-900 border-[#ffd776] shadow-lg scale-105 z-10'
                                                         : 'bg-white border-carbon-black-100 text-carbon-black-600 hover:border-[#ffd776] hover:bg-[#fff9e6] hover:text-carbon-black-900'}`}
                                                 >
@@ -379,14 +379,14 @@ export default function ProductDetail() {
                                 >
                                     <img src="https://dongphuchaianh.vn/wp-content/uploads/2021/05/icon_zalo-400x400.png" className="w-6 h-6 rounded-lg" alt="zalo" />
                                     <div className="text-left">
-                                        <p className="text-sm font-black uppercase tracking-wide leading-tight">Tư vấn ngay</p>
+                                        <p className="text-sm font-bold uppercase tracking-wide leading-tight">Tư vấn ngay</p>
                                         <p className="text-xs opacity-90 font-medium">Báo giá siêu tốc trong 5s</p>
                                     </div>
                                 </a>
                                 <button
                                     className="flex flex-col items-center justify-center w-full bg-white border-2 border-[#9b7b31] hover:bg-[#9b7b31] text-[#9b7b31] hover:text-white rounded-2xl py-3.5 transition-all hover:scale-[1.02] shadow-sm hover:shadow-md"
                                 >
-                                    <p className="text-sm font-black uppercase tracking-wide leading-tight">Đặt áo mẫu</p>
+                                    <p className="text-sm font-bold uppercase tracking-wide leading-tight">Đặt áo mẫu</p>
                                     <p className="text-xs font-medium opacity-80">Gửi mẫu tận nơi hoàn toàn miễn phí</p>
                                 </button>
                             </div>
@@ -394,7 +394,7 @@ export default function ProductDetail() {
 
                         {/* Specs Table */}
                         <div className="bg-white rounded-3xl p-6 border border-carbon-black-100 shadow-sm">
-                            <p className="text-xs font-black text-carbon-black-500 uppercase tracking-widest mb-4">Thông số kỹ thuật</p>
+                            <p className="text-xs font-bold text-carbon-black-500 uppercase tracking-widest mb-4">Thông số kỹ thuật</p>
                             <div className="space-y-4">
                                 {[
                                     { label: 'Thương hiệu', value: product.thuongHieu },

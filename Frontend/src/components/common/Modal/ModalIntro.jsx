@@ -63,7 +63,7 @@ export default function ModalIntro({ imageSrc = picModalIntro }) {
                 <div className="hidden sm:flex lg:w-3/5 items-center justify-center p-6 lg:p-10 relative overflow-hidden bg-white border-b lg:border-b-0 lg:border-r border-carbon-black-100">
                     {/* Hình nền mờ đằng sau */}
                     <div className="absolute inset-0 bg-linear-to-br from-carbon-black-50 to-white opacity-80"></div>
-                    
+
                     <img
                         src={imageSrc}
                         alt="Đồng phục Minh Anh - Ưu đãi bùng nổ"
@@ -74,16 +74,16 @@ export default function ModalIntro({ imageSrc = picModalIntro }) {
                 {/* Phần Form bên phải */}
                 <div className="lg:w-2/5 flex flex-col justify-center p-6 sm:p-8 lg:p-12 bg-white relative">
                     <div className="mb-6 md:mb-8 relative z-10 text-center lg:text-left">
-                        <span className="inline-block px-3 py-1 mb-3 text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-golden-earth-700 bg-golden-earth-100/80 rounded-full">
+                        <span className="inline-block px-3 py-1 mb-3 text-[9px] md:text-[10px] font-bold uppercase tracking-[0.2em] text-golden-earth-700 bg-golden-earth-100/80 rounded-full">
                             Ưu đãi giới hạn
                         </span>
-                        <h2 
+                        <h2
                             className="text-xl md:text-2xl lg:text-4xl font-semibold text-brown-bark-900 mb-2 md:mb-3 font-sans leading-tight"
                             style={{ fontFamily: "'Arial', sans-serif" }}
                         >
                             Nhận Báo Giá <span className="text-golden-earth-600 block lg:inline">Ngay Lập Tức</span>
                         </h2>
-                        <p 
+                        <p
                             className="text-carbon-black-500 leading-relaxed text-xs md:text-sm lg:text-base font-sans"
                             style={{ fontFamily: "'Arial', sans-serif" }}
                         >
@@ -148,7 +148,7 @@ export default function ModalIntro({ imageSrc = picModalIntro }) {
                     <div className="mt-6 md:mt-8 pt-4 md:pt-6 border-t border-carbon-black-50 text-[10px] md:text-xs text-carbon-black-500 text-center uppercase tracking-wider font-bold font-sans" style={{ fontFamily: "Arial, sans-serif" }}>
                         Bảo mật thông tin 100%
                     </div>
-                    
+
                     {/* Decorative Shape */}
                     <div className="absolute top-0 right-0 w-24 h-24 bg-golden-earth-50 rounded-bl-full opacity-30 pointer-events-none"></div>
                 </div>

@@ -9,15 +9,15 @@ const ProductCard = ({ product }) => {
     const title = product?.tenSanPham || product?.name || product?.title || 'Sản phẩm';
     const priceFrom = product?.giaBan || product?.priceFrom || product?.price || 0;
     const priceDiscount = product?.giaKhuyenMai || null;
-    
+
     // Ảnh đại diện: ưu tiên anhDaiDien từ backend, sau đó là mảng images
     const image1 = product?.anhDaiDien || product?.images?.[0] || product?.image || null;
     const image2 = product?.images?.[1] || null;
-    
+
     // Các nhãn trạng thái
     const isNew = product?.spMoi || product?.isNew;
     const isHot = Boolean(product?.spNoiBat || product?.isHot || product?.isFeatured || product?.featured);
-    
+
     // Danh mục hiển thị
     const category = product?.danhMucTen || product?.subCategory || product?.category || null;
 
@@ -66,12 +66,12 @@ const ProductCard = ({ product }) => {
                 {(isNew || isHot) && (
                     <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10 inline">
                         {isNew && (
-                            <span className="bg-[#303187] text-white text-[10px] font-black tracking-widest uppercase px-2.5 py-1 rounded shadow-sm mr-1">
+                            <span className="bg-[#303187] text-white text-[10px] font-bold tracking-widest uppercase px-2.5 py-1 rounded shadow-sm mr-1">
                                 Mới
                             </span>
                         )}
                         {isHot && (
-                            <span className="bg-[#be123c] text-white text-[10px] font-black tracking-widest uppercase px-2.5 py-1 rounded shadow-sm">
+                            <span className="bg-[#be123c] text-white text-[10px] font-bold tracking-widest uppercase px-2.5 py-1 rounded shadow-sm">
                                 Hot
                             </span>
                         )}
@@ -87,7 +87,7 @@ const ProductCard = ({ product }) => {
                         <span>Chi tiết</span>
                         <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" strokeWidth={2.5} />
                     </span>
-                    <button 
+                    <button
                         onClick={(e) => {
                             e.stopPropagation();
                             window.location.href = 'tel:0901234567';
@@ -137,7 +137,7 @@ const ProductCard = ({ product }) => {
                                 </span>
                             )}
                             <div className="flex items-baseline gap-1">
-                                <span className="text-base sm:text-[17px] font-black text-brown-bark-800 tabular-nums tracking-tight leading-none">
+                                <span className="text-base sm:text-[17px] font-bold text-brown-bark-800 tabular-nums tracking-tight leading-none">
                                     {formattedDiscount || formattedPrice}
                                 </span>
                                 <span className="text-sm font-bold text-brown-bark-800/80 leading-none">đ</span>

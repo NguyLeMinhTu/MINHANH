@@ -8,10 +8,10 @@ const CategoriesSection = ({ categories = [] }) => {
     const activeCategories = categories.length > 0 ? categories : local_danh_muc;
 
     // Lọc ra danh sách danh mục để hiển thị (phiên bản backend dùng hinhAnh, local dùng hinh_anh)
-    const displayCategories = activeCategories.filter(dm => 
+    const displayCategories = activeCategories.filter(dm =>
         (typeof dm.hinhAnh === 'string') || (typeof dm.hinh_anh === 'string')
     );
-    
+
     // Tạo Map để tra cứu parent nhanh chóng
     const catById = new Map(activeCategories.map(c => [c.danhMucId || c.danh_muc_id, c]));
 
@@ -28,7 +28,7 @@ const CategoriesSection = ({ categories = [] }) => {
                         title="Danh Mục Sản Phẩm"
                         size="md"
                         className="flex justify-center"
-                        titleClassName="text-brown-bark-800 tracking-[0.2em] uppercase text-xl md:text-2xl font-black"
+                        titleClassName="text-brown-bark-800 tracking-[0.2em] uppercase text-xl md:text-2xl font-bold"
                     />
                     <p className="text-carbon-black-600 mt-4 text-sm md:text-base max-w-2xl mx-auto leading-relaxed">
                         Khám phá các dòng sản phẩm đồng phục chất lượng cao, thiết kế chuẩn phom dáng dành riêng cho doanh nghiệp và tổ chức.
@@ -43,7 +43,7 @@ const CategoriesSection = ({ categories = [] }) => {
                         const parentId = dm.parentId || dm.parent_id;
 
                         const parent = parentId ? catById.get(parentId) : null;
-                        const linkUrl = parent 
+                        const linkUrl = parent
                             ? `/san-pham?dm=${encodeURIComponent(parent.slug)}&sub=${encodeURIComponent(dm.slug)}`
                             : `/san-pham?dm=${encodeURIComponent(dm.slug)}`;
 
@@ -60,13 +60,13 @@ const CategoriesSection = ({ categories = [] }) => {
                                     alt={name}
                                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
                                 />
-                                
+
                                 {/* Gradient Overlay - Phủ tối phía dưới để nổi bật chữ */}
                                 <div className="absolute inset-0 bg-gradient-to-t from-carbon-black-900/90 via-carbon-black-900/20 to-transparent opacity-50 transition-opacity duration-300 group-hover:opacity-70" />
-                                
+
                                 {/* Nội dung chữ - Phông chữ đậm và to hơn theo yêu cầu */}
                                 <div className="absolute inset-0 p-6 flex flex-col justify-end items-center text-center pb-8">
-                                    <h3 
+                                    <h3
                                         className="text-white text-lg md:text-xl font-semibold uppercase tracking-widest leading-tight transition-transform duration-300 group-hover:-translate-y-2 font-sans"
                                         style={{ fontFamily: "Arial, sans-serif" }}
                                     >
