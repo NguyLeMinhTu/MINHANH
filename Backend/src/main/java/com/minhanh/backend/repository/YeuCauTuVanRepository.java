@@ -12,7 +12,10 @@ public interface YeuCauTuVanRepository extends JpaRepository<YeuCauTuVan, String
     long countByDaXuLy(Boolean daXuLy);
 
     Page<YeuCauTuVan> findAllByOrderByNgayGuiDesc(Pageable pageable);
+
     Page<YeuCauTuVan> findByDaXuLyOrderByNgayGuiDesc(Boolean daXuLy, Pageable pageable);
+    
     Page<YeuCauTuVan> findBySoDienThoaiOrderByNgayGuiDesc(String soDienThoai, Pageable pageable);
+    
     Page<YeuCauTuVan> findBySoDienThoaiAndDaXuLyOrderByNgayGuiDesc(String soDienThoai, Boolean daXuLy, Pageable pageable);
 }
