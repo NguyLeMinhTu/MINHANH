@@ -41,7 +41,6 @@ const Header = ({ isOpen, onToggle }) => {
     const [notificationsOpen, setNotificationsOpen] = useState(false)
     const userMenuRef = useRef(null)
     const notificationsRef = useRef(null)
-    const title = routeTitles[location.pathname] || 'Admin'
     const breadcrumbs = getBreadcrumb(location.pathname)
 
     const [unhandledConsultations, setUnhandledConsultations] = useState([])
@@ -51,7 +50,6 @@ const Header = ({ isOpen, onToggle }) => {
         try {
             setLoading(true)
             const res = await axiosInstance.get('/admin/yeu-cau-tu-van?daXuLy=false&size=5')
-            // res ở đây đã là data do interceptor trong axiosConfig
             setUnhandledConsultations(res.content || [])
         } catch (err) {
             console.error('Lỗi khi tải thông báo:', err)
@@ -101,7 +99,7 @@ const Header = ({ isOpen, onToggle }) => {
             <div className="flex items-center gap-3">
                 <button
                     onClick={onToggle}
-                    className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors"
+                    className="p-2 rounded-lg text-gray-400 hover:bg-surface-100 hover:text-primary-600 transition-colors"
                     aria-label="Toggle sidebar"
                 >
                     <Menu size={20} />
@@ -139,7 +137,7 @@ const Header = ({ isOpen, onToggle }) => {
                     <input
                         type="text"
                         placeholder="Tìm kiếm..."
-                        className="pl-8 pr-4 py-2 text-sm bg-surface-100 border border-surface-200 rounded-lg w-52 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-transparent transition-all"
+                        className="pl-8 pr-4 py-2 text-sm bg-surface-100 border border-surface-200 rounded-lg w-52 focus:outline-none focus:ring-2 focus:ring-primary-500/40 focus:border-primary-500 transition-all"
                     />
                 </div>
 
@@ -147,11 +145,15 @@ const Header = ({ isOpen, onToggle }) => {
                 <div className="relative" ref={notificationsRef}>
                     <button
                         onClick={() => setNotificationsOpen(!notificationsOpen)}
-                        className={`relative p-2.5 rounded-xl transition-all group ${notificationsOpen ? 'bg-primary-600/10 text-primary-600' : 'text-gray-500 hover:bg-surface-100 hover:text-primary-600'}`}
+                        className={`relative p-2.5 rounded-xl transition-all group ${notificationsOpen ? 'bg-primary-500/10 text-primary-500' : 'text-gray-400 hover:bg-surface-100 hover:text-primary-500'}`}
                     >
-                        <Bell size={21} strokeWidth={1.5} className={notificationsOpen ? 'rotate-12' : 'group-hover:rotate-12 transition-transform'} />
+                        <Bell 
+                            size={21} 
+                            strokeWidth={1.5} 
+                            className={`transition-transform ${notificationsOpen ? 'rotate-12' : 'group-hover:rotate-12'} ${unhandledConsultations.length > 0 ? 'animate-bell-swing' : ''}`} 
+                        />
                         {unhandledConsultations.length > 0 && (
-                            <span className="absolute top-1.5 right-1.5 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full ring-2 ring-white shadow-sm animate-bounce-subtle">
+                            <span className="absolute top-1.5 right-1.5 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] font-black flex items-center justify-center rounded-full ring-2 ring-white shadow-sm animate-bounce-subtle">
                                 {unhandledConsultations.length}
                             </span>
                         )}
@@ -161,8 +163,8 @@ const Header = ({ isOpen, onToggle }) => {
                     {notificationsOpen && (
                         <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-50 animate-in fade-in zoom-in duration-200">
                             <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
-                                <h3 className="text-sm font-bold text-gray-800 tracking-tight">Thông báo mới</h3>
-                                <span className="text-[10px] font-bold text-primary-600 bg-primary-600/10 px-2 py-0.5 rounded-full uppercase tracking-widest">
+                                <h3 className="text-sm font-black text-gray-800 tracking-tight">Thông báo mới</h3>
+                                <span className="text-[10px] font-bold text-primary-600 bg-primary-500/10 px-2 py-0.5 rounded-full uppercase tracking-widest">
                                     {unhandledConsultations.length} yêu cầu
                                 </span>
                             </div>
@@ -178,13 +180,13 @@ const Header = ({ isOpen, onToggle }) => {
                                             className="px-5 py-4 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 cursor-pointer group"
                                         >
                                             <div className="flex gap-4">
-                                                <div className="w-10 h-10 rounded-xl bg-primary-600/10 text-primary-600 flex items-center justify-center font-bold text-xs shrink-0 group-hover:bg-primary-600 group-hover:text-white transition-all">
+                                                <div className="w-10 h-10 rounded-xl bg-primary-500/10 text-primary-500 flex items-center justify-center font-black text-sm shrink-0 group-hover:bg-primary-500 group-hover:text-white transition-all">
                                                     {(noti.tenKhach || 'K').charAt(0)}
                                                 </div>
-                                                <div className="space-y-0.5">
+                                                <div className="space-y-0.5 flex-1">
                                                     <p className="text-sm text-gray-800 font-bold leading-tight line-clamp-1">{noti.tenKhach}</p>
-                                                    <p className="text-xs text-gray-400 font-medium">{noti.soDienThoai}</p>
-                                                    <p className="text-[10px] text-gray-300 font-bold mt-1 uppercase tracking-tighter">
+                                                    <p className="text-xs text-gray-500 font-medium">{noti.soDienThoai}</p>
+                                                    <p className="text-[10px] text-gray-400 mt-1 uppercase tracking-tighter">
                                                         {new Date(noti.ngayGui).toLocaleDateString('vi-VN')}
                                                     </p>
                                                 </div>
@@ -206,7 +208,7 @@ const Header = ({ isOpen, onToggle }) => {
                                         navigate('/consultations')
                                         setNotificationsOpen(false)
                                     }}
-                                    className="w-full py-3.5 text-xs font-bold text-gray-500 hover:text-primary-600 hover:bg-primary-600/5 transition-all uppercase tracking-widest border-t border-surface-100"
+                                    className="w-full py-3.5 text-xs font-black text-gray-500 hover:text-primary-600 hover:bg-primary-500/5 transition-all uppercase tracking-widest border-t border-surface-50"
                                 >
                                     Xem tất cả yêu cầu
                                 </button>
@@ -219,7 +221,7 @@ const Header = ({ isOpen, onToggle }) => {
                 <div className="relative" ref={userMenuRef}>
                     <button
                         onClick={() => setUserMenuOpen(!userMenuOpen)}
-                        className="flex items-center gap-2 pl-2 pr-2 py-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+                        className="flex items-center gap-2 pl-2 pr-2 py-1.5 rounded-lg hover:bg-surface-100 transition-colors"
                     >
                         <div className="w-8 h-8 rounded-full overflow-hidden shadow-sm shrink-0">
                             {user?.anh_dai_dien
@@ -230,11 +232,11 @@ const Header = ({ isOpen, onToggle }) => {
                             }
                         </div>
                         <div className="hidden md:block text-left">
-                            <p className="text-sm font-medium text-gray-700 leading-tight">{user?.ten ?? 'Admin'}</p>
-                            <p className="text-xs text-gray-400 leading-tight">Quản trị viên</p>
+                            <p className="text-sm font-bold text-gray-700 leading-tight">{user?.ten ?? 'Admin'}</p>
+                            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest leading-tight mt-0.5">Quản trị</p>
                         </div>
                         <ChevronDown
-                            size={15}
+                            size={14}
                             className={`text-gray-400 transition-transform duration-200 ${userMenuOpen ? 'rotate-180' : ''
                                 }`}
                         />
@@ -242,26 +244,26 @@ const Header = ({ isOpen, onToggle }) => {
 
                     {/* Dropdown Menu */}
                     {userMenuOpen && (
-                        <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-50">
-                            <div className="px-4 py-2.5 border-b border-gray-100">
-                                <p className="text-sm font-semibold text-gray-800">{user?.ten ?? 'Admin'}</p>
-                                <p className="text-xs text-gray-400">{user?.email ?? ''}</p>
+                        <div className="absolute right-0 top-full mt-2 w-52 bg-white rounded-2xl shadow-2xl border border-gray-100 py-2 z-50 animate-in fade-in zoom-in duration-200">
+                            <div className="px-5 py-3 border-b border-gray-50 mb-1">
+                                <p className="text-sm font-bold text-gray-800">{user?.ten ?? 'Admin'}</p>
+                                <p className="text-[11px] text-gray-400 font-medium truncate">{user?.email ?? 'admin@minhanh.vn'}</p>
                             </div>
-                            <button className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-800 transition-colors">
+                            <button className="w-full flex items-center gap-3 px-5 py-2.5 text-sm text-gray-500 hover:bg-primary-50 rounded-lg hover:text-primary-600 transition-colors mx-1 w-[calc(100%-8px)]">
                                 <User size={16} />
-                                <span>Hồ sơ</span>
+                                <span className="font-medium">Hồ sơ cá nhân</span>
                             </button>
-                            <button className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-800 transition-colors">
+                            <button className="w-full flex items-center gap-3 px-5 py-2.5 text-sm text-gray-500 hover:bg-primary-50 rounded-lg hover:text-primary-600 transition-colors mx-1 w-[calc(100%-8px)]">
                                 <Settings size={16} />
-                                <span>Cài đặt</span>
+                                <span className="font-medium">Cài đặt tài khoản</span>
                             </button>
-                            <div className="border-t border-gray-100 mt-1 pt-1">
+                            <div className="border-t border-gray-50 mt-1 pt-1">
                                 <button
                                     onClick={handleLogout}
-                                    className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-500 hover:bg-red-50 transition-colors"
+                                    className="w-full flex items-center gap-3 px-5 py-2.5 text-sm text-red-500 hover:bg-red-50 rounded-lg transition-colors mx-1 w-[calc(100%-8px)]"
                                 >
                                     <LogOut size={16} />
-                                    <span>Đăng xuất</span>
+                                    <span className="font-semibold">Đăng xuất</span>
                                 </button>
                             </div>
                         </div>

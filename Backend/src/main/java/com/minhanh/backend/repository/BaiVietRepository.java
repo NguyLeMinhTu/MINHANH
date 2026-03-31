@@ -17,6 +17,8 @@ public interface BaiVietRepository extends JpaRepository<BaiViet, String> {
     
     boolean existsBySlug(String slug);
 
+    long countByTrangThai(String trangThai);
+
     @Query("SELECT b FROM BaiViet b ORDER BY b.ngayDang DESC")
     Page<BaiViet> findAllOrderByNgayDangDesc(Pageable pageable);
 

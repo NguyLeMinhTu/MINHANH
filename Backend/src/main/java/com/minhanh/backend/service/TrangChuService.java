@@ -20,6 +20,18 @@ public class TrangChuService {
     private final SanPhamRepository sanPhamRepository;
     private final FaqRepository faqRepository;
     private final CollectionRepository collectionRepository;
+    private final ThongKeRepository thongKeRepository;
+
+    /**
+     * Ghi nhận lượt truy cập trang chủ.
+     */
+    @Transactional
+    public void recordVisit() {
+        com.minhanh.backend.entity.ThongKe tk = thongKeRepository.findById("PAGE_VIEWS")
+                .orElse(new com.minhanh.backend.entity.ThongKe("PAGE_VIEWS", 0L));
+        tk.setGiaTri(tk.getGiaTri() + 1);
+        thongKeRepository.save(tk);
+    }
 
         /**
          * Tổng hợp dữ liệu cần cho trang chủ trong một response.

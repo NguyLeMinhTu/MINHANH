@@ -1,50 +1,69 @@
-import { useDispatch, useSelector } from 'react-redux'
-import { fetchConsultations } from '../app/slices/consultationSlice'
-import { nguoiDung, sanPham, baiViet } from '../assets/assets'
+import React, { useState, useEffect } from 'react'
+import { Eye, Package, FileText, MessageSquare, ArrowUpRight } from 'lucide-react'
 import dashboardBg from '../assets/dashboard-bg.png'
-import { useEffect } from 'react'
-import { Users, Package, FileText, MessageSquare } from 'lucide-react'
+import axiosInstance from '../utils/axiosConfig'
+import { useNavigate } from 'react-router-dom'
 
 const Dashboard = () => {
-    const dispatch = useDispatch()
-    const { items: consultations = [], status: consultStatus } = useSelector(state => state.consultations || { items: [] })
+    const navigate = useNavigate();
+    const [statsData, setStatsData] = useState({
+        totalProducts: 0,
+        activeProducts: 0,
+        totalPosts: 0,
+        activePosts: 0,
+        productCategories: 0,
+        newConsultations: 0,
+        pageViews: 0,
+        recentConsultations: []
+    });
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        dispatch(fetchConsultations({ page: 0, size: 5, daXuLy: null }))
-    }, [dispatch])
+        const fetchStats = async () => {
+            try {
+                const res = await axiosInstance.get('/admin/dashboard/stats');
+                setStatsData(res);
+            } catch (err) {
+                console.error("Lỗi khi tải dữ liệu dashboard", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchStats();
+    }, []);
 
     const stats = [
         {
-            label: 'Người dùng hệ thống',
-            value: nguoiDung.length,
-            icon: Users,
+            label: 'Lượt truy cập trang',
+            value: statsData.pageViews,
+            icon: Eye,
             color: 'text-blue-500',
             bg: 'bg-blue-50',
-            change: `${nguoiDung.filter(u => u.trang_thai).length} đang trực tuyến`,
+            change: `Từ người dùng frontend`,
         },
         {
             label: 'Danh mục sản phẩm',
-            value: sanPham.length,
+            value: statsData.productCategories,
             icon: Package,
             color: 'text-amber-600',
             bg: 'bg-amber-50',
-            change: `${sanPham.filter(p => p.trang_thai === 'cong_khai').length} đang kinh doanh`,
+            change: `${statsData.activeProducts} SP đang kinh doanh`,
         },
         {
             label: 'Bài viết & Tin tức',
-            value: baiViet.length,
+            value: statsData.totalPosts,
             icon: FileText,
             color: 'text-indigo-500',
             bg: 'bg-indigo-50',
-            change: `${baiViet.filter(b => b.trang_thai === 'cong_khai').length} đã công khai`,
+            change: `${statsData.activePosts} bài viết công khai`,
         },
         {
-            label: 'Thông tin tư vấn',
-            value: consultations.length,
+            label: 'Yêu cầu tư vấn mới',
+            value: statsData.newConsultations,
             icon: MessageSquare,
             color: 'text-rose-500',
             bg: 'bg-rose-50',
-            change: `${consultations.filter(y => !y.daXuLy).length} yêu cầu mới`,
+            change: `Cần phản hồi sớm`,
         },
     ]
 
@@ -54,6 +73,10 @@ const Dashboard = () => {
         if (hour >= 12 && hour < 18) return 'Chào buổi chiều'
         if (hour >= 18 && hour < 22) return 'Chào buổi tối'
         return 'Chúc ngủ ngon' // For late night/early morning
+    }
+
+    if (loading) {
+        return <div className="p-20 text-center text-neutral-400 font-medium tracking-wide animate-pulse">Đang đồng bộ dữ liệu hệ thống...</div>
     }
 
     return (
@@ -92,16 +115,16 @@ const Dashboard = () => {
                         </h2>
 
                         <p className="text-[#8b7e74] text-sm leading-relaxed max-w-sm font-medium">
-                            Trung tâm điều phối Minh Anh Uniform. Toàn bộ dữ liệu đã được cập nhật chính xác.
+                            Trung tâm điều phối Minh Anh Uniform. Dữ liệu thời gian thực đã được cập nhật chính xác.
                         </p>
                     </div>
 
                     {/* Right: Quick Stats - Compact Light Glassmorphism */}
                     <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-3 shrink-0">
                         {[
-                            { icon: Package, label: 'Sản phẩm', value: sanPham.length, accent: 'bg-blue-500' },
-                            { icon: MessageSquare, label: 'Tư vấn mới', value: consultations.filter(y => !y.daXuLy).length, accent: 'bg-primary-500' },
-                            { icon: FileText, label: 'Bài viết', value: baiViet.filter(b => b.trang_thai === 'cong_khai').length, accent: 'bg-emerald-500' },
+                            { icon: Package, label: 'Sản phẩm', value: statsData.totalProducts, accent: 'bg-blue-500' },
+                            { icon: MessageSquare, label: 'Tư vấn mới', value: statsData.newConsultations, accent: 'bg-primary-500' },
+                            { icon: FileText, label: 'Bài viết', value: statsData.totalPosts, accent: 'bg-emerald-500' },
                         ].map(({ icon: Icon, label, value, accent }) => (
                             <div key={label} className="group flex items-center gap-5 bg-white/60 backdrop-blur-xl border border-white rounded-2xl px-6 py-4 min-w-[260px] shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgba(var(--primary-500),0.1)] hover:bg-white/90 transition-all duration-300">
                                 <div className={`w-12 h-12 rounded-xl bg-surface-50 flex items-center justify-center shrink-0 border border-primary-500/10`}>
@@ -142,17 +165,20 @@ const Dashboard = () => {
             {/* Content Section */}
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
                 {/* Recent Consultations - Main Table */}
-                <div className="xl:col-span-2 bg-white rounded-[32px] border border-[#f5f3f0] shadow-[0_4px_24px_rgba(0,0,0,0.02)] overflow-hidden text-neutral-800">
-                    <div className="flex items-center justify-between px-6 py-6 border-b border-neutral-50">
+                <div className="xl:col-span-2 bg-white rounded-[32px] border border-[#f5f3f0] shadow-[0_4px_24px_rgba(0,0,0,0.02)] overflow-hidden text-neutral-800 flex flex-col">
+                    <div className="flex items-center justify-between px-6 py-6 border-b border-neutral-50 shrink-0">
                         <div>
                             <h3 className="text-xl font-bold text-neutral-800 tracking-tight">Yêu cầu tư vấn gần đây</h3>
-                            <p className="text-xs text-neutral-400 font-medium mt-1">Hệ thống ghi nhận trong 24 giờ qua</p>
+                            <p className="text-xs text-neutral-400 font-medium mt-1">Hệ thống ghi nhận 5 yêu cầu mới nhất</p>
                         </div>
-                        <button className="px-5 py-2.5 text-xs font-bold text-white bg-primary-500 rounded-xl hover:bg-primary-600 transition-all duration-300 shadow-lg shadow-primary-500/20">
+                        <button 
+                            onClick={() => navigate('/consultations')}
+                            className="px-5 py-2.5 text-xs font-bold text-white bg-primary-500 rounded-xl hover:bg-primary-600 transition-all duration-300 shadow-lg shadow-primary-500/20"
+                        >
                             Xem tất cả yêu cầu
                         </button>
                     </div>
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto flex-1">
                         <table className="w-full">
                             <thead>
                                 <tr className="text-left text-[10px] text-neutral-300 font-bold uppercase tracking-[0.2em]">
@@ -163,11 +189,13 @@ const Dashboard = () => {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-neutral-50">
-                                {consultStatus === 'loading' ? (
-                                    <tr><td colSpan="4" className="text-center py-10 text-gray-400 italic">Đang tải dữ liệu...</td></tr>
-                                ) : consultations.length === 0 ? (
-                                    <tr><td colSpan="4" className="text-center py-10 text-gray-400 italic">Không có yêu cầu nào mới</td></tr>
-                                ) : consultations.slice(0, 5).map((item) => (
+                                {statsData.recentConsultations.length === 0 ? (
+                                    <tr>
+                                        <td colSpan="4" className="px-10 py-10 text-center text-sm text-neutral-400">
+                                            Chưa có yêu cầu tư vấn nào.
+                                        </td>
+                                    </tr>
+                                ) : statsData.recentConsultations.map((item) => (
                                     <tr key={item.yeuCauId} className="hover:bg-[#fdfcfb] transition-colors group">
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex items-center gap-4">
@@ -184,10 +212,11 @@ const Dashboard = () => {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className={`inline-flex items-center gap-1 px-4.5 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest ${item.daXuLy
-                                                ? 'bg-emerald-50 text-emerald-600 border border-emerald-100'
+                                            <span className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest ${
+                                                item.daXuLy 
+                                                ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' 
                                                 : 'bg-amber-50 text-amber-600 border border-amber-100'
-                                                }`}>
+                                            }`}>
                                                 <span className={`w-1.5 h-1.5 rounded-full ${item.daXuLy ? 'bg-emerald-600' : 'bg-amber-600'}`}></span>
                                                 {item.daXuLy ? 'Đã xử lý' : 'Đang chờ'}
                                             </span>
@@ -216,17 +245,29 @@ const Dashboard = () => {
                     </div>
 
                     <div className="bg-white rounded-3xl p-8 border border-neutral-100 shadow-sm">
-                        <h4 className="font-bold text-neutral-800 mb-4">Hoạt động hệ thống</h4>
+                        <h4 className="font-bold text-neutral-800 mb-4">Các tính năng tiện ích</h4>
                         <div className="space-y-6">
-                            {[1, 2, 3].map(i => (
-                                <div key={i} className="flex gap-4">
-                                    <div className="w-2 h-2 rounded-full bg-primary-500 mt-2 shrink-0"></div>
-                                    <div>
-                                        <p className="text-sm font-bold text-neutral-700 leading-tight">Cập nhật sản phẩm mới</p>
-                                        <p className="text-xs text-neutral-400 mt-1">10 phút trước</p>
-                                    </div>
+                            <div className="flex gap-4">
+                                <div className="w-2 h-2 rounded-full bg-primary-500 mt-2 shrink-0"></div>
+                                <div>
+                                    <p className="text-sm font-bold text-neutral-700 leading-tight">Thêm sản phẩm mới nhanh</p>
+                                    <p className="text-xs text-neutral-400 mt-1 cursor-pointer hover:underline" onClick={() => navigate('/products')}>Chuyển đến trang Sản phẩm</p>
                                 </div>
-                            ))}
+                            </div>
+                            <div className="flex gap-4">
+                                <div className="w-2 h-2 rounded-full bg-primary-500 mt-2 shrink-0"></div>
+                                <div>
+                                    <p className="text-sm font-bold text-neutral-700 leading-tight">Tùy chỉnh Slider trang chủ</p>
+                                    <p className="text-xs text-neutral-400 mt-1 cursor-pointer hover:underline" onClick={() => navigate('/slides')}>Chuyển đến trang Slide</p>
+                                </div>
+                            </div>
+                            <div className="flex gap-4">
+                                <div className="w-2 h-2 rounded-full bg-primary-500 mt-2 shrink-0"></div>
+                                <div>
+                                    <p className="text-sm font-bold text-neutral-700 leading-tight">Phản hồi yêu cầu trực tuyến</p>
+                                    <p className="text-xs text-neutral-400 mt-1 cursor-pointer hover:underline" onClick={() => navigate('/consultations')}>Xem tất cả tin nhắn</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

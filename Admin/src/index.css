@@ -15,8 +15,22 @@
     }
   }
 
+  @keyframes bell-swing {
+    0%, 100% { transform: rotate(0); }
+    15% { transform: rotate(15deg); }
+    30% { transform: rotate(-12deg); }
+    45% { transform: rotate(9deg); }
+    60% { transform: rotate(-6deg); }
+    75% { transform: rotate(3deg); }
+  }
+
   .animate-bounce-subtle {
     animation: bounce-subtle 2s infinite;
+  }
+
+  .animate-bell-swing {
+    animation: bell-swing 1.5s infinite;
+    transform-origin: top center;
   }
 }
 
@@ -84,4 +98,4 @@
   --color-golden-earth-950: #1e1706;
 
   --font-sans: "Inter", "Be Vietnam Pro", sans-serif;
-}
+}

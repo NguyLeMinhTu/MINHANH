@@ -19,6 +19,8 @@ public interface SanPhamRepository extends JpaRepository<SanPham, String>, JpaSp
 
         Optional<SanPham> findBySanPhamIdAndTrangThai(String sanPhamId, String trangThai);
 
+        long countByTrangThai(String trangThai);
+
     // Lấy toàn bộ public có phân trang
     Page<SanPham> findByTrangThai(String trangThai, Pageable pageable);
 
