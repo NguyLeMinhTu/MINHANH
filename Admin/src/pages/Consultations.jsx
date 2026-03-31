@@ -57,6 +57,8 @@ const Consultations = () => {
             })).unwrap()
             setEditingId(null)
             setNote('')
+            // Yêu cầu Header cập nhật lại số lượng thông báo ngay lập tức
+            window.dispatchEvent(new CustomEvent('new-consultation'))
         } catch (error) {
             alert("Lỗi khi cập nhật trạng thái")
         }
@@ -65,6 +67,8 @@ const Consultations = () => {
     const handleDelete = async (id) => {
         if (window.confirm("Bạn có chắc muốn xóa yêu cầu này?")) {
             await dispatch(deleteConsultation(id))
+            // Yêu cầu Header cập nhật lại số lượng thông báo ngay lập tức
+            window.dispatchEvent(new CustomEvent('new-consultation'))
         }
     }
 

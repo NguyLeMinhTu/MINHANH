@@ -19,6 +19,7 @@ public class TrangChuController {
      */
     @GetMapping
     public HomePageResponse getTrangChu() {
+        trangChuService.recordVisit();
         return trangChuService.getTrangChuData();
     }
 }

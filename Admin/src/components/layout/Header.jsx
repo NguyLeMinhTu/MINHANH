@@ -149,9 +149,13 @@ const Header = ({ isOpen, onToggle }) => {
                         onClick={() => setNotificationsOpen(!notificationsOpen)}
                         className={`relative p-2.5 rounded-xl transition-all group ${notificationsOpen ? 'bg-[#DAA06D]/10 text-[#DAA06D]' : 'text-gray-500 hover:bg-gray-50 hover:text-[#DAA06D]'}`}
                     >
-                        <Bell size={21} strokeWidth={1.5} className={notificationsOpen ? 'rotate-12' : 'group-hover:rotate-12 transition-transform'} />
+                        <Bell 
+                            size={21} 
+                            strokeWidth={1.5} 
+                            className={`transition-transform ${notificationsOpen ? 'rotate-12' : 'group-hover:rotate-12'} ${unhandledConsultations.length > 0 ? 'animate-bell-swing' : ''}`} 
+                        />
                         {unhandledConsultations.length > 0 && (
-                            <span className="absolute top-1.5 right-1.5 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] font-black flex items-center justify-center rounded-full ring-2 ring-white shadow-sm animate-bounce-subtle">
+                            <span className="absolute top-1.5 right-1.5 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] font-black flex items-center justify-center rounded-full ring-2 ring-white shadow-sm">
                                 {unhandledConsultations.length}
                             </span>
                         )}
@@ -161,8 +165,8 @@ const Header = ({ isOpen, onToggle }) => {
                     {notificationsOpen && (
                         <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-50 animate-in fade-in zoom-in duration-200">
                             <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
-                                <h3 className="text-sm font-black text-gray-800 tracking-tight">Thông báo mới</h3>
-                                <span className="text-[10px] font-bold text-[#DAA06D] bg-[#DAA06D]/10 px-2 py-0.5 rounded-full uppercase tracking-widest">
+                                <h3 className="text-sm font-semibold text-gray-800">Thông báo mới</h3>
+                                <span className="text-xs font-medium text-[#DAA06D] bg-[#DAA06D]/10 px-2 py-0.5 rounded-full">
                                     {unhandledConsultations.length} yêu cầu
                                 </span>
                             </div>
@@ -178,13 +182,13 @@ const Header = ({ isOpen, onToggle }) => {
                                             className="px-5 py-4 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 cursor-pointer group"
                                         >
                                             <div className="flex gap-4">
-                                                <div className="w-10 h-10 rounded-xl bg-[#DAA06D]/10 text-[#DAA06D] flex items-center justify-center font-black text-xs shrink-0 group-hover:bg-[#DAA06D] group-hover:text-white transition-all">
+                                                <div className="w-10 h-10 rounded-full bg-[#DAA06D]/10 text-[#DAA06D] flex items-center justify-center font-semibold text-sm shrink-0 group-hover:bg-[#DAA06D] group-hover:text-white transition-all">
                                                     {(noti.tenKhach || 'K').charAt(0)}
                                                 </div>
-                                                <div className="space-y-0.5">
-                                                    <p className="text-sm text-gray-800 font-bold leading-tight line-clamp-1">{noti.tenKhach}</p>
-                                                    <p className="text-xs text-gray-400 font-medium">{noti.soDienThoai}</p>
-                                                    <p className="text-[10px] text-gray-300 font-bold mt-1 uppercase tracking-tighter">
+                                                <div className="space-y-0.5 flex-1">
+                                                    <p className="text-sm text-gray-800 font-medium leading-tight line-clamp-1">{noti.tenKhach}</p>
+                                                    <p className="text-xs text-gray-500">{noti.soDienThoai}</p>
+                                                    <p className="text-xs text-gray-400 mt-0.5">
                                                         {new Date(noti.ngayGui).toLocaleDateString('vi-VN')}
                                                     </p>
                                                 </div>
@@ -196,7 +200,7 @@ const Header = ({ isOpen, onToggle }) => {
                                         <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3">
                                             <Bell size={20} className="text-gray-300" />
                                         </div>
-                                        <p className="text-xs text-gray-400 font-bold uppercase tracking-widest">Không có thông báo mới</p>
+                                        <p className="text-sm text-gray-500">Không có thông báo mới</p>
                                     </div>
                                 )}
                             </div>
@@ -206,7 +210,7 @@ const Header = ({ isOpen, onToggle }) => {
                                         navigate('/consultations')
                                         setNotificationsOpen(false)
                                     }}
-                                    className="w-full py-3.5 text-xs font-black text-gray-500 hover:text-[#DAA06D] hover:bg-[#DAA06D]/5 transition-all uppercase tracking-widest border-t border-gray-50"
+                                    className="w-full py-3 text-sm font-medium text-center text-[#DAA06D] hover:bg-gray-50 transition-colors border-t border-gray-100"
                                 >
                                     Xem tất cả yêu cầu
                                 </button>

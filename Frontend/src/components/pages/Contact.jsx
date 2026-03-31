@@ -9,6 +9,7 @@ import { ArrowRightToLine } from 'lucide-react'
 
 const Contact = () => {
     const [submitted, setSubmitted] = useState(false)
+    const [loading, setLoading] = useState(false)
 
     const contact = thong_tin_lien_he || {}
     const phoneRaw = String(contact.hotline || '').trim()
@@ -47,10 +48,42 @@ const Contact = () => {
         )
     }, [contact.thuong_hieu, email, hours, phoneRaw])
 
-    const onSubmit = (e) => {
+    const onSubmit = async (e) => {
         e.preventDefault()
-        setSubmitted(true)
-        window?.scrollTo?.({ top: 0, behavior: 'smooth' })
+        const form = e.target
+        const formData = new FormData(form)
+
+        const payload = {
+            tenKhach: formData.get('name'),
+            soDienThoai: formData.get('phone'),
+            email: formData.get('email'),
+            noiDung: formData.get('message'),
+        }
+
+        setLoading(true)
+
+        try {
+            const res = await fetch('/api/yeu-cau-tu-van', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload),
+            })
+
+            if (res.ok) {
+                setSubmitted(true)
+                form.reset()
+                window?.scrollTo?.({ top: 0, behavior: 'smooth' })
+            } else {
+                alert('Rất tiếc, có lỗi xảy ra khi gửi yêu cầu. Vui lòng thử lại sau.')
+            }
+        } catch (error) {
+            console.error('Lỗi khi submit form liên hệ:', error)
+            alert('Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng và thử lại.')
+        } finally {
+            setLoading(false)
+        }
     }
 
     return (
@@ -229,9 +262,10 @@ const Contact = () => {
                                 <div className="sm:col-span-2 flex flex-wrap items-center gap-3">
                                     <button
                                         type="submit"
-                                        className="inline-flex items-center justify-center rounded-full bg-brown-bark-800 px-6 py-2.5 text-sm font-semibold text-golden-earth-50 transition hover:bg-brown-bark-700"
+                                        disabled={loading}
+                                        className="inline-flex items-center justify-center rounded-full bg-brown-bark-800 px-6 py-2.5 text-sm font-semibold text-golden-earth-50 transition hover:bg-brown-bark-700 disabled:opacity-70 disabled:cursor-not-allowed"
                                     >
-                                        Gửi yêu cầu
+                                        {loading ? 'Đang gửi...' : 'Gửi yêu cầu'}
                                     </button>
                                     <p className="text-xs text-carbon-black-600">
                                         Bằng việc gửi thông tin, bạn đồng ý để chúng tôi liên hệ tư vấn.
