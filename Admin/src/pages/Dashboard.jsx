@@ -1,9 +1,18 @@
-import React from 'react'
-import { Users, Package, FileText, MessageSquare, ArrowUpRight } from 'lucide-react'
-import { nguoiDung, sanPham, baiViet, yeuCauTuVan } from '../assets/assets'
+import { useDispatch, useSelector } from 'react-redux'
+import { fetchConsultations } from '../app/slices/consultationSlice'
+import { nguoiDung, sanPham, baiViet } from '../assets/assets'
 import dashboardBg from '../assets/dashboard-bg.png'
+import { useEffect } from 'react'
+import { Users, Package, FileText, MessageSquare } from 'lucide-react'
 
 const Dashboard = () => {
+    const dispatch = useDispatch()
+    const { items: consultations = [], status: consultStatus } = useSelector(state => state.consultations || { items: [] })
+
+    useEffect(() => {
+        dispatch(fetchConsultations({ page: 0, size: 5, daXuLy: null }))
+    }, [dispatch])
+
     const stats = [
         {
             label: 'Người dùng hệ thống',
@@ -31,49 +40,57 @@ const Dashboard = () => {
         },
         {
             label: 'Thông tin tư vấn',
-            value: yeuCauTuVan.length,
+            value: consultations.length,
             icon: MessageSquare,
             color: 'text-rose-500',
             bg: 'bg-rose-50',
-            change: `${yeuCauTuVan.filter(y => !y.da_xu_ly).length} yêu cầu mới`,
+            change: `${consultations.filter(y => !y.daXuLy).length} yêu cầu mới`,
         },
     ]
+
+    const getGreeting = () => {
+        const hour = new Date().getHours()
+        if (hour >= 5 && hour < 12) return 'Chào buổi sáng'
+        if (hour >= 12 && hour < 18) return 'Chào buổi chiều'
+        if (hour >= 18 && hour < 22) return 'Chào buổi tối'
+        return 'Chúc ngủ ngon' // For late night/early morning
+    }
 
     return (
         <div className="space-y-8 pb-10">
             {/* Header Section - Compact Premium Light Mood */}
-            <div className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-[#fefaf6] to-[#f5f0e5] px-8 py-10 shadow-lg border border-[#eadbc8]/30">
+            <div className="relative overflow-hidden rounded-[32px] bg-linear-to-br from-surface-50 to-surface-100 px-8 py-10 shadow-lg border border-primary-500/10">
                 {/* Image Section - Compact on the right */}
                 <div className="absolute right-0 top-0 bottom-0 w-2/5 z-0 hidden lg:block overflow-hidden">
-                    <img 
-                        src={dashboardBg} 
-                        alt="workshop" 
-                        className="w-full h-full object-cover opacity-70 rounded-l-[80px] shadow-[-20px_0_40px_rgba(218,160,109,0.05)]" 
+                    <img
+                        src={dashboardBg}
+                        alt="workshop"
+                        className="w-full h-full object-cover opacity-70 rounded-l-[80px] shadow-[-20px_0_40px_rgba(218,160,109,0.05)]"
                     />
-                    <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-[#fefaf6] via-[#fefaf6]/80 to-transparent z-10"></div>
+                    <div className="absolute inset-y-0 left-0 w-32 bg-linear-to-r from-surface-50 via-surface-50/80 to-transparent z-10"></div>
                 </div>
 
                 {/* Decorative Elements */}
-                <div className="absolute -left-16 -top-16 w-64 h-64 bg-[#DAA06D]/5 rounded-full blur-[80px] pointer-events-none"></div>
+                <div className="absolute -left-16 -top-16 w-64 h-64 bg-primary-500/5 rounded-full blur-[80px] pointer-events-none"></div>
 
                 <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-8">
                     {/* Left: Content - High Contrast Dark Text */}
                     <div className="max-w-lg">
-                        <div className="inline-flex items-center gap-3 mb-6 bg-white border border-[#DAA06D]/20 px-3 py-1.5 rounded-xl shadow-sm">
+                        <div className="inline-flex items-center gap-3 mb-6 bg-white border border-primary-500/20 px-3 py-1.5 rounded-xl shadow-sm">
                             <span className="relative flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#DAA06D] opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#DAA06D]"></span>
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-500 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary-500"></span>
                             </span>
-                            <span className="text-[#DAA06D] text-[9px] font-bold uppercase tracking-[0.25em]">Hệ thống trực tuyến</span>
+                            <span className="text-primary-600 text-[9px] font-bold uppercase tracking-[0.25em]">Hệ thống trực tuyến</span>
                         </div>
-                        
-                        <h2 className="text-3xl md:text-4xl font-black text-[#2d241e] mb-4 tracking-tight leading-tight">
-                            Chào buổi sáng,<br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#DAA06D] to-[#8b5e3c]">
+
+                        <h2 className="text-3xl md:text-4xl font-bold text-[#2d241e] mb-4 tracking-tight leading-tight">
+                            {getGreeting()},<br />
+                            <span className="text-transparent bg-clip-text bg-linear-to-r from-primary-500 to-primary-700">
                                 Quản trị viên!
                             </span>
                         </h2>
-                        
+
                         <p className="text-[#8b7e74] text-sm leading-relaxed max-w-sm font-medium">
                             Trung tâm điều phối Minh Anh Uniform. Toàn bộ dữ liệu đã được cập nhật chính xác.
                         </p>
@@ -83,15 +100,15 @@ const Dashboard = () => {
                     <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-3 shrink-0">
                         {[
                             { icon: Package, label: 'Sản phẩm', value: sanPham.length, accent: 'bg-blue-500' },
-                            { icon: MessageSquare, label: 'Tư vấn mới', value: yeuCauTuVan.filter(y => !y.da_xu_ly).length, accent: 'bg-[#DAA06D]' },
+                            { icon: MessageSquare, label: 'Tư vấn mới', value: consultations.filter(y => !y.daXuLy).length, accent: 'bg-primary-500' },
                             { icon: FileText, label: 'Bài viết', value: baiViet.filter(b => b.trang_thai === 'cong_khai').length, accent: 'bg-emerald-500' },
                         ].map(({ icon: Icon, label, value, accent }) => (
-                            <div key={label} className="group flex items-center gap-5 bg-white/60 backdrop-blur-xl border border-white rounded-2xl px-6 py-4 min-w-[260px] shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgba(218,160,109,0.1)] hover:bg-white/90 transition-all duration-300">
-                                <div className={`w-12 h-12 rounded-xl bg-[#fdfaf6] flex items-center justify-center shrink-0 border border-[#DAA06D]/10`}>
-                                    <Icon size={20} className="text-[#8b5e3c]" strokeWidth={1.5} />
+                            <div key={label} className="group flex items-center gap-5 bg-white/60 backdrop-blur-xl border border-white rounded-2xl px-6 py-4 min-w-[260px] shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgba(var(--primary-500),0.1)] hover:bg-white/90 transition-all duration-300">
+                                <div className={`w-12 h-12 rounded-xl bg-surface-50 flex items-center justify-center shrink-0 border border-primary-500/10`}>
+                                    <Icon size={20} className="text-primary-700" strokeWidth={1.5} />
                                 </div>
                                 <div>
-                                    <p className="text-[#2d241e] text-2xl font-black leading-none">{value}</p>
+                                    <p className="text-[#2d241e] text-2xl font-bold leading-none">{value}</p>
                                     <p className="text-[#8b7e74] text-[9px] font-bold uppercase tracking-widest mt-1.5">{label}</p>
                                 </div>
                                 <div className={`ml-auto w-1 h-8 rounded-full ${accent} opacity-20`}></div>
@@ -104,14 +121,14 @@ const Dashboard = () => {
             {/* Stats Grid - Premium Minimalist */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {stats.map(({ label, value, icon: Icon, color, bg, change }) => (
-                    <div key={label} className="group bg-white rounded-3xl p-7 border border-[#f5f3f0] shadow-[0_4px_24px_rgba(0,0,0,0.02)] hover:shadow-[0_12px_48px_rgba(218,160,109,0.08)] hover:border-[#DAA06D]/20 transition-all duration-500">
+                    <div key={label} className="group bg-white rounded-3xl p-7 border border-[#f5f3f0] shadow-[0_4px_24px_rgba(0,0,0,0.02)] hover:shadow-[0_12px_48px_rgba(var(--primary-500),0.08)] hover:border-primary-500/20 transition-all duration-500">
                         <div className="flex items-start justify-between">
-                            <div className={`p-3.5 rounded-2xl ${bg} ${color} transition-all duration-500 group-hover:bg-[#DAA06D] group-hover:text-white group-hover:shadow-lg group-hover:shadow-[#DAA06D]/30`}>
+                            <div className={`p-3.5 rounded-2xl ${bg} ${color} transition-all duration-500 group-hover:bg-primary-500 group-hover:text-white group-hover:shadow-lg group-hover:shadow-primary-500/30`}>
                                 <Icon size={24} strokeWidth={1.5} />
                             </div>
                             <div className="text-right">
                                 <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">{label}</span>
-                                <p className="text-4xl font-black text-neutral-800 mt-1.5 tracking-tighter">{value}</p>
+                                <p className="text-4xl font-bold text-neutral-800 mt-1.5 tracking-tighter">{value}</p>
                             </div>
                         </div>
                         <div className="mt-8 flex items-center gap-2">
@@ -126,12 +143,12 @@ const Dashboard = () => {
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
                 {/* Recent Consultations - Main Table */}
                 <div className="xl:col-span-2 bg-white rounded-[32px] border border-[#f5f3f0] shadow-[0_4px_24px_rgba(0,0,0,0.02)] overflow-hidden text-neutral-800">
-                    <div className="flex items-center justify-between px-10 py-7 border-b border-neutral-50">
+                    <div className="flex items-center justify-between px-6 py-6 border-b border-neutral-50">
                         <div>
-                            <h3 className="text-xl font-black text-neutral-800 tracking-tight">Yêu cầu tư vấn gần đây</h3>
+                            <h3 className="text-xl font-bold text-neutral-800 tracking-tight">Yêu cầu tư vấn gần đây</h3>
                             <p className="text-xs text-neutral-400 font-medium mt-1">Hệ thống ghi nhận trong 24 giờ qua</p>
                         </div>
-                        <button className="px-5 py-2.5 text-xs font-bold text-white bg-[#DAA06D] rounded-1.5xl hover:bg-[#b8844a] transition-all duration-300 shadow-lg shadow-[#DAA06D]/20">
+                        <button className="px-5 py-2.5 text-xs font-bold text-white bg-primary-500 rounded-xl hover:bg-primary-600 transition-all duration-300 shadow-lg shadow-primary-500/20">
                             Xem tất cả yêu cầu
                         </button>
                     </div>
@@ -139,41 +156,44 @@ const Dashboard = () => {
                         <table className="w-full">
                             <thead>
                                 <tr className="text-left text-[10px] text-neutral-300 font-bold uppercase tracking-[0.2em]">
-                                    <th className="px-10 py-5">Tên khách hàng</th>
-                                    <th className="px-10 py-5">Thông tin liên hệ</th>
-                                    <th className="px-10 py-5">Tình trạng</th>
-                                    <th className="px-10 py-5">Thời gian</th>
+                                    <th className="px-6 py-4">Tên khách hàng</th>
+                                    <th className="px-6 py-4">Thông tin liên hệ</th>
+                                    <th className="px-6 py-4">Tình trạng</th>
+                                    <th className="px-6 py-4">Thời gian</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-neutral-50">
-                                {yeuCauTuVan.slice(0, 5).map((item) => (
-                                    <tr key={item.yeu_cau_id} className="hover:bg-[#fdfcfb] transition-colors group">
-                                        <td className="px-10 py-6">
+                                {consultStatus === 'loading' ? (
+                                    <tr><td colSpan="4" className="text-center py-10 text-gray-400 italic">Đang tải dữ liệu...</td></tr>
+                                ) : consultations.length === 0 ? (
+                                    <tr><td colSpan="4" className="text-center py-10 text-gray-400 italic">Không có yêu cầu nào mới</td></tr>
+                                ) : consultations.slice(0, 5).map((item) => (
+                                    <tr key={item.yeuCauId} className="hover:bg-[#fdfcfb] transition-colors group">
+                                        <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex items-center gap-4">
-                                                <div className="w-11 h-11 rounded-2xl bg-neutral-100 text-neutral-500 flex items-center justify-center font-black text-sm border border-neutral-200/50 group-hover:bg-[#DAA06D]/10 group-hover:text-[#DAA06D] group-hover:border-[#DAA06D]/20 transition-all duration-300">
-                                                    {item.ten_khach.charAt(0)}
+                                                <div className="w-11 h-11 rounded-2xl bg-neutral-100 text-neutral-500 flex items-center justify-center font-bold text-sm border border-neutral-200/50 group-hover:bg-primary-500/10 group-hover:text-primary-600 group-hover:border-primary-500/20 transition-all duration-300">
+                                                    {(item.tenKhach || 'K').charAt(0)}
                                                 </div>
-                                                <span className="font-bold text-neutral-700 text-base">{item.ten_khach}</span>
+                                                <span className="font-bold text-neutral-700 text-base">{item.tenKhach}</span>
                                             </div>
                                         </td>
-                                        <td className="px-10 py-6">
+                                        <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="space-y-1">
-                                                <p className="text-sm text-neutral-600 font-bold">{item.so_dien_thoai}</p>
-                                                <p className="text-xs text-neutral-400 font-medium">{item.email}</p>
+                                                <p className="text-sm text-neutral-600 font-bold">{item.soDienThoai}</p>
+                                                <p className="text-xs text-neutral-400 font-medium">{item.email || 'Không có email'}</p>
                                             </div>
                                         </td>
-                                        <td className="px-10 py-6">
-                                            <span className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest ${
-                                                item.da_xu_ly 
-                                                ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' 
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <span className={`inline-flex items-center gap-1 px-4.5 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest ${item.daXuLy
+                                                ? 'bg-emerald-50 text-emerald-600 border border-emerald-100'
                                                 : 'bg-amber-50 text-amber-600 border border-amber-100'
-                                            }`}>
-                                                <span className={`w-1.5 h-1.5 rounded-full ${item.da_xu_ly ? 'bg-emerald-600' : 'bg-amber-600'}`}></span>
-                                                {item.da_xu_ly ? 'Đã xử lý' : 'Đang chờ'}
+                                                }`}>
+                                                <span className={`w-1.5 h-1.5 rounded-full ${item.daXuLy ? 'bg-emerald-600' : 'bg-amber-600'}`}></span>
+                                                {item.daXuLy ? 'Đã xử lý' : 'Đang chờ'}
                                             </span>
                                         </td>
-                                        <td className="px-10 py-6 text-neutral-400 text-xs font-bold tabular-nums">
-                                            {new Date(item.ngay_gui).toLocaleDateString('vi-VN')}
+                                        <td className="px-6 py-4 text-neutral-400 text-xs font-bold tabular-nums whitespace-nowrap">
+                                            {new Date(item.ngayGui).toLocaleDateString('vi-VN')}
                                         </td>
                                     </tr>
                                 ))}
@@ -184,11 +204,11 @@ const Dashboard = () => {
 
                 {/* Right Side Widget (Quick Actions or Info) */}
                 <div className="space-y-6">
-                    <div className="bg-gradient-to-br from-[#DAA06D] to-[#b8844a] rounded-3xl p-8 text-white shadow-xl relative overflow-hidden">
+                    <div className="bg-linear-to-br from-primary-500 to-primary-600 rounded-3xl p-8 text-white shadow-xl relative overflow-hidden">
                         <div className="relative z-10">
                             <h4 className="text-lg font-bold mb-2">Tư vấn viên trực tiếp</h4>
                             <p className="text-white/80 text-xs leading-relaxed mb-6">Bạn có thể truy cập nhanh vào danh sách khách hàng từ các kênh mạng xã hội.</p>
-                            <button className="w-full bg-white text-[#DAA06D] font-bold py-3 rounded-2xl text-sm shadow-lg hover:bg-neutral-50 transition-colors">
+                            <button className="w-full bg-white text-primary-600 font-bold py-3 rounded-2xl text-sm shadow-lg hover:bg-neutral-50 transition-colors">
                                 Quản lý kênh Zalo
                             </button>
                         </div>
@@ -200,7 +220,7 @@ const Dashboard = () => {
                         <div className="space-y-6">
                             {[1, 2, 3].map(i => (
                                 <div key={i} className="flex gap-4">
-                                    <div className="w-2 h-2 rounded-full bg-[#DAA06D] mt-2 shrink-0"></div>
+                                    <div className="w-2 h-2 rounded-full bg-primary-500 mt-2 shrink-0"></div>
                                     <div>
                                         <p className="text-sm font-bold text-neutral-700 leading-tight">Cập nhật sản phẩm mới</p>
                                         <p className="text-xs text-neutral-400 mt-1">10 phút trước</p>

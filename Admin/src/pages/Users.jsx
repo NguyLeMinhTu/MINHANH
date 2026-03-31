@@ -3,7 +3,7 @@ import { Search, Plus, Mail, Phone, Lock, Unlock } from 'lucide-react'
 import { nguoiDung } from '../assets/assets'
 
 const roleLabel = { admin: 'Admin', user: 'Khách hàng' }
-const roleStyle = { admin: 'bg-[#DAA06D]/20 text-[#c08850]', user: 'bg-gray-100 text-gray-600' }
+const roleStyle = { admin: 'bg-primary-500/10 text-primary-600', user: 'bg-gray-100 text-gray-600' }
 const statusStyle = { true: 'bg-emerald-100 text-emerald-700', false: 'bg-red-100 text-red-700' }
 
 const Users = () => {
@@ -20,7 +20,7 @@ const Users = () => {
                     <h2 className="text-xl font-bold text-gray-800">DANH SÁCH NGƯỜI DÙNG</h2>
                     <p className="text-sm text-gray-500 mt-0.5">Quản lý thông tin tài khoản người dùng</p>
                 </div>
-                <button className="flex items-center gap-2 bg-[#DAA06D] hover:bg-[#c08850] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm">
+                <button className="flex items-center gap-2 bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm">
                     <Plus size={16} />
                     Thêm người dùng
                 </button>
@@ -35,7 +35,7 @@ const Users = () => {
                             placeholder="Tìm kiếm người dùng..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="pl-9 pr-4 py-2 w-full text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#DAA06D]"
+                            className="pl-9 pr-4 py-2 w-full text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                         />
                     </div>
                 </div>
@@ -59,7 +59,7 @@ const Users = () => {
                                             {user.anh_dai_dien ? (
                                                 <img src={user.anh_dai_dien} alt={user.ten} className="w-9 h-9 rounded-full object-cover shrink-0" />
                                             ) : (
-                                                <div className="w-9 h-9 rounded-full bg-[#DAA06D]/20 text-[#DAA06D] flex items-center justify-center font-semibold text-sm shrink-0">
+                                                <div className="w-9 h-9 rounded-full bg-primary-500/10 text-primary-600 flex items-center justify-center font-semibold text-sm shrink-0">
                                                     {user.ten.charAt(0)}
                                                 </div>
                                             )}
@@ -90,7 +90,7 @@ const Users = () => {
                                         </span>
                                     </td>
                                     <td className="px-6 py-3.5">
-                                        <button className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors" title={user.trang_thai ? 'Khóa' : 'Mở khóa'}>
+                                        <button className="p-1.5 rounded-lg hover:bg-primary-500/10 text-gray-400 hover:text-primary-600 transition-colors" title={user.trang_thai ? 'Khóa' : 'Mở khóa'}>
                                             {user.trang_thai ? <Lock size={15} /> : <Unlock size={15} />}
                                         </button>
                                     </td>

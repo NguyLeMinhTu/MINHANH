@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
-import logo from '../../assets/logo.jpg'
+import logo from '../../assets/logo.png'
 import {
     LayoutDashboard,
     Users,
@@ -18,7 +18,7 @@ import {
 } from 'lucide-react'
 
 const managementItems = [
-    { to: '/users', icon: Users, label: 'Người dùng' },
+    // { to: '/users', icon: Users, label: 'Người dùng' },
     { to: '/product-categories', icon: Tag, label: 'Danh mục sản phẩm' },
     { to: '/products', icon: Package, label: 'Sản phẩm' },
 
@@ -38,8 +38,8 @@ const configItems = [
 
 const navLinkClass = (isActive, isCollapsed) =>
     `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150 ${isActive
-        ? 'bg-[#DAA06D] text-white shadow-sm'
-        : 'text-gray-500 hover:bg-[#DAA06D]/10 hover:text-[#DAA06D]'
+        ? 'bg-primary-600 text-white shadow-sm'
+        : 'text-gray-500 hover:bg-primary-600/10 hover:text-primary-600'
     } ${isCollapsed ? 'justify-center' : ''}`
 
 const Sidebar = ({ isOpen }) => {
@@ -52,7 +52,7 @@ const Sidebar = ({ isOpen }) => {
 
     return (
         <aside
-            className={`fixed left-0 top-0 h-full bg-white border-r border-gray-200 flex flex-col transition-all duration-300 z-40 shadow-sm ${isOpen ? 'w-64' : 'w-16'
+            className={`fixed left-0 top-0 h-full bg-surface-50 border-r border-surface-200 flex flex-col transition-all duration-300 z-40 shadow-sm ${isOpen ? 'w-64' : 'w-16'
                 }`}
         >
             {/* Logo */}
@@ -62,12 +62,12 @@ const Sidebar = ({ isOpen }) => {
             >
                 {/* <div className="w-8 h-8 bg-[#DAA06D] rounded-lg flex items-center justify-center shrink-0 shadow-lg"> */}
                 {/* <span className="text-white font-bold text-sm">M</span> */}
-                <img src={logo} alt="Logo" className="size-20" />
+                <img src={logo} alt="Logo" className="h-12 w-auto" />
                 {/* </div> */}
                 {isOpen && (
                     <div>
                         <p className="font-bold text-gray-800 text-sm leading-tight">Minh Anh</p>
-                        <p className="text-[#DAA06D] text-xs">Trang quản trị</p>
+                        <p className="text-primary-600 text-xs">Trang quản trị</p>
                     </div>
                 )}
             </div>
@@ -91,7 +91,7 @@ const Sidebar = ({ isOpen }) => {
                         <button
                             onClick={() => setManagementOpen(!managementOpen)}
                             className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-colors ${isManagementActive
-                                ? 'text-[#DAA06D]'
+                                ? 'text-primary-600'
                                 : 'text-gray-400 hover:text-gray-600'
                                 }`}
                         >
@@ -124,8 +124,8 @@ const Sidebar = ({ isOpen }) => {
                             className={({ isActive }) =>
                                 isOpen
                                     ? `flex items-center gap-3 rounded-lg pl-5 pr-3 py-2 text-sm transition-all duration-150 ${isActive
-                                        ? 'bg-[#DAA06D] text-white shadow-sm'
-                                        : 'text-gray-500 hover:bg-[#DAA06D]/10 hover:text-[#DAA06D]'
+                                        ? 'bg-primary-600 text-white shadow-sm'
+                                        : 'text-gray-500 hover:bg-primary-600/10 hover:text-primary-600'
                                     }`
                                     : navLinkClass(isActive, true)
                             }

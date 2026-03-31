@@ -76,7 +76,7 @@ const CollectionModal = ({ collection, onClose, onSaved }) => {
                         <label className="block text-xs font-semibold text-gray-600 mb-1.5">Ảnh Banner (Khổ đứng 4:5 hoặc 3:4)</label>
                         <div
                             onClick={() => fileRef.current.click()}
-                            className="relative w-full h-52 border-2 border-dashed border-gray-200 rounded-xl overflow-hidden cursor-pointer hover:border-[#DAA06D] transition-colors bg-gray-50 flex items-center justify-center"
+                            className="relative w-full h-52 border-2 border-dashed border-gray-200 rounded-xl overflow-hidden cursor-pointer hover:border-primary-500 transition-colors bg-gray-50 flex items-center justify-center"
                         >
                             {preview ? (
                                 <img src={preview} alt="preview" className="w-full h-full object-cover" />
@@ -88,7 +88,7 @@ const CollectionModal = ({ collection, onClose, onSaved }) => {
                             )}
                             {uploading && (
                                 <div className="absolute inset-0 bg-white/80 flex items-center justify-center">
-                                    <Loader2 size={24} className="animate-spin text-[#DAA06D]" />
+                                    <Loader2 size={24} className="animate-spin text-primary-500" />
                                 </div>
                             )}
                         </div>
@@ -101,7 +101,7 @@ const CollectionModal = ({ collection, onClose, onSaved }) => {
                         <input
                             required
                             value={form.tieuDe} onChange={e => setForm(f => ({ ...f, tieuDe: e.target.value }))}
-                            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#DAA06D]"
+                            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary-500"
                             placeholder="Ví dụ: Bộ Sưu Tập Công Sở" />
                     </div>
 
@@ -111,7 +111,7 @@ const CollectionModal = ({ collection, onClose, onSaved }) => {
                             <label className="block text-xs font-semibold text-gray-600 mb-1.5">Đường dẫn (Link)</label>
                             <input
                                 value={form.link} onChange={e => setForm(f => ({ ...f, link: e.target.value }))}
-                                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#DAA06D]"
+                                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary-500"
                                 placeholder="/san-pham?dm=dong-phuc-cong-so" />
                         </div>
                         <div className="w-24">
@@ -119,7 +119,7 @@ const CollectionModal = ({ collection, onClose, onSaved }) => {
                             <input
                                 type="number" min={1}
                                 value={form.thuTu} onChange={e => setForm(f => ({ ...f, thuTu: e.target.value }))}
-                                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#DAA06D]" />
+                                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary-500" />
                         </div>
                     </div>
 
@@ -135,7 +135,7 @@ const CollectionModal = ({ collection, onClose, onSaved }) => {
                     <div className="flex justify-end gap-3 pt-2">
                         <button type="button" onClick={onClose} className="px-4 py-2 text-sm text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">Hủy</button>
                         <button type="submit" disabled={saving || uploading}
-                            className="flex items-center gap-2 px-5 py-2 bg-[#DAA06D] hover:bg-[#c08850] text-white text-sm font-medium rounded-lg transition-colors">
+                            className="flex items-center gap-2 px-5 py-2 bg-primary-500 hover:bg-primary-600 text-white text-sm font-medium rounded-lg transition-colors">
                             {saving && <Loader2 size={14} className="animate-spin" />}
                             {collection ? 'Lưu thay đổi' : 'Thêm bộ sưu tập'}
                         </button>
@@ -204,7 +204,7 @@ const Collections = () => {
                 </div>
                 <button
                     onClick={() => setModal('add')}
-                    className="flex items-center gap-2 bg-[#DAA06D] hover:bg-[#c08850] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm">
+                    className="flex items-center gap-2 bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm">
                     <Plus size={16} /> Thêm mới
                 </button>
             </div>
@@ -220,7 +220,7 @@ const Collections = () => {
                             <Plus className="text-gray-300" size={28} />
                         </div>
                         <p className="text-sm font-medium text-gray-500">Chưa có bộ sưu tập nào</p>
-                        <button onClick={() => setModal('add')} className="mt-4 text-[#DAA06D] text-sm font-bold">Tạo ngay</button>
+                        <button onClick={() => setModal('add')} className="mt-4 text-primary-600 text-sm font-bold">Tạo ngay</button>
                     </div>
                 ) : (
                     <div className="divide-y divide-gray-50">
@@ -254,7 +254,7 @@ const Collections = () => {
                                         <button onClick={() => handleToggle(item)} className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-gray-600 transition-colors">
                                             {item.trangThai === 'hien' ? <EyeOff size={15} /> : <Eye size={15} />}
                                         </button>
-                                        <button onClick={() => setModal(item)} className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-[#DAA06D] transition-colors">
+                                        <button onClick={() => setModal(item)} className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-primary-600 transition-colors">
                                             <Pencil size={15} />
                                         </button>
                                         <button onClick={() => handleDelete(item)} className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-red-500 transition-colors">

@@ -7,7 +7,7 @@ const AdminLayout = () => {
     const [sidebarOpen, setSidebarOpen] = useState(true)
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-surface-50">
             <Sidebar isOpen={sidebarOpen} />
             <Header
                 isOpen={sidebarOpen}

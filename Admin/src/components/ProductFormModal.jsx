@@ -220,7 +220,7 @@ const ProductFormModal = ({ product, categories, onClose }) => {
     return (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center backdrop-blur-sm p-4">
             <div className="bg-white rounded-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
-                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-[#fbf9f6]">
+                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-[/* No change needed here, just searching */]">
                     <h3 className="font-bold text-gray-800 text-lg uppercase tracking-wide">Sửa thông tin sản phẩm</h3>
                     <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-gray-200 text-gray-500 transition-colors">
                         <X size={20} />
@@ -229,7 +229,7 @@ const ProductFormModal = ({ product, categories, onClose }) => {
 
                 <div className="flex gap-4 px-6 pt-4 border-b border-gray-100 bg-white shrink-0">
                     {tabs.map(tab => (
-                        <button key={tab.id} type="button" onClick={() => setActiveTab(tab.id)} className={`pb-3 px-3 text-sm font-semibold transition-colors border-b-2 ${activeTab === tab.id ? 'border-[#DAA06D] text-[#DAA06D]' : 'border-transparent text-gray-400 hover:text-gray-600'}`}>
+                        <button key={tab.id} type="button" onClick={() => setActiveTab(tab.id)} className={`pb-3 px-3 text-sm font-semibold transition-colors border-b-2 ${activeTab === tab.id ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-400 hover:text-gray-600'}`}>
                             {tab.label}
                         </button>
                     ))}
@@ -251,8 +251,8 @@ const ProductFormModal = ({ product, categories, onClose }) => {
                                 </div>
                                 
                                 <div className="grid grid-cols-3 gap-4 pt-2">
-                                    <label className="flex items-center gap-2 text-sm text-gray-700 font-medium cursor-pointer"><input type="checkbox" name="spNoiBat" checked={formData.spNoiBat} onChange={handleChange} className="rounded text-[#DAA06D] focus:ring-[#DAA06D] w-4 h-4 cursor-pointer" /> Sản Phẩm Nổi bật</label>
-                                    <label className="flex items-center gap-2 text-sm text-gray-700 font-medium cursor-pointer"><input type="checkbox" name="spMoi" checked={formData.spMoi} onChange={handleChange} className="rounded text-[#DAA06D] focus:ring-[#DAA06D] w-4 h-4 cursor-pointer" /> Sản Phẩm Mới</label>
+                                    <label className="flex items-center gap-2 text-sm text-gray-700 font-medium cursor-pointer"><input type="checkbox" name="spNoiBat" checked={formData.spNoiBat} onChange={handleChange} className="rounded text-primary-500 focus:ring-primary-500 w-4 h-4 cursor-pointer" /> Sản Phẩm Nổi bật</label>
+                                    <label className="flex items-center gap-2 text-sm text-gray-700 font-medium cursor-pointer"><input type="checkbox" name="spMoi" checked={formData.spMoi} onChange={handleChange} className="rounded text-primary-500 focus:ring-primary-500 w-4 h-4 cursor-pointer" /> Sản Phẩm Mới</label>
                                 </div>
                             </div>
                             
@@ -289,7 +289,7 @@ const ProductFormModal = ({ product, categories, onClose }) => {
                                 <h4 className="font-bold text-gray-800 text-sm">Quản lý Phân loại hàng (Grouped by Color)</h4>
                                 <p className="text-xs text-gray-500 mt-1">Nhóm các kích cỡ dưới cùng một màu sắc để dễ dàng quản lý.</p>
                             </div>
-                            <button type="button" onClick={addColorGroup} className="px-4 py-2 bg-[#DAA06D] text-white hover:bg-[#c08850] rounded-lg font-semibold text-sm transition-colors flex items-center gap-2 shadow-sm">
+                            <button type="button" onClick={addColorGroup} className="px-4 py-2 bg-primary-500 text-white hover:bg-primary-600 rounded-lg font-semibold text-sm transition-colors flex items-center gap-2 shadow-sm">
                                 <Plus size={16} /> Thêm Màu Mới
                             </button>
                         </div>
@@ -305,13 +305,13 @@ const ProductFormModal = ({ product, categories, onClose }) => {
                                         {/* Color Header */}
                                         <div className="bg-gray-50 px-4 py-3 border-b border-gray-100 flex items-center gap-4">
                                             <div className="flex-1 flex items-center gap-3">
-                                                <div className="w-2 h-8 bg-[#DAA06D] rounded-full"></div>
+                                                <div className="w-2 h-8 bg-primary-500 rounded-full"></div>
                                                 <input 
                                                     type="text" 
                                                     placeholder="Tên Màu (vd: Đen, Trắng, Navy...)" 
                                                     value={group.color} 
                                                     onChange={(e) => handleColorNameChange(colorIndex, e.target.value)}
-                                                    className="flex-1 bg-transparent font-bold text-gray-800 focus:outline-none placeholder-gray-400 border-b border-transparent focus:border-[#DAA06D]"
+                                                    className="flex-1 bg-transparent font-bold text-gray-800 focus:outline-none placeholder-gray-400 border-b border-transparent focus:border-primary-500"
                                                 />
                                             </div>
                                             <button 
@@ -416,9 +416,9 @@ const ProductFormModal = ({ product, categories, onClose }) => {
                     </div>
                 </form>
 
-                <div className="px-8 py-4 border-t border-gray-100 bg-[#fbf9f6] flex justify-end gap-3 rounded-b-2xl shrink-0">
+                <div className="px-8 py-4 border-t border-gray-100 bg-[/* No change needed here, just searching */] flex justify-end gap-3 rounded-b-2xl shrink-0">
                     <button type="button" onClick={onClose} className="px-6 py-2.5 text-sm font-semibold text-gray-600 hover:text-gray-800 bg-white border border-gray-200 hover:bg-gray-50 rounded-xl transition-colors shadow-sm">Thoát không lưu</button>
-                    <button type='submit' form="editForm" disabled={loading} className="px-8 py-2.5 text-sm font-bold text-white bg-gradient-to-r from-[#DAA06D] to-[#d08b52] rounded-xl hover:from-[#c08850] hover:to-[#b87640] transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-[#DAA06D]/30 active:scale-95">
+                    <button type='submit' form="editForm" disabled={loading} className="px-8 py-2.5 text-sm font-bold text-white bg-linear-to-r from-primary-500 to-primary-600 rounded-xl hover:from-primary-600 hover:to-primary-700 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-primary-500/30 active:scale-95">
                         {loading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Save size={18} />}
                          Lưu
                     </button>

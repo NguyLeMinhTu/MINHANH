@@ -22,7 +22,7 @@ const Settings = () => {
             {/* Contact Info */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-5">
                 <h3 className="font-semibold text-gray-700 flex items-center gap-2">
-                    <Phone size={18} className="text-[#DAA06D]" />
+                    <Phone size={18} className="text-primary-600" />
                     Thông tin liên hệ
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -31,7 +31,7 @@ const Settings = () => {
                         <div className="relative">
                             <Mail size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                             <input name="email_lien_he" value={form.email_lien_he ?? ''} onChange={handleChange}
-                                className="w-full pl-9 pr-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#DAA06D]" />
+                                className="w-full pl-9 pr-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500" />
                         </div>
                     </div>
                     <div>
@@ -39,7 +39,7 @@ const Settings = () => {
                         <div className="relative">
                             <Phone size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                             <input name="hotline" value={form.hotline ?? ''} onChange={handleChange}
-                                className="w-full pl-9 pr-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#DAA06D]" />
+                                className="w-full pl-9 pr-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500" />
                         </div>
                     </div>
                     <div className="md:col-span-2">
@@ -47,7 +47,7 @@ const Settings = () => {
                         <div className="relative">
                             <MapPin size={15} className="absolute left-3 top-3.5 text-gray-400" />
                             <input name="dia_chi" value={form.dia_chi ?? ''} onChange={handleChange}
-                                className="w-full pl-9 pr-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#DAA06D]" />
+                                className="w-full pl-9 pr-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500" />
                         </div>
                     </div>
                 </div>
@@ -56,7 +56,7 @@ const Settings = () => {
             {/* Social Media */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-5">
                 <h3 className="font-semibold text-gray-700 flex items-center gap-2">
-                    <Facebook size={18} className="text-[#DAA06D]" />
+                    <Facebook size={18} className="text-primary-600" />
                     Mạng xã hội &amp; Liên kết
                 </h3>
                 <div className="space-y-4">
@@ -90,7 +90,7 @@ const Settings = () => {
             {/* All settings table */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-4">
                 <h3 className="font-semibold text-gray-700 flex items-center gap-2">
-                    <Globe size={18} className="text-[#DAA06D]" />
+                    <Globe size={18} className="text-primary-600" />
                     Tất cả cấu hình
                 </h3>
                 <div className="overflow-x-auto">
@@ -105,7 +105,7 @@ const Settings = () => {
                         <tbody className="divide-y divide-gray-50">
                             {cauHinh.map((c) => (
                                 <tr key={c.khoa} className="hover:bg-gray-50">
-                                    <td className="px-4 py-3 font-mono text-xs text-[#DAA06D]">{c.khoa}</td>
+                                    <td className="px-4 py-3 font-mono text-xs text-primary-600">{c.khoa}</td>
                                     <td className="px-4 py-3 text-gray-700">{c.gia_tri}</td>
                                     <td className="px-4 py-3 text-gray-400 text-xs">{c.mo_ta}</td>
                                 </tr>
@@ -116,7 +116,7 @@ const Settings = () => {
             </div>
 
             <div className="flex justify-end">
-                <button className="flex items-center gap-2 bg-[#DAA06D] hover:bg-[#c08850] text-white px-6 py-2.5 rounded-lg text-sm font-medium transition-colors shadow-sm">
+                <button className="flex items-center gap-2 bg-primary-500 hover:bg-primary-600 text-white px-6 py-2.5 rounded-lg text-sm font-medium transition-colors shadow-sm">
                     <Save size={16} />
                     Lưu cài đặt
                 </button>

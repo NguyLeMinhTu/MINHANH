@@ -138,7 +138,7 @@ const PostFormModal = ({ post, onClose }) => {
                 {/* Header */}
                 <div className="flex items-center justify-between px-8 py-4 border-b border-gray-100 bg-gray-50/50 rounded-t-2xl">
                     <div className="flex items-center gap-3">
-                        <div className="p-2 bg-[#DAA06D] text-white rounded-xl shadow-md">
+                        <div className="p-2 bg-primary-500 text-white rounded-xl shadow-md">
                             <BookOpen size={20} />
                         </div>
                         <div>
@@ -158,19 +158,19 @@ const PostFormModal = ({ post, onClose }) => {
                         {/* Cột trái: Nội dung chính */}
                         <div className="lg:col-span-3 space-y-5">
                             <div>
-                                <label className="flex items-center gap-2 text-xs font-bold text-gray-500 mb-2 uppercase tracking-widest">Tiêu đề bài viết</label>
+                                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Tiêu đề bài viết</label>
                                 <input 
                                     required name="tieuDe" value={formData.tieuDe} onChange={handleChange}
-                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#DAA06D]/30 outline-none text-lg font-bold"
+                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500/30 outline-none text-lg font-bold"
                                     placeholder="Nhập tiêu đề..."
                                 />
                             </div>
 
                             <div>
-                                <label className="flex items-center gap-2 text-xs font-bold text-gray-500 mb-2 uppercase tracking-widest">Tóm tắt ngắn</label>
+                                <label className="block text-sm font-semibold text-gray-500 mb-2 uppercase tracking-widest">Tóm tắt ngắn</label>
                                 <textarea 
                                     name="tomTat" value={formData.tomTat} onChange={handleChange} rows="2" 
-                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#DAA06D]/30 outline-none text-sm"
+                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500/30 outline-none text-sm"
                                     placeholder="Mô tả ngắn gọn..."
                                 />
                             </div>
@@ -204,7 +204,7 @@ const PostFormModal = ({ post, onClose }) => {
                                     <label className="block text-[10px] font-bold text-gray-400 mb-2 uppercase tracking-widest">Chuyên mục</label>
                                     <select 
                                         name="danhMucId" value={formData.danhMucId} onChange={handleChange}
-                                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white outline-none focus:ring-2 focus:ring-[#DAA06D]/30"
+                                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white outline-none focus:ring-2 focus:ring-primary-500/30"
                                     >
                                         <option value="">Chọn chuyên mục</option>
                                         {categories.map(cat => (
@@ -221,7 +221,7 @@ const PostFormModal = ({ post, onClose }) => {
                                                 key={opt.value} type="button"
                                                 onClick={() => setFormData(prev => ({ ...prev, trangThai: opt.value }))}
                                                 className={`px-4 py-2 rounded-lg text-xs font-bold transition-all border ${
-                                                    formData.trangThai === opt.value ? 'bg-[#DAA06D] text-white border-[#DAA06D]' : 'bg-white text-gray-600 border-gray-200 hover:border-[#DAA06D]'
+                                                    formData.trangThai === opt.value ? 'bg-primary-500 text-white border-primary-500' : 'bg-white text-gray-600 border-gray-200 hover:border-primary-500'
                                                 }`}
                                             >
                                                 {opt.label}
@@ -253,7 +253,7 @@ const PostFormModal = ({ post, onClose }) => {
 
                              <div>
                                 <label className="block text-[10px] font-bold text-gray-400 mb-2 uppercase tracking-widest">Tags (Cách nhau bằng dấu phẩy)</label>
-                                <input name="tags" value={formData.tags} onChange={handleChange} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs focus:ring-2 focus:ring-[#DAA06D]/30 outline-none" placeholder="Thời trang, Xu hướng..." />
+                                <input name="tags" value={formData.tags} onChange={handleChange} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs focus:ring-2 focus:ring-primary-500/30 outline-none" placeholder="Thời trang, Xu hướng..." />
                             </div>
                         </div>
                     </div>
@@ -264,7 +264,7 @@ const PostFormModal = ({ post, onClose }) => {
                     <button type="button" onClick={onClose} className="px-6 py-2 text-sm font-bold text-gray-400 hover:text-gray-600 transition-all">Hủy</button>
                     <button 
                         type="submit" form="postForm" disabled={loading}
-                        className="px-8 py-2 text-sm font-bold text-white bg-gradient-to-r from-[#DAA06D] to-[#d08b52] rounded-xl shadow-lg shadow-[#DAA06D]/20 active:scale-95 disabled:opacity-50"
+                        className="px-8 py-2 text-sm font-bold text-white bg-linear-to-r from-primary-500 to-primary-600 rounded-xl shadow-lg shadow-primary-500/20 active:scale-95 disabled:opacity-50"
                     >
                         {loading ? 'Đang lưu...' : 'Lưu bài viết'}
                     </button>

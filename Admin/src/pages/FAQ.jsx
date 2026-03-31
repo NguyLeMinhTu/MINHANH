@@ -12,7 +12,7 @@ const FAQ = () => {
                     <h2 className="text-xl font-bold text-gray-800">FAQ</h2>
                     <p className="text-sm text-gray-500 mt-0.5">Quản lý câu hỏi thường gặp</p>
                 </div>
-                <button className="flex items-center gap-2 bg-[#DAA06D] hover:bg-[#c08850] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm">
+                <button className="flex items-center gap-2 bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm">
                     <Plus size={16} />
                     Thêm câu hỏi
                 </button>
@@ -26,7 +26,7 @@ const FAQ = () => {
                             className="w-full flex items-center justify-between p-5 text-left hover:bg-gray-50 transition-colors"
                         >
                             <div className="flex items-center gap-3">
-                                <span className="text-xs font-semibold text-[#DAA06D] bg-[#DAA06D]/10 px-2 py-1 rounded-full">
+                                <span className="text-xs font-semibold text-primary-600 bg-primary-500/10 px-2 py-1 rounded-full">
                                     #{item.thu_tu}
                                 </span>
                                 <p className="font-medium text-gray-800">{item.cau_hoi}</p>
@@ -38,7 +38,7 @@ const FAQ = () => {
                                 <div className="flex gap-1">
                                     <div
                                         onClick={(e) => { e.stopPropagation() }}
-                                        className="p-1.5 rounded-lg hover:bg-[#DAA06D]/10 text-gray-400 hover:text-[#DAA06D] transition-colors cursor-pointer"
+                                        className="p-1.5 rounded-lg hover:bg-primary-500/10 text-gray-400 hover:text-primary-600 transition-colors cursor-pointer"
                                         role="button"
                                     >
                                         <Pencil size={14} />
@@ -60,7 +60,7 @@ const FAQ = () => {
                         </button>
                         {expanded === item.faq_id && (
                             <div className="px-5 pb-5 pt-0">
-                                <div className="bg-gray-50 rounded-lg p-4 border-l-4 border-[#DAA06D]">
+                                <div className="bg-gray-50 rounded-lg p-4 border-l-4 border-primary-500">
                                     <p className="text-sm text-gray-600 leading-relaxed">{item.tra_loi}</p>
                                 </div>
                             </div>

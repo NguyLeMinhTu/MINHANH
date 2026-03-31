@@ -65,7 +65,7 @@ const PostCategories = () => {
                     <h2 className="text-xl font-bold text-gray-800 uppercase tracking-tight">Danh mục Bài viết</h2>
                     <p className="text-xs text-gray-500 mt-0.5">Quản lý phân loại tin tức (Hỗ trợ ẩn/hiện chuyên mục)</p>
                 </div>
-                <button onClick={openAddModal} className="flex items-center gap-2 bg-[#DAA06D] hover:bg-[#c08850] text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all shadow-sm active:scale-95">
+                <button onClick={openAddModal} className="flex items-center gap-2 bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all shadow-sm active:scale-95">
                     <Plus size={16} />
                     Thêm danh mục
                 </button>

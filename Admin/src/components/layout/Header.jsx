@@ -68,7 +68,7 @@ const Header = ({ isOpen, onToggle }) => {
     useEffect(() => {
         fetchNotifications()
         const interval = setInterval(fetchNotifications, 10000) // 10s fallback
-        
+
         const handleNewConsultation = () => {
             fetchNotifications()
         }
@@ -94,7 +94,7 @@ const Header = ({ isOpen, onToggle }) => {
 
     return (
         <header
-            className={`fixed top-0 right-0 h-16 bg-white border-b border-gray-200 flex items-center justify-between px-5 z-30 transition-all duration-300 ${isOpen ? 'left-64' : 'left-16'
+            className={`fixed top-0 right-0 h-16 bg-surface-50/80 backdrop-blur-md border-b border-surface-200 flex items-center justify-between px-5 z-30 transition-all duration-300 ${isOpen ? 'left-64' : 'left-16'
                 }`}
         >
             {/* Left: Toggle + Breadcrumb */}
@@ -139,19 +139,19 @@ const Header = ({ isOpen, onToggle }) => {
                     <input
                         type="text"
                         placeholder="Tìm kiếm..."
-                        className="pl-8 pr-4 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg w-52 focus:outline-none focus:ring-2 focus:ring-[#DAA06D] focus:border-transparent transition-all"
+                        className="pl-8 pr-4 py-2 text-sm bg-surface-100 border border-surface-200 rounded-lg w-52 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-transparent transition-all"
                     />
                 </div>
 
                 {/* Notifications */}
                 <div className="relative" ref={notificationsRef}>
-                    <button 
+                    <button
                         onClick={() => setNotificationsOpen(!notificationsOpen)}
-                        className={`relative p-2.5 rounded-xl transition-all group ${notificationsOpen ? 'bg-[#DAA06D]/10 text-[#DAA06D]' : 'text-gray-500 hover:bg-gray-50 hover:text-[#DAA06D]'}`}
+                        className={`relative p-2.5 rounded-xl transition-all group ${notificationsOpen ? 'bg-primary-600/10 text-primary-600' : 'text-gray-500 hover:bg-surface-100 hover:text-primary-600'}`}
                     >
                         <Bell size={21} strokeWidth={1.5} className={notificationsOpen ? 'rotate-12' : 'group-hover:rotate-12 transition-transform'} />
                         {unhandledConsultations.length > 0 && (
-                            <span className="absolute top-1.5 right-1.5 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] font-black flex items-center justify-center rounded-full ring-2 ring-white shadow-sm animate-bounce-subtle">
+                            <span className="absolute top-1.5 right-1.5 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full ring-2 ring-white shadow-sm animate-bounce-subtle">
                                 {unhandledConsultations.length}
                             </span>
                         )}
@@ -161,16 +161,16 @@ const Header = ({ isOpen, onToggle }) => {
                     {notificationsOpen && (
                         <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-50 animate-in fade-in zoom-in duration-200">
                             <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
-                                <h3 className="text-sm font-black text-gray-800 tracking-tight">Thông báo mới</h3>
-                                <span className="text-[10px] font-bold text-[#DAA06D] bg-[#DAA06D]/10 px-2 py-0.5 rounded-full uppercase tracking-widest">
+                                <h3 className="text-sm font-bold text-gray-800 tracking-tight">Thông báo mới</h3>
+                                <span className="text-[10px] font-bold text-primary-600 bg-primary-600/10 px-2 py-0.5 rounded-full uppercase tracking-widest">
                                     {unhandledConsultations.length} yêu cầu
                                 </span>
                             </div>
                             <div className="max-h-[400px] overflow-y-auto">
                                 {unhandledConsultations.length > 0 ? (
                                     unhandledConsultations.slice(0, 5).map((noti) => (
-                                        <div 
-                                            key={noti.yeuCauId} 
+                                        <div
+                                            key={noti.yeuCauId}
                                             onClick={() => {
                                                 navigate(`/consultations?search=${noti.soDienThoai}`)
                                                 setNotificationsOpen(false)
@@ -178,7 +178,7 @@ const Header = ({ isOpen, onToggle }) => {
                                             className="px-5 py-4 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 cursor-pointer group"
                                         >
                                             <div className="flex gap-4">
-                                                <div className="w-10 h-10 rounded-xl bg-[#DAA06D]/10 text-[#DAA06D] flex items-center justify-center font-black text-xs shrink-0 group-hover:bg-[#DAA06D] group-hover:text-white transition-all">
+                                                <div className="w-10 h-10 rounded-xl bg-primary-600/10 text-primary-600 flex items-center justify-center font-bold text-xs shrink-0 group-hover:bg-primary-600 group-hover:text-white transition-all">
                                                     {(noti.tenKhach || 'K').charAt(0)}
                                                 </div>
                                                 <div className="space-y-0.5">
@@ -201,12 +201,12 @@ const Header = ({ isOpen, onToggle }) => {
                                 )}
                             </div>
                             {unhandledConsultations.length > 0 && (
-                                <button 
+                                <button
                                     onClick={() => {
                                         navigate('/consultations')
                                         setNotificationsOpen(false)
                                     }}
-                                    className="w-full py-3.5 text-xs font-black text-gray-500 hover:text-[#DAA06D] hover:bg-[#DAA06D]/5 transition-all uppercase tracking-widest border-t border-gray-50"
+                                    className="w-full py-3.5 text-xs font-bold text-gray-500 hover:text-primary-600 hover:bg-primary-600/5 transition-all uppercase tracking-widest border-t border-surface-100"
                                 >
                                     Xem tất cả yêu cầu
                                 </button>
@@ -224,7 +224,7 @@ const Header = ({ isOpen, onToggle }) => {
                         <div className="w-8 h-8 rounded-full overflow-hidden shadow-sm shrink-0">
                             {user?.anh_dai_dien
                                 ? <img src={user.anh_dai_dien} alt={user.ten} className="w-full h-full object-cover" />
-                                : <div className="w-full h-full bg-gradient-to-br from-[#DAA06D] to-[#b8844a] flex items-center justify-center">
+                                : <div className="w-full h-full bg-linear-to-br from-primary-600 to-primary-400 flex items-center justify-center">
                                     <span className="text-white text-sm font-semibold">{user?.ten?.charAt(0) ?? 'A'}</span>
                                 </div>
                             }

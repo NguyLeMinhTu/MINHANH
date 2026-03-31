@@ -24,7 +24,7 @@ const Contacts = () => {
                         <button
                             key={contact.lien_he_id}
                             onClick={() => setSelected(contact)}
-                            className={`w-full text-left p-4 hover:bg-gray-50 transition-colors ${selected?.lien_he_id === contact.lien_he_id ? 'bg-[#DAA06D]/10 border-l-4 border-[#DAA06D]' : ''
+                            className={`w-full text-left p-4 hover:bg-gray-50 transition-colors ${selected?.lien_he_id === contact.lien_he_id ? 'bg-primary-500/10 border-l-4 border-primary-500' : ''
                                 }`}
                         >
                             <div className="flex items-start justify-between gap-2 mb-1">
@@ -57,7 +57,7 @@ const Contacts = () => {
                                     </div>
                                 </div>
                                 <div className="flex gap-2">
-                                    <button className="p-2 rounded-lg hover:bg-emerald-50 text-gray-400 hover:text-emerald-600 transition-colors">
+                                    <button className="p-2 rounded-lg hover:bg-primary-500/10 text-gray-400 hover:text-primary-600 transition-colors">
                                         <CheckCircle size={18} />
                                     </button>
                                     <button className="p-2 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors">
@@ -66,7 +66,7 @@ const Contacts = () => {
                                 </div>
                             </div>
 
-                            <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                            <div className="bg-gray-50 rounded-lg p-4 border-l-4 border-primary-500">
                                 <p className="text-sm text-gray-700 leading-relaxed">{selected.noi_dung}</p>
                             </div>
 
@@ -75,10 +75,10 @@ const Contacts = () => {
                                 <textarea
                                     rows={4}
                                     placeholder="Nhập nội dung trả lời..."
-                                    className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#DAA06D] resize-none"
+                                    className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"
                                 />
                                 <div className="flex justify-end mt-3">
-                                    <button className="flex items-center gap-2 bg-[#DAA06D] hover:bg-[#c08850] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                                    <button className="flex items-center gap-2 bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm">
                                         <Mail size={15} />
                                         Gửi phản hồi
                                     </button>

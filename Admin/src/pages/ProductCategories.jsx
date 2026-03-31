@@ -83,10 +83,10 @@ const ProductCategories = () => {
                 <tr className={`hover:bg-gray-50 transition-colors ${level > 0 ? 'bg-gray-50/50' : ''}`}>
                     <td className="px-6 py-3.5">
                         <div 
-                            className={`flex items-center gap-3 ${level > 0 ? 'border-l-2 border-[#DAA06D]/30 pl-3' : ''}`}
+                            className={`flex items-center gap-3 ${level > 0 ? 'border-l-2 border-primary-500/30 pl-3' : ''}`}
                             style={{ marginLeft: level > 0 ? `${(level - 1) * 1.5 + 2}rem` : '0' }}
                         >
-                            <div className={`flex items-center justify-center rounded-lg ${level === 0 ? 'w-9 h-9 bg-[#DAA06D]/10 text-[#DAA06D]' : 'w-8 h-8 bg-white border border-gray-100 text-gray-400'}`}>
+                            <div className={`flex items-center justify-center rounded-lg ${level === 0 ? 'w-9 h-9 bg-primary-500/10 text-primary-600' : 'w-8 h-8 bg-white border border-gray-100 text-gray-400'}`}>
                                 <Tag size={level === 0 ? 16 : 13} />
                             </div>
                             <div>
@@ -108,7 +108,7 @@ const ProductCategories = () => {
                     </td>
                     <td className="px-6 py-3.5">
                         <div className="flex items-center gap-2">
-                            <button onClick={() => openEditModal(cat)} title="Sửa" className="p-1.5 rounded-lg hover:bg-[#DAA06D]/10 text-gray-400 hover:text-[#DAA06D] transition-colors">
+                            <button onClick={() => openEditModal(cat)} title="Sửa" className="p-1.5 rounded-lg hover:bg-primary-500/10 text-gray-400 hover:text-primary-600 transition-colors">
                                 <Pencil size={15} />
                             </button>
                             {cat.trangThai === false ? (
@@ -135,7 +135,7 @@ const ProductCategories = () => {
                     <h2 className="text-xl font-bold text-gray-800">DANH MỤC SẢN PHẨM</h2>
                     <p className="text-sm text-gray-500 mt-0.5">Quản lý dữ liệu danh mục sản phẩm</p>
                 </div>
-                <button onClick={openAddModal} className="flex items-center gap-2 bg-[#DAA06D] hover:bg-[#c08850] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm">
+                <button onClick={openAddModal} className="flex items-center gap-2 bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm">
                     <Plus size={16} />
                     Thêm danh mục
                 </button>

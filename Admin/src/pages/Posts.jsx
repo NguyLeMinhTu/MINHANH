@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Pencil, Trash2, BookOpen, Search, Eye } from 'lucide-react';
+import { Plus, Pencil, Trash2, BookOpen, Search, Eye, Loader2 } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchPosts, deletePost } from '../app/slices/postSlice';
 import PostFormModal from '../components/PostFormModal';
 
 const Posts = () => {
     const dispatch = useDispatch();
-    const { 
-        items: posts = [], 
-        pagination = { totalElements: 0, totalPages: 0, number: 0, size: 10 }, 
-        status 
+    const {
+        items: posts = [],
+        pagination = { totalElements: 0, totalPages: 0, number: 0, size: 10 },
+        status
     } = useSelector(state => state.posts || {});
-    
+
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingPost, setEditingPost] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
@@ -52,9 +52,9 @@ const Posts = () => {
                     <h2 className="text-2xl font-bold text-gray-800">Quản lý Bài viết</h2>
                     <p className="text-sm text-gray-500">Soạn thảo và quản lý các tin tức, blog trên hệ thống</p>
                 </div>
-                <button 
+                <button
                     onClick={openAddModal}
-                    className="flex items-center justify-center gap-2 bg-[#DAA06D] hover:bg-[#c08850] text-white px-5 py-2.5 rounded-xl font-semibold transition-all shadow-md shadow-[#DAA06D]/20 active:scale-95 text-sm"
+                    className="flex items-center justify-center gap-2 bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all shadow-sm active:scale-95"
                 >
                     <Plus size={18} />
                     Viết bài mới
@@ -65,10 +65,10 @@ const Posts = () => {
                 <div className="p-4 border-b border-gray-50 bg-gray-50/30 flex items-center gap-3">
                     <div className="relative flex-1 max-w-md">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                        <input 
-                            type="text" 
-                            placeholder="Tìm kiếm bài viết..." 
-                            className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#DAA06D]/40 text-sm bg-white"
+                        <input
+                            type="text"
+                            placeholder="Tìm kiếm bài viết..."
+                            className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/40 text-sm bg-white"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -106,7 +106,7 @@ const Posts = () => {
                                                 )}
                                             </div>
                                             <div className="max-w-xs md:max-w-sm">
-                                                <p className="font-bold text-gray-800 line-clamp-1 group-hover:text-[#DAA06D] transition-colors">{post.tieuDe}</p>
+                                                <p className="font-bold text-gray-800 line-clamp-1 group-hover:text-primary-600 transition-colors">{post.tieuDe}</p>
                                                 <p className="text-[11px] text-gray-400 font-mono mt-0.5">{post.slug}</p>
                                             </div>
                                         </div>
@@ -121,30 +121,29 @@ const Posts = () => {
                                     </td>
                                     <td className="px-6 py-4 font-semibold text-gray-600">
                                         <div className="flex items-center gap-1.5">
-                                            <Eye size={14} className="text-gray-400" />
+                                            <Loader2 size={24} className="animate-spin text-primary-500" />
                                             {post.views || 0}
                                         </div>
                                     </td>
                                     <td className="px-6 py-4">
-                                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${
-                                            post.trangThai === 'PUBLISHED' ? 'bg-emerald-50 text-emerald-600' : 
-                                            post.trangThai === 'DRAFT' ? 'bg-amber-50 text-amber-600' : 'bg-gray-50 text-gray-400'
-                                        }`}>
+                                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${post.trangThai === 'PUBLISHED' ? 'bg-emerald-50 text-emerald-600' :
+                                                post.trangThai === 'DRAFT' ? 'bg-amber-50 text-amber-600' : 'bg-gray-50 text-gray-400'
+                                            }`}>
                                             {post.trangThai === 'PUBLISHED' ? 'Công khai' : post.trangThai === 'DRAFT' ? 'Bản nháp' : 'Đã ẩn'}
                                         </span>
                                     </td>
                                     <td className="px-6 py-4 text-right">
                                         <div className="flex items-center justify-end gap-2 shadow-inner-sm">
-                                            <button 
+                                            <button
                                                 onClick={() => openEditModal(post)}
-                                                className="p-2 rounded-lg hover:bg-violet-50 text-gray-400 hover:text-violet-600 transition-all border border-transparent hover:border-violet-100" 
+                                                className="p-2 rounded-lg hover:bg-violet-50 text-gray-400 hover:text-primary-600 transition-all border border-transparent hover:border-violet-100"
                                                 title="Sửa"
                                             >
                                                 <Pencil size={15} />
                                             </button>
-                                            <button 
+                                            <button
                                                 onClick={() => handleDelete(post)}
-                                                className="p-2 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-all border border-transparent hover:border-red-100" 
+                                                className="p-2 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-all border border-transparent hover:border-red-100"
                                                 title="Xóa"
                                             >
                                                 <Trash2 size={15} />
@@ -163,7 +162,7 @@ const Posts = () => {
                             Hiển thị {posts.length} bài viết trên tổng số {pagination.totalElements}
                         </p>
                         <div className="flex gap-1.5">
-                            <button 
+                            <button
                                 disabled={pagination.number === 0}
                                 onClick={() => handlePageChange(pagination.number - 1)}
                                 className="px-3 py-1 text-xs border border-gray-200 rounded-lg hover:bg-white disabled:opacity-40 transition-colors"
@@ -171,17 +170,16 @@ const Posts = () => {
                                 Trước
                             </button>
                             {[...Array(pagination.totalPages)].map((_, i) => (
-                                <button 
+                                <button
                                     key={i}
                                     onClick={() => handlePageChange(i)}
-                                    className={`w-8 h-8 flex items-center justify-center rounded-lg text-xs font-semibold transition-all ${
-                                        pagination.number === i ? 'bg-[#DAA06D] text-white shadow-sm' : 'hover:bg-white border border-transparent hover:border-gray-200 text-gray-600'
-                                    }`}
+                                    className={`w-8 h-8 flex items-center justify-center rounded-lg text-xs font-semibold transition-all ${pagination.number === i ? 'bg-primary-500 text-white shadow-sm' : 'hover:bg-white border border-transparent hover:border-gray-200 text-gray-600'
+                                        }`}
                                 >
                                     {i + 1}
                                 </button>
                             ))}
-                            <button 
+                            <button
                                 disabled={pagination.number === pagination.totalPages - 1}
                                 onClick={() => handlePageChange(pagination.number + 1)}
                                 className="px-3 py-1 text-xs border border-gray-200 rounded-lg hover:bg-white disabled:opacity-40 transition-colors"
@@ -194,7 +192,7 @@ const Posts = () => {
             </div>
 
             {isModalOpen && (
-                <PostFormModal 
+                <PostFormModal
                     post={editingPost}
                     onClose={() => setIsModalOpen(false)}
                 />

@@ -114,12 +114,12 @@ const Consultations = () => {
                             key={tab}
                             onClick={() => setActiveTab(tab)}
                             className={`pb-4 text-sm font-bold transition-all relative ${activeTab === tab
-                                ? 'text-[#DAA06D]'
+                                ? 'text-primary-600'
                                 : 'text-gray-400 hover:text-gray-600'
                                 }`}
                         >
                             {tab}
-                            {activeTab === tab && <div className="absolute bottom-0 left-0 right-0 h-1 bg-[#DAA06D] rounded-t-full"></div>}
+                            {activeTab === tab && <div className="absolute bottom-0 left-0 right-0 h-1 bg-primary-500 rounded-t-full"></div>}
                         </button>
                     ))}
                 </div>
@@ -131,7 +131,7 @@ const Consultations = () => {
                         <input 
                             type="text"
                             placeholder="Tìm kiếm theo Số điện thoại..."
-                            className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#DAA06D]/20 outline-none transition-all"
+                            className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 outline-none transition-all"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -147,7 +147,7 @@ const Consultations = () => {
                         <div key={item.yeuCauId} className="p-6 hover:bg-gray-50/50 transition-colors group">
                             <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
                                 <div className="flex items-start gap-5 flex-1">
-                                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#DAA06D] to-[#d08b52] text-white flex items-center justify-center font-bold text-lg shadow-lg shadow-[#DAA06D]/20 shrink-0">
+                                    <div className="w-12 h-12 rounded-2xl bg-linear-to-br from-primary-500 to-primary-600 text-white flex items-center justify-center font-bold text-lg shadow-lg shadow-primary-500/20 shrink-0">
                                         {item.tenKhach.charAt(0).toUpperCase()}
                                     </div>
                                     <div className="space-y-2 flex-1">
@@ -211,7 +211,7 @@ const Consultations = () => {
                                     {!item.daXuLy && editingId !== item.yeuCauId && (
                                         <button 
                                             onClick={() => startEditing(item)}
-                                            className="px-4 py-2 text-xs font-bold bg-[#DAA06D] text-white rounded-xl hover:bg-[#c08850] transition-all shadow-md shadow-[#DAA06D]/20 active:scale-95 flex items-center gap-2"
+                                            className="px-4 py-2 text-xs font-bold bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition-all shadow-md shadow-primary-500/20 active:scale-95 flex items-center gap-2"
                                         >
                                             <CheckCircle2 size={15} /> Xử lý ngay
                                         </button>

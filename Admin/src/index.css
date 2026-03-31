@@ -2,16 +2,86 @@
 
 @layer utilities {
   @keyframes bounce-subtle {
-    0%, 100% {
+
+    0%,
+    100% {
       transform: translateY(-10%);
       animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
     }
+
     50% {
       transform: translateY(0);
       animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
     }
   }
+
   .animate-bounce-subtle {
     animation: bounce-subtle 2s infinite;
   }
 }
+
+@theme {
+  /* Core Theme Colors */
+  --color-primary-50: #fef9f4;
+  --color-primary-100: #fcefdc;
+  --color-primary-200: #f8dab8;
+  --color-primary-300: #f2bd89;
+  --color-primary-400: #ea9b5c;
+  --color-primary-500: #daa06d; /* Main Brand Tan/Wood (#DAA06D) */
+  --color-primary-600: #c9804e;
+  --color-primary-700: #a76541;
+  --color-primary-800: #865239;
+  --color-primary-900: #6d4431;
+  --color-primary-950: #3a2218;
+
+  --color-surface-50: #ffffff;
+  --color-surface-100: #fdfaf5; /* Premium Ultra-Light Beige */
+  --color-surface-200: #f8f3eb;
+  --color-surface-300: #efe5d6;
+  --color-surface-400: #e2d1bc;
+  --color-surface-500: #d1b89b;
+  --color-surface-600: #bc9f81;
+  --color-surface-700: #a38268;
+  --color-surface-800: #866b57;
+  --color-surface-900: #6e5849;
+  --color-surface-950: #3a2f26;
+
+  /* Legacy / Complementary Scales */
+  --color-carbon-black-50: #f3f3f2;
+  --color-carbon-black-100: #e6e6e5;
+  --color-carbon-black-200: #cececa;
+  --color-carbon-black-300: #b5b5b0;
+  --color-carbon-black-400: #9c9c96;
+  --color-carbon-black-500: #83837c;
+  --color-carbon-black-600: #696963;
+  --color-carbon-black-700: #4f4f4a;
+  --color-carbon-black-800: #353531;
+  --color-carbon-black-900: #1a1a19;
+  --color-carbon-black-950: #121211;
+
+  --color-brown-bark-50: #f9f2eb;
+  --color-brown-bark-100: #f3e6d8;
+  --color-brown-bark-200: #e7cdb1;
+  --color-brown-bark-300: #dbb48a;
+  --color-brown-bark-400: #cf9b63;
+  --color-brown-bark-500: #c3823c;
+  --color-brown-bark-600: #9c6830;
+  --color-brown-bark-700: #754e24;
+  --color-brown-bark-800: #4e3418;
+  --color-brown-bark-900: #271a0c;
+  --color-brown-bark-950: #1b1208;
+
+  --color-golden-earth-50: #fbf6ea;
+  --color-golden-earth-100: #f7ecd4;
+  --color-golden-earth-200: #eedaaa;
+  --color-golden-earth-300: #e6c77f;
+  --color-golden-earth-400: #ddb455;
+  --color-golden-earth-500: #d5a22a;
+  --color-golden-earth-600: #aa8122;
+  --color-golden-earth-700: #806119;
+  --color-golden-earth-800: #554111;
+  --color-golden-earth-900: #2b2008;
+  --color-golden-earth-950: #1e1706;
+
+  --font-sans: "Inter", "Be Vietnam Pro", sans-serif;
+}

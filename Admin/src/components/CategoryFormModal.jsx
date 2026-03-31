@@ -97,7 +97,7 @@ const CategoryFormModal = ({ category, categories, onClose }) => {
     return (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center backdrop-blur-sm p-4">
             <div className="bg-white rounded-2xl w-full max-w-2xl overflow-hidden flex flex-col shadow-2xl">
-                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-[#fbf9f6]">
+                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-surface-100">
                     <h3 className="font-bold text-gray-800 text-lg uppercase tracking-wide">
                         {category ? 'Chỉnh sửa Danh Mục' : 'Thêm Danh Mục Mới'}
                     </h3>
@@ -111,11 +111,11 @@ const CategoryFormModal = ({ category, categories, onClose }) => {
                         <div className="grid grid-cols-2 gap-5">
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-1.5">Tên danh mục *</label>
-                                <input required type="text" name="tenDanhMuc" value={formData.tenDanhMuc} onChange={handleChange} className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#DAA06D]/40 focus:border-[#DAA06D] bg-white transition-all shadow-sm" placeholder="VD: Áo Thun Nam" />
+                                <input required type="text" name="tenDanhMuc" value={formData.tenDanhMuc} onChange={handleChange} className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/40 focus:border-primary-500 bg-white transition-all shadow-sm" placeholder="VD: Áo Thun Nam" />
                             </div>
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-1.5">Đường dẫn thân thiện (Slug)</label>
-                                <input type="text" name="slug" value={formData.slug} onChange={handleChange} className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#DAA06D]/40 focus:border-[#DAA06D] bg-white transition-all placeholder-gray-300 shadow-sm" placeholder="Để trống nếu muốn Auto Sinh" />
+                                <input type="text" name="slug" value={formData.slug} onChange={handleChange} className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/40 focus:border-primary-500 bg-white transition-all placeholder-gray-300 shadow-sm" placeholder="Để trống nếu muốn Auto Sinh" />
                             </div>
                         </div>
 
@@ -125,7 +125,7 @@ const CategoryFormModal = ({ category, categories, onClose }) => {
                                 <select
                                 value={formData.parentId}
                                 onChange={(e) => setFormData({ ...formData, parentId: e.target.value })}
-                                className="w-full border-gray-200 rounded-lg shadow-sm focus:border-[#DAA06D] focus:ring focus:ring-[#DAA06D] focus:ring-opacity-50 px-3.5 py-2.5 text-sm bg-white"
+                                className="w-full border-gray-200 rounded-lg shadow-sm focus:border-primary-500 focus:ring focus:ring-primary-500 focus:ring-opacity-50 px-3.5 py-2.5 text-sm bg-white"
                             >
                                 <option value="">-- Không có (Danh mục gốc) --</option>
                                 {categories
@@ -139,18 +139,18 @@ const CategoryFormModal = ({ category, categories, onClose }) => {
                             </div>
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-1.5">Thứ tự hiển thị (Ưu tiên)</label>
-                                <input type="number" name="thuTu" value={formData.thuTu} onChange={handleChange} className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-xl bg-white shadow-sm focus:outline-none focus:ring-[#DAA06D]/40" />
+                                <input type="number" name="thuTu" value={formData.thuTu} onChange={handleChange} className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-xl bg-white shadow-sm focus:outline-none focus:ring-primary-500/40" />
                             </div>
                         </div>
 
                         <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-1.5">Mô tả giới thiệu</label>
-                            <textarea name="moTa" rows="3" value={formData.moTa} onChange={handleChange} className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-xl bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[#DAA06D]/40 focus:border-[#DAA06D] transition-all leading-relaxed"></textarea>
+                            <textarea name="moTa" rows="3" value={formData.moTa} onChange={handleChange} className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-xl bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500/40 focus:border-primary-500 transition-all leading-relaxed"></textarea>
                         </div>
 
                         <div className="flex items-center gap-6">
                             <label className="flex items-center gap-2 text-sm text-gray-700 font-semibold cursor-pointer">
-                                <input type="checkbox" name="trangThai" checked={formData.trangThai} onChange={handleChange} className="rounded text-[#DAA06D] focus:ring-[#DAA06D] w-4 h-4 cursor-pointer" /> 
+                                <input type="checkbox" name="trangThai" checked={formData.trangThai} onChange={handleChange} className="rounded text-primary-500 focus:ring-primary-500 w-4 h-4 cursor-pointer" /> 
                                 Trạng thái hiển thị Online
                             </label>
                         </div>
@@ -166,7 +166,7 @@ const CategoryFormModal = ({ category, categories, onClose }) => {
                                         </div>
                                     </div>
                                 ) : (
-                                    <label className="w-24 h-24 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-[#DAA06D]/5 hover:border-[#DAA06D] hover:text-[#DAA06D] text-gray-400 transition-all bg-white shadow-sm">
+                                    <label className="w-24 h-24 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-primary-500/5 hover:border-primary-500 hover:text-primary-500 text-gray-400 transition-all bg-white shadow-sm">
                                         <ImagePlus size={24} className="mb-1" />
                                         <span className="text-[10px] font-semibold uppercase">Tải ảnh lên</span>
                                         <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
@@ -177,9 +177,9 @@ const CategoryFormModal = ({ category, categories, onClose }) => {
                     </div>
                 </form>
 
-                <div className="px-8 py-4 border-t border-gray-100 bg-[#fbf9f6] flex justify-end gap-3 rounded-b-2xl shrink-0">
+                <div className="px-8 py-4 border-t border-gray-100 bg-surface-100 flex justify-end gap-3 rounded-b-2xl shrink-0">
                     <button type="button" onClick={onClose} className="px-6 py-2.5 text-sm font-semibold text-gray-600 hover:text-gray-800 bg-white border border-gray-200 hover:bg-gray-50 rounded-xl transition-colors shadow-sm">Hủy bỏ</button>
-                    <button type='submit' form="categoryForm" disabled={loading} className="px-8 py-2.5 text-sm font-bold text-white bg-gradient-to-r from-[#DAA06D] to-[#d08b52] rounded-xl hover:from-[#c08850] hover:to-[#b87640] transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-[#DAA06D]/30 active:scale-95">
+                    <button type='submit' form="categoryForm" disabled={loading} className="px-8 py-2.5 text-sm font-bold text-white bg-linear-to-r from-primary-500 to-primary-600 rounded-xl hover:from-primary-600 hover:to-primary-700 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-primary-500/30 active:scale-95">
                         {loading && <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />}
                         {category ? 'Lưu Thay Đổi' : 'Tạo Mới'}
                     </button>

@@ -54,7 +54,7 @@ const ProductDetail = ({ product, onClose }) => {
                                     <img
                                         key={i} src={imgUrl} alt=""
                                         onClick={() => setActiveImg(i)}
-                                        className={`w-full aspect-square object-cover rounded-lg border-2 cursor-pointer transition-all ${i === activeImg ? 'border-[#DAA06D]' : 'border-transparent opacity-60 hover:opacity-100 hover:border-gray-200'
+                                        className={`w-full aspect-square object-cover rounded-lg border-2 cursor-pointer transition-all ${i === activeImg ? 'border-primary-500' : 'border-transparent opacity-60 hover:opacity-100 hover:border-gray-200'
                                             }`}
                                     />
                                 ))}
@@ -66,7 +66,7 @@ const ProductDetail = ({ product, onClose }) => {
                         <h2 className="text-lg font-bold text-gray-800 leading-snug">{product.tenSanPham}</h2>
                         <div className="flex items-center gap-2 mt-1.5 flex-wrap">
                             <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">{product.thuongHieu || 'Không rõ'}</span>
-                            <span className="text-xs bg-[#DAA06D]/10 text-[#DAA06D] px-2 py-0.5 rounded-full">{product.danhMuc?.tenDanhMuc || 'Chưa phân loại'}</span>
+                            <span className="text-xs bg-primary-500/10 text-primary-600 px-2 py-0.5 rounded-full">{product.danhMuc?.tenDanhMuc || 'Chưa phân loại'}</span>
                             <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${trangThaiStyle[product.trangThai || 'an'] ?? 'bg-gray-100 text-gray-600'}`}>
                                 {trangThaiLabel[product.trangThai] ?? product.trangThai ?? 'Ẩn'}
                             </span>
@@ -166,7 +166,7 @@ const Products = () => {
                     <h2 className="text-xl font-bold text-gray-800">DANH SÁCH SẢN PHẨM</h2>
                     <p className="text-sm text-gray-500 mt-0.5">Quản lý thông tin của sản phẩm</p>
                 </div>
-                <button onClick={() => setIsAdding(true)} className="flex items-center gap-2 bg-[#DAA06D] hover:bg-[#c08850] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm">
+                <button onClick={() => setIsAdding(true)} className="flex items-center gap-2 bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm">
                     <Plus size={16} />
                     Thêm sản phẩm
                 </button>
@@ -181,7 +181,7 @@ const Products = () => {
                             placeholder="Tìm kiếm sản phẩm..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="pl-9 pr-4 py-2 w-full text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#DAA06D]"
+                            className="pl-9 pr-4 py-2 w-full text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                         />
                     </div>
                 </div>
@@ -250,10 +250,10 @@ const Products = () => {
                                             </td>
                                             <td className="px-6 py-3.5">
                                                 <div className="flex items-center gap-1.5">
-                                                    <button onClick={() => setSelected(p)} title="Xem chi tiết" className="p-1.5 rounded-lg hover:bg-[#DAA06D]/10 text-gray-400 hover:text-[#DAA06D] transition-colors">
+                                                    <button onClick={() => setSelected(p)} title="Xem chi tiết" className="p-1.5 rounded-lg hover:bg-primary-500/10 text-gray-400 hover:text-primary-600 transition-colors">
                                                         <Eye size={15} />
                                                     </button>
-                                                    <button onClick={() => setEditingProduct(p)} title="Sửa sản phẩm" className="p-1.5 rounded-lg hover:bg-[#DAA06D]/10 text-gray-400 hover:text-[#DAA06D] transition-colors">
+                                                    <button onClick={() => setEditingProduct(p)} title="Sửa sản phẩm" className="p-1.5 rounded-lg hover:bg-primary-500/10 text-gray-400 hover:text-primary-600 transition-colors">
                                                         <Pencil size={15} />
                                                     </button>
                                                     <button onClick={() => handleDelete(p)} title="Xóa mềm" className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors">
