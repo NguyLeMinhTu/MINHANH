@@ -1,5 +1,21 @@
 @import "tailwindcss";
 
+/* Sileo Toast Theme Overrides */
+:root {
+  --sileo-background: #fffffc !important;
+  --sileo-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2) !important;
+}
+
+[data-sileo-toast] {
+  border: none !important;
+  backdrop-filter: blur(10px);
+}
+
+[data-sileo-title] {
+  font-weight: 600 !important;
+  color: #1a1a19 !important;
+}
+
 @layer utilities {
   @keyframes bounce-subtle {
 
@@ -16,12 +32,31 @@
   }
 
   @keyframes bell-swing {
-    0%, 100% { transform: rotate(0); }
-    15% { transform: rotate(15deg); }
-    30% { transform: rotate(-12deg); }
-    45% { transform: rotate(9deg); }
-    60% { transform: rotate(-6deg); }
-    75% { transform: rotate(3deg); }
+
+    0%,
+    100% {
+      transform: rotate(0);
+    }
+
+    15% {
+      transform: rotate(15deg);
+    }
+
+    30% {
+      transform: rotate(-12deg);
+    }
+
+    45% {
+      transform: rotate(9deg);
+    }
+
+    60% {
+      transform: rotate(-6deg);
+    }
+
+    75% {
+      transform: rotate(3deg);
+    }
   }
 
   .animate-bounce-subtle {
@@ -41,7 +76,8 @@
   --color-primary-200: #f8dab8;
   --color-primary-300: #f2bd89;
   --color-primary-400: #ea9b5c;
-  --color-primary-500: #daa06d; /* Main Brand Tan/Wood (#DAA06D) */
+  --color-primary-500: #daa06d;
+  /* Main Brand Tan/Wood (#DAA06D) */
   --color-primary-600: #c9804e;
   --color-primary-700: #a76541;
   --color-primary-800: #865239;
@@ -49,7 +85,8 @@
   --color-primary-950: #3a2218;
 
   --color-surface-50: #ffffff;
-  --color-surface-100: #fdfaf5; /* Premium Ultra-Light Beige */
+  --color-surface-100: #fdfaf5;
+  /* Premium Ultra-Light Beige */
   --color-surface-200: #f8f3eb;
   --color-surface-300: #efe5d6;
   --color-surface-400: #e2d1bc;

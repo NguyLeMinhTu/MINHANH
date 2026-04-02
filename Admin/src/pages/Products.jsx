@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { sileo } from 'sileo'
 import { Search, Plus, Pencil, Trash2, Eye, X } from 'lucide-react'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchProducts, deleteProduct } from '../app/slices/productSlice'
@@ -148,15 +149,24 @@ const Products = () => {
         p.tenSanPham?.toLowerCase().includes(search.toLowerCase())
     )
 
-    const handleDelete = async (p) => {
-        if (window.confirm(`Bạn có chắc muốn ẨN sản phẩm "${p.tenSanPham}" không?`)) {
-            try {
-                await dispatch(deleteProduct(p.sanPhamId)).unwrap();
-                dispatch(fetchProducts({ page: 0, size: 50 }));
-            } catch (error) {
-                alert("Lỗi khi xóa: " + JSON.stringify(error));
+    const handleDelete = (p) => {
+        sileo.action({
+            title: 'Xóa vĩnh viễn sản phẩm?',
+            description: `Bạn có thật sự muốn XÓA VĨNH VIỄN sản phẩm "${p.tenSanPham}" không? Thao tác này không thể hoàn tác.`,
+            button: {
+                title: 'Xác nhận xóa',
+                onClick: () => {
+                    sileo.promise(dispatch(deleteProduct(p.sanPhamId)).unwrap(), {
+                        loading: { title: 'Đang xử lý...', description: `Đang xóa vĩnh viễn "${p.tenSanPham}"` },
+                        success: () => {
+                            dispatch(fetchProducts({ page: 0, size: 50 }));
+                            return { title: 'Đã xóa thành công!', description: 'Sản phẩm đã bị xóa vĩnh viễn khỏi hệ thống.' };
+                        },
+                        error: (err) => ({ title: 'Lỗi', description: (err.message || JSON.stringify(err)) })
+                    });
+                }
             }
-        }
+        });
     }
 
     return (
@@ -256,7 +266,7 @@ const Products = () => {
                                                     <button onClick={() => setEditingProduct(p)} title="Sửa sản phẩm" className="p-1.5 rounded-lg hover:bg-primary-500/10 text-gray-400 hover:text-primary-600 transition-colors">
                                                         <Pencil size={15} />
                                                     </button>
-                                                    <button onClick={() => handleDelete(p)} title="Xóa mềm" className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors">
+                                                    <button onClick={() => handleDelete(p)} title="Xóa vĩnh viễn" className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors">
                                                         <Trash2 size={15} />
                                                     </button>
                                                 </div>

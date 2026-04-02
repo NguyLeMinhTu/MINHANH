@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { sileo } from 'sileo'
 import { Plus, Pencil, Trash2, Tag, RefreshCcw } from 'lucide-react'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchCategories, deleteCategory, updateCategory } from '../app/slices/categorySlice'
@@ -28,41 +29,55 @@ const ProductCategories = () => {
     const getProductCount = (dmId) => sanPhamList.filter(p => p.danhMuc?.danhMucId === dmId).length
 
     const parentCategories = Array.isArray(categories) ? categories.filter(d => !d.parent) : []
-    const displayCategories = parentCategories.length > 0 ? parentCategories : (Array.isArray(categories) ? categories : [])
 
-    const handleDelete = async (cat) => {
-        if (window.confirm(`Thao tác Không thể Phục Hồi!\nBạn có thật sự muốn VĨNH VIỄN XÓA danh mục "${cat.tenDanhMuc}" không?`)) {
-            try {
-                await dispatch(deleteCategory(cat.danhMucId)).unwrap();
-                dispatch(fetchCategories());
-            } catch (error) {
-                console.error("Lỗi xóa danh mục:", error);
-                let msg = typeof error === 'string' ? error : (error?.message || JSON.stringify(error));
-                alert("Lỗi khi xóa danh mục:\n" + msg + "\n(Vui lòng xem Console F12 để biết thêm)");
+    const handleDelete = (cat) => {
+        sileo.action({
+            title: 'Xác nhận xóa danh mục?',
+            description: `Bạn có chắc muốn VĨNH VIỄN XÓA danh mục "${cat.tenDanhMuc}" không?`,
+            button: {
+                title: 'Xác nhận xóa',
+                onClick: () => {
+                    sileo.promise(dispatch(deleteCategory(cat.danhMucId)).unwrap(), {
+                        loading: { title: 'Đang xử lý...', description: `Đang xóa "${cat.tenDanhMuc}" vĩnh viễn` },
+                        success: () => {
+                            dispatch(fetchCategories());
+                            return { title: 'Đã xóa thành công!' };
+                        },
+                        error: (err) => ({ title: 'Lỗi', description: err.message || JSON.stringify(err) })
+                    });
+                }
             }
-        }
+        });
     }
 
-    const handleToggleStatus = async (cat) => {
-        if (window.confirm(`Bạn có chắc muốn BẬT HIỂN THỊ lại danh mục "${cat.tenDanhMuc}" không?`)) {
-            try {
-                const payload = { 
-                    tenDanhMuc: cat.tenDanhMuc,
-                    slug: cat.slug,
-                    moTa: cat.moTa,
-                    thuTu: cat.thuTu,
-                    trangThai: true,
-                    hinhAnh: cat.hinhAnh,
-                    parentId: cat.parent ? cat.parent.danhMucId : null
-                };
-                await dispatch(updateCategory({ id: cat.danhMucId, data: payload })).unwrap();
-                dispatch(fetchCategories());
-            } catch (error) {
-                console.error("Lỗi bật lại danh mục:", error);
-                let msg = typeof error === 'string' ? error : (error?.message || error?.error || JSON.stringify(error));
-                alert("Lỗi thao tác API:\n" + msg + "\n(Nhấn F12 mở Console log để xem chi tiết)");
+    const handleToggleStatus = (cat) => {
+        sileo.action({
+            title: 'Khôi phục hiển thị?',
+            description: `Bạn có chắc muốn BẬT HIỂN THỊ lại danh mục "${cat.tenDanhMuc}" không?`,
+            button: {
+                title: 'Khôi phục',
+                onClick: () => {
+                    const payload = { 
+                        tenDanhMuc: cat.tenDanhMuc,
+                        slug: cat.slug,
+                        moTa: cat.moTa,
+                        thuTu: cat.thuTu,
+                        trangThai: true,
+                        hinhAnh: cat.hinhAnh,
+                        parentId: cat.parent ? cat.parent.danhMucId : null
+                    };
+                    
+                    sileo.promise(dispatch(updateCategory({ id: cat.danhMucId, data: payload })).unwrap(), {
+                        loading: { title: 'Đang xử lý...', description: `Đang bật hiển thị cho "${cat.tenDanhMuc}"` },
+                        success: () => {
+                            dispatch(fetchCategories());
+                            return { title: 'Thành công!', description: 'Danh mục đã hiển thị trở lại.' };
+                        },
+                        error: (err) => ({ title: 'Lỗi', description: err.message || JSON.stringify(err) })
+                    });
+                }
             }
-        }
+        });
     }
 
     const openAddModal = () => {

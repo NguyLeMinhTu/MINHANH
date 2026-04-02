@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { sileo } from 'sileo'
 import { Plus, Pencil, Trash2, BookOpen, Search, Eye, Loader2 } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchPosts, deletePost } from '../app/slices/postSlice';
@@ -20,15 +21,24 @@ const Posts = () => {
         dispatch(fetchPosts({ page: 0, size: 10 }));
     }, [dispatch]);
 
-    const handleDelete = async (post) => {
-        if (window.confirm(`Bạn có chắc muốn xóa bài viết "${post.tieuDe}"?`)) {
-            try {
-                await dispatch(deletePost(post.baiVietId)).unwrap();
-                dispatch(fetchPosts({ page: pagination.number, size: pagination.size }));
-            } catch (error) {
-                alert("Lỗi khi xóa bài viết: " + error);
+    const handleDelete = (post) => {
+        sileo.action({
+            title: 'Xác nhận xóa bài viết?',
+            description: `Bạn có chắc muốn xóa bài viết "${post.tieuDe}"? Thao tác này không thể hoàn tác.`,
+            button: {
+                title: 'Xác nhận xóa',
+                onClick: () => {
+                    sileo.promise(dispatch(deletePost(post.baiVietId)).unwrap(), {
+                        loading: { title: 'Đang xử lý...', description: `Đang xóa "${post.tieuDe}"` },
+                        success: () => {
+                            dispatch(fetchPosts({ page: pagination.number, size: pagination.size }));
+                            return { title: 'Đã xóa bài viết thành công!' };
+                        },
+                        error: (err) => ({ title: 'Lỗi', description: (err.message || JSON.stringify(err)) })
+                    });
+                }
             }
-        }
+        });
     };
 
     const handlePageChange = (newPage) => {

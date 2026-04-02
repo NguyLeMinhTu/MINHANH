@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Save, Globe, Mail, Phone, MapPin, Facebook, Instagram, Link } from 'lucide-react'
 import { cauHinh } from '../assets/assets'
+import { sileo } from 'sileo'
 
 const buildInitial = () => {
     const obj = {}
@@ -11,6 +12,14 @@ const buildInitial = () => {
 const Settings = () => {
     const [form, setForm] = useState(buildInitial)
     const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value })
+
+    const handleSave = () => {
+        const promise = new Promise(res => setTimeout(res, 1500));
+        sileo.promise(promise, {
+            loading: { title: 'Đang lưu cấu hình...', description: 'Đang cập nhật dữ liệu hệ thống.' },
+            success: { title: 'Thành công!', description: 'Mọi thay đổi đã được lưu vĩnh viễn.' }
+        });
+    }
 
     return (
         <div className="space-y-6 max-w-3xl">
@@ -116,7 +125,10 @@ const Settings = () => {
             </div>
 
             <div className="flex justify-end">
-                <button className="flex items-center gap-2 bg-primary-500 hover:bg-primary-600 text-white px-6 py-2.5 rounded-lg text-sm font-medium transition-colors shadow-sm">
+                <button 
+                    onClick={handleSave}
+                    className="flex items-center gap-2 bg-primary-500 hover:bg-primary-600 text-white px-6 py-2.5 rounded-lg text-sm font-medium transition-colors shadow-sm"
+                >
                     <Save size={16} />
                     Lưu cài đặt
                 </button>

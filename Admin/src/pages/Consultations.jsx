@@ -5,6 +5,8 @@ import { useSearchParams } from 'react-router-dom'
 import { fetchConsultations, updateConsultationStatus, deleteConsultation } from '../app/slices/consultationSlice'
 import { fetchProducts } from '../app/slices/productSlice'
 
+import { sileo } from 'sileo'
+
 const statusStyle = {
     'Mới': 'bg-blue-100 text-blue-700 border-blue-200',
     'Đã xử lý': 'bg-emerald-100 text-emerald-700 border-emerald-200',
@@ -48,28 +50,43 @@ const Consultations = () => {
         return product ? product.tenSanPham : 'Đã xóa hoặc không tồn tại'
     }
 
-    const handleUpdateStatus = async (item, daXuLy) => {
-        try {
-            await dispatch(updateConsultationStatus({ 
-                id: item.yeuCauId, 
-                daXuLy, 
-                ghiChuNoiBo: note || item.ghiChuNoiBo 
-            })).unwrap()
-            setEditingId(null)
-            setNote('')
-            // Yêu cầu Header cập nhật lại số lượng thông báo ngay lập tức
-            window.dispatchEvent(new CustomEvent('new-consultation'))
-        } catch (error) {
-            alert("Lỗi khi cập nhật trạng thái")
-        }
+    const handleUpdateStatus = (item, daXuLy) => {
+        const promise = dispatch(updateConsultationStatus({ 
+            id: item.yeuCauId, 
+            daXuLy, 
+            ghiChuNoiBo: note || item.ghiChuNoiBo 
+        })).unwrap()
+
+        sileo.promise(promise, {
+            loading: { title: 'Đang lưu xử lý...', description: 'Đang cập nhật ghi chú và trạng thái.' },
+            success: () => {
+                setEditingId(null)
+                setNote('')
+                window.dispatchEvent(new CustomEvent('new-consultation'))
+                return { title: 'Thành công!', description: 'Yêu cầu đã được xử lý xong.' };
+            },
+            error: (err) => ({ title: 'Lỗi', description: (err.message || 'Không thể cập nhật trạng thái.') })
+        });
     }
 
-    const handleDelete = async (id) => {
-        if (window.confirm("Bạn có chắc muốn xóa yêu cầu này?")) {
-            await dispatch(deleteConsultation(id))
-            // Yêu cầu Header cập nhật lại số lượng thông báo ngay lập tức
-            window.dispatchEvent(new CustomEvent('new-consultation'))
-        }
+    const handleDelete = (id) => {
+        sileo.action({
+            title: 'Xóa yêu cầu tư vấn?',
+            description: 'Bạn có chắc muốn xóa yêu cầu này không? Dữ liệu sẽ mất vĩnh viễn.',
+            button: {
+                title: 'Xác nhận xóa',
+                onClick: () => {
+                    sileo.promise(dispatch(deleteConsultation(id)).unwrap(), {
+                        loading: { title: 'Đang xóa...', description: 'Đang loại bỏ yêu cầu tư vấn.' },
+                        success: () => {
+                            window.dispatchEvent(new CustomEvent('new-consultation'))
+                            return { title: 'Đã xóa!', description: 'Yêu cầu tư vấn đã được xóa.' };
+                        },
+                        error: (err) => ({ title: 'Lỗi', description: (err.message || 'Không thể xóa yêu cầu.') })
+                    });
+                }
+            }
+        });
     }
 
     const startEditing = (item) => {

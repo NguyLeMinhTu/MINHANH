@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { sileo } from 'sileo';
 import { X, Trash2, Save, ImagePlus, Star, Plus } from 'lucide-react';
 import axiosInstance from '../utils/axiosConfig';
 import { useDispatch } from 'react-redux';
@@ -41,7 +42,7 @@ const ProductAddForm = ({ categories, onClose }) => {
             setFormData(prev => ({ ...prev, images: [...prev.images, ...uploadedUrls] }));
         } catch (error) {
             console.error("Lỗi upload ảnh:", error);
-            alert("Lỗi khi tải ảnh lên Cloudinary! Vui lòng thử lại.");
+            sileo.error({ title: 'Lỗi tải ảnh', description: 'Lỗi khi tải ảnh lên Cloudinary! Vui lòng thử lại.' });
         } finally {
             setLoading(false);
         }
@@ -151,7 +152,10 @@ const ProductAddForm = ({ categories, onClose }) => {
         for (let v of formData.bienThe) {
             const key = `${v.mauSac || ''}-${v.size || ''}`.toLowerCase().trim();
             if (uniqueSet.has(key)) {
-                alert(`Lỗi: Phân loại hàng (Màu: "${v.mauSac || ''}", Size: "${v.size || ''}") bị trùng lặp.\nVui lòng gộp chung số lượng lại hoặc xóa bớt dòng thừa!`);
+                sileo.error({ 
+                    title: 'Trùng lặp biến thể', 
+                    description: `Phân loại hàng (Màu: "${v.mauSac || ''}", Size: "${v.size || ''}") bị trùng lặp.` 
+                });
                 return;
             }
             uniqueSet.add(key);
@@ -167,11 +171,11 @@ const ProductAddForm = ({ categories, onClose }) => {
                 bienThe: formData.bienThe.map(v => ({...v, gia: v.gia ? Number(v.gia) : null, soLuong: Number(v.soLuong) }))
             };
             await dispatch(createProduct(payload)).unwrap();
+            sileo.success({ title: 'Tạo sản phẩm thành công!' });
             dispatch(fetchProducts({ page: 0, size: 50 })); // Reload API
             onClose();
-            alert("Tạo sản phẩm thành công!");
         } catch (error) {
-            alert("Lỗi lưu sản phẩm: " + (error.message || JSON.stringify(error)));
+            sileo.error({ title: 'Lỗi lưu sản phẩm', description: error.message || JSON.stringify(error) });
         } finally {
             setLoading(false);
         }
@@ -384,7 +388,7 @@ const ProductAddForm = ({ categories, onClose }) => {
                 </form>
 
                 <div className="px-8 py-4 border-t border-gray-100 bg-surface-100 flex justify-end gap-3 rounded-b-2xl shrink-0">
-                    <button type="button" onClick={onClose} className="px-6 py-2.5 text-sm font-semibold text-gray-600 hover:text-gray-800 bg-white border border-gray-200 hover:bg-gray-50 rounded-xl transition-colors shadow-sm">Thoát không lưu</button>
+                    <button type="button" onClick={onClose} className="px-6 py-2.5 text-sm font-semibold text-gray-600 hover:text-gray-800 bg-white border border-gray-200 hover:bg-50 rounded-xl transition-colors shadow-sm">Thoát không lưu</button>
                     <button type='submit' form="addForm" disabled={loading} className="px-8 py-2.5 text-sm font-bold text-white bg-linear-to-r from-primary-500 to-primary-600 rounded-xl hover:from-primary-600 hover:to-primary-700 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-primary-500/30 active:scale-95">
                         {loading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Save size={18} />}
                          Tạo Sản Phẩm Mới

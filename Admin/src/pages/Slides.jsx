@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Plus, Pencil, Trash2, GripVertical, Eye, EyeOff, X, Upload, Loader2 } from 'lucide-react'
 import axios from '../utils/axiosConfig'
+import { sileo } from 'sileo'
 
 // ====== Upload ảnh trực tiếp lên /api/upload ======
 const uploadImage = async (file) => {
@@ -40,27 +41,28 @@ const SlideModal = ({ slide, onClose, onSaved }) => {
             setForm(f => ({ ...f, urlHinh: url }))
             setPreview(url)
         } catch {
-            alert('Upload ảnh thất bại!')
+            sileo.error({ title: 'Lỗi upload', description: 'Không thể tải ảnh cho slide.' })
         } finally {
             setUploading(false)
         }
     }
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault()
         setSaving(true)
-        try {
-            if (slide) {
-                await axios.put(`/admin/slides/${slide.id}`, form)
-            } else {
-                await axios.post('/admin/slides', form)
-            }
-            onSaved()
-        } catch {
-            alert('Lưu thất bại!')
-        } finally {
-            setSaving(false)
-        }
+        const promise = slide 
+            ? axios.put(`/admin/slides/${slide.id}`, form)
+            : axios.post('/admin/slides', form);
+
+        sileo.promise(promise, {
+            loading: { title: 'Đang lưu slide...', description: 'Đang gửi dữ liệu.' },
+            success: () => {
+                onSaved();
+                return { title: 'Thành công!', description: slide ? 'Slide đã được cập nhật.' : 'Slide mới đã được thêm.' };
+            },
+            error: (err) => ({ title: 'Lỗi lưu slide', description: err.message || 'Xảy ra lỗi trong quá trình lưu.' })
+        });
+        setSaving(false);
     }
 
     return (
@@ -175,19 +177,36 @@ const Slides = () => {
 
     useEffect(() => { fetchSlides() }, [])
 
-    const handleToggle = async (slide) => {
-        try {
-            const updated = await axios.patch(`/admin/slides/${slide.id}/toggle`)
-            setSlides(prev => prev.map(s => s.id === slide.id ? updated : s))
-        } catch { alert('Thao tác thất bại!') }
+    const handleToggle = (slide) => {
+        const promise = axios.patch(`/admin/slides/${slide.id}/toggle`)
+        sileo.promise(promise, {
+            loading: { title: 'Đang cập nhật...', description: 'Đang chuyển đổi trạng thái hiển thị.' },
+            success: (updated) => {
+                setSlides(prev => prev.map(s => s.id === slide.id ? updated : s));
+                return { title: 'Đã cập nhật trạng thái!' };
+            },
+            error: (err) => ({ title: 'Lỗi', description: (err.message || 'Thao tác thất bại!') })
+        });
     }
 
-    const handleDelete = async (slide) => {
-        if (!confirm(`Xóa slide "${slide.tieuDe}"?`)) return
-        try {
-            await axios.delete(`/admin/slides/${slide.id}`)
-            setSlides(prev => prev.filter(s => s.id !== slide.id))
-        } catch { alert('Xóa thất bại!') }
+    const handleDelete = (slide) => {
+        sileo.action({
+            title: 'Xóa vĩnh viễn slide?',
+            description: `Bạn có chắc muốn XÓA VĨNH VIỄN slide "${slide.tieuDe}"? Thao tác này không thể hoàn tác.`,
+            button: {
+                title: 'Xác nhận xóa',
+                onClick: () => {
+                    sileo.promise(axios.delete(`/admin/slides/${slide.id}`), {
+                        loading: { title: 'Đang xóa...', description: `Đang xóa vĩnh viễn "${slide.tieuDe}"` },
+                        success: () => {
+                            setSlides(prev => prev.filter(s => s.id !== slide.id));
+                            return { title: 'Đã xóa thành công!' };
+                        },
+                        error: (err) => ({ title: 'Lỗi xóa', description: (err.message || 'Xóa thất bại!') })
+                    });
+                }
+            }
+        });
     }
 
     // ===== Drag & Drop reorder =====

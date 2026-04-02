@@ -3,6 +3,7 @@ import { X, Save, ImagePlus, Trash2 } from 'lucide-react';
 import axiosInstance from '../utils/axiosConfig';
 import { useDispatch } from 'react-redux';
 import { createCategory, updateCategory, fetchCategories } from '../app/slices/categorySlice';
+import { sileo } from 'sileo';
 
 const CategoryFormModal = ({ category, categories, onClose }) => {
     const dispatch = useDispatch();
@@ -50,8 +51,7 @@ const CategoryFormModal = ({ category, categories, onClose }) => {
                 setFormData(prev => ({ ...prev, hinhAnh: res.url }));
             }
         } catch (error) {
-            console.error("Lỗi upload ảnh:", error);
-            alert("Lỗi tải ảnh lên Cloudinary!");
+            sileo.error({ title: 'Lỗi tải ảnh', description: 'Không thể upload ảnh lên hệ thống.' });
         } finally {
             setLoading(false);
         }
@@ -65,7 +65,6 @@ const CategoryFormModal = ({ category, categories, onClose }) => {
         e.preventDefault();
         setLoading(true);
 
-        // Chuẩn bị cục Data trước khi đẩy lên API
         const payload = {
             tenDanhMuc: formData.tenDanhMuc,
             slug: formData.slug,
@@ -76,19 +75,21 @@ const CategoryFormModal = ({ category, categories, onClose }) => {
             parentId: formData.parentId ? formData.parentId : null
         };
 
-        try {
-            if (category?.danhMucId) {
-                await dispatch(updateCategory({ id: category.danhMucId, data: payload })).unwrap();
-            } else {
-                await dispatch(createCategory(payload)).unwrap();
-            }
-            dispatch(fetchCategories()); // Gọi thợ load lại lưới List bên ngoài
-            onClose();
-        } catch (error) {
-            alert("Lỗi lưu danh mục: " + (error.message || JSON.stringify(error)));
-        } finally {
-            setLoading(false);
-        }
+        const promise = category?.danhMucId 
+            ? dispatch(updateCategory({ id: category.danhMucId, data: payload })).unwrap()
+            : dispatch(createCategory(payload)).unwrap();
+
+        sileo.promise(promise, {
+            loading: { title: 'Đang lưu danh mục...', description: 'Đang xử lý dữ liệu.' },
+            success: () => {
+                dispatch(fetchCategories());
+                onClose();
+                return { title: 'Thành công!', description: 'Danh mục đã được cập nhật hệ thống.' };
+            },
+            error: (err) => ({ title: 'Lỗi lưu', description: err.message || 'Không thể lưu danh mục.' })
+        });
+        
+        setLoading(false);
     };
 
     // Lọc ra danh sách Mẹ: Danh mục mẹ không thể là chính nó

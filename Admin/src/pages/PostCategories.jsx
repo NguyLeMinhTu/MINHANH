@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { sileo } from 'sileo'
 import { Plus, Pencil, Trash2, Tag, RefreshCw } from 'lucide-react'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchPostCategories, deletePostCategory, updatePostCategory } from '../app/slices/postCategorySlice'
@@ -20,32 +21,50 @@ const PostCategories = () => {
         dispatch(fetchPostCategories())
     }, [dispatch])
 
-    const handleDelete = async (cat) => {
-        if (window.confirm(`Bạn có chắc muốn ẨN danh mục "${cat.tenDanhMuc}" không?\n(Bạn có thể bật lại sau)`)) {
-            try {
-                await dispatch(deletePostCategory(cat.danhMucBaiVietId)).unwrap();
-                dispatch(fetchPostCategories());
-            } catch (error) {
-                console.error("Lỗi ẩn danh mục:", error);
-                alert("Lỗi thao tác:\n" + (error?.message || JSON.stringify(error)));
+    const handleDelete = (cat) => {
+        sileo.action({
+            title: 'Xác nhận xóa danh mục?',
+            description: `Bạn có chắc muốn XÓA VĨNH VIỄN danh mục "${cat.tenDanhMuc}"? Thao tác này không thể hoàn tác.`,
+            button: {
+                title: 'Xác nhận xóa',
+                onClick: () => {
+                    sileo.promise(dispatch(deletePostCategory(cat.danhMucBaiVietId)).unwrap(), {
+                        loading: { title: 'Đang xử lý...', description: `Đang xóa "${cat.tenDanhMuc}"` },
+                        success: () => {
+                            dispatch(fetchPostCategories());
+                            return { title: 'Đã xóa danh mục thành công!' };
+                        },
+                        error: (err) => ({ title: 'Lỗi', description: (err.message || JSON.stringify(err)) })
+                    });
+                }
             }
-        }
+        });
     }
 
-    const handleRestore = async (cat) => {
-        try {
-            const payload = {
-                tenDanhMuc: cat.tenDanhMuc,
-                slug: cat.slug,
-                moTa: cat.moTa,
-                trangThai: true
-            };
-            await dispatch(updatePostCategory({ id: cat.danhMucBaiVietId, data: payload })).unwrap();
-            dispatch(fetchPostCategories());
-        } catch (error) {
-            console.error("Lỗi bật lại danh mục:", error);
-            alert("Lỗi khi khôi phục:\n" + (error?.message || JSON.stringify(error)));
-        }
+    const handleRestore = (cat) => {
+        sileo.action({
+            title: 'Khôi phục danh mục?',
+            description: `Bạn có muốn bật hiển thị lại danh mục bài viết "${cat.tenDanhMuc}" không?`,
+            button: {
+                title: 'Khôi phục',
+                onClick: () => {
+                    const payload = {
+                        tenDanhMuc: cat.tenDanhMuc,
+                        slug: cat.slug,
+                        moTa: cat.moTa,
+                        trangThai: true
+                    };
+                    sileo.promise(dispatch(updatePostCategory({ id: cat.danhMucBaiVietId, data: payload })).unwrap(), {
+                        loading: { title: 'Đang xử lý...', description: `Đang khôi phục "${cat.tenDanhMuc}"` },
+                        success: () => {
+                            dispatch(fetchPostCategories());
+                            return { title: 'Đã khôi phục thành công!' };
+                        },
+                        error: (err) => ({ title: 'Lỗi', description: (err.message || JSON.stringify(err)) })
+                    });
+                }
+            }
+        });
     }
 
     const openAddModal = () => {
@@ -119,7 +138,7 @@ const PostCategories = () => {
                                                     <RefreshCw size={14} />
                                                 </button>
                                             ) : (
-                                                <button onClick={() => handleDelete(cat)} className="p-1.5 rounded-lg hover:bg-red-50 text-red-400 transition-all bg-white border border-red-100 shadow-sm" title="Tạm ẩn">
+                                                <button onClick={() => handleDelete(cat)} className="p-1.5 rounded-lg hover:bg-red-50 text-red-400 transition-all bg-white border border-red-100 shadow-sm" title="Xóa vĩnh viễn">
                                                     <Trash2 size={14} />
                                                 </button>
                                             )}

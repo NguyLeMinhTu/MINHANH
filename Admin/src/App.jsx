@@ -1,6 +1,5 @@
 import React from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { Toaster } from 'react-hot-toast'
 import AdminLayout from './components/layout/AdminLayout'
 import ProtectedRoute from './components/ProtectedRoute'
 import Login from './pages/Login'
@@ -21,7 +20,6 @@ import NotificationListener from './components/NotificationListener'
 const App = () => {
   return (
     <>
-      <Toaster position="top-right" reverseOrder={false} />
       <NotificationListener />
       <Routes>
         <Route path="/login" element={<Login />} />

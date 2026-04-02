@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { X, Save, Upload, Type, Link, Image as ImageIcon, BookOpen } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
+import { sileo } from 'sileo';
 import { createPost, updatePost, fetchPosts } from '../app/slices/postSlice';
 import { fetchPostCategories } from '../app/slices/postCategorySlice';
 import axiosInstance from '../utils/axiosConfig';
@@ -63,7 +64,7 @@ const PostFormModal = ({ post, onClose }) => {
             });
             if (res.url) setFormData(prev => ({ ...prev, anhDaiDien: res.url }));
         } catch (error) {
-            alert("Lỗi upload ảnh đại diện");
+            sileo.error({ title: 'Lỗi tải ảnh', description: 'Không thể tải ảnh đại diện lên máy chủ.' });
         } finally {
             setLoading(false);
         }
@@ -91,7 +92,7 @@ const PostFormModal = ({ post, onClose }) => {
                 const range = quill.getSelection();
                 quill.insertEmbed(range.index, 'image', url);
             } catch (error) {
-                alert("Lỗi chèn ảnh vào bài viết");
+                sileo.error({ title: 'Lỗi chèn ảnh', description: 'Không thể chèn ảnh vào nội dung bài viết.' });
             } finally {
                 setLoading(false);
             }
@@ -114,22 +115,22 @@ const PostFormModal = ({ post, onClose }) => {
         }
     }), []);
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
-        setLoading(true);
-        try {
-            if (post?.baiVietId) {
-                await dispatch(updatePost({ id: post.baiVietId, data: formData })).unwrap();
-            } else {
-                await dispatch(createPost(formData)).unwrap();
-            }
-            dispatch(fetchPosts({ page: 0, size: 10 }));
-            onClose();
-        } catch (error) {
-            alert("Lỗi khi lưu bài viết");
-        } finally {
-            setLoading(false);
-        }
+        
+        const promise = post?.baiVietId 
+            ? dispatch(updatePost({ id: post.baiVietId, data: formData })).unwrap()
+            : dispatch(createPost(formData)).unwrap();
+
+        sileo.promise(promise, {
+            loading: { title: 'Đang lưu bài viết...', description: 'Đang xử lý dữ liệu lên máy chủ.' },
+            success: () => {
+                dispatch(fetchPosts({ page: 0, size: 10 }));
+                onClose();
+                return { title: 'Lưu thành công!', description: post?.baiVietId ? 'Bài viết đã được cập nhật.' : 'Bài viết mới đã được tạo.' };
+            },
+            error: (err) => ({ title: 'Lỗi khi lưu bài viết', description: err.message || JSON.stringify(err) })
+        });
     };
 
     return (

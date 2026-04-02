@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { X, Save } from 'lucide-react';
 import { useDispatch } from 'react-redux';
+import { sileo } from 'sileo';
 import { createPostCategory, updatePostCategory, fetchPostCategories } from '../app/slices/postCategorySlice';
 
 const PostCategoryFormModal = ({ category, onClose }) => {
     const dispatch = useDispatch();
-    const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
         tenDanhMuc: '',
         slug: '',
@@ -29,9 +29,8 @@ const PostCategoryFormModal = ({ category, onClose }) => {
         setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
-        setLoading(true);
 
         const payload = {
             tenDanhMuc: formData.tenDanhMuc,
@@ -40,19 +39,19 @@ const PostCategoryFormModal = ({ category, onClose }) => {
             trangThai: formData.trangThai
         };
 
-        try {
-            if (category?.danhMucBaiVietId) {
-                await dispatch(updatePostCategory({ id: category.danhMucBaiVietId, data: payload })).unwrap();
-            } else {
-                await dispatch(createPostCategory(payload)).unwrap();
-            }
-            dispatch(fetchPostCategories()); 
-            onClose();
-        } catch (error) {
-            alert("Lỗi lưu danh mục bài viết: " + (error.message || JSON.stringify(error)));
-        } finally {
-            setLoading(false);
-        }
+        const promise = category?.danhMucBaiVietId 
+            ? dispatch(updatePostCategory({ id: category.danhMucBaiVietId, data: payload })).unwrap()
+            : dispatch(createPostCategory(payload)).unwrap();
+
+        sileo.promise(promise, {
+            loading: { title: 'Đang lưu danh mục...', description: 'Đang xử lý dữ liệu lên máy chủ.' },
+            success: () => {
+                dispatch(fetchPostCategories());
+                onClose();
+                return { title: 'Lưu thành công!', description: category ? 'Danh mục đã được cập nhật.' : 'Danh mục mới đã được tạo.' };
+            },
+            error: (err) => ({ title: 'Lỗi khi lưu danh mục', description: err.message || JSON.stringify(err) })
+        });
     };
 
     return (
@@ -101,8 +100,7 @@ const PostCategoryFormModal = ({ category, onClose }) => {
 
                 <div className="px-8 py-4 border-t border-gray-100 bg-surface-100 flex justify-end gap-3 rounded-b-2xl shrink-0">
                     <button type="button" onClick={onClose} className="px-6 py-2.5 text-sm font-semibold text-gray-600 hover:text-gray-800 bg-white border border-gray-200 hover:bg-gray-50 rounded-xl transition-colors shadow-sm">Hủy bỏ</button>
-                    <button type='submit' form="postCategoryForm" disabled={loading} className="px-8 py-2.5 text-sm font-bold text-white bg-linear-to-r from-primary-500 to-primary-600 rounded-xl hover:from-primary-600 hover:to-primary-700 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-primary-500/30 active:scale-95">
-                        {loading && <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />}
+                    <button type='submit' form="postCategoryForm" className="px-8 py-2.5 text-sm font-bold text-white bg-linear-to-r from-primary-500 to-primary-600 rounded-xl hover:from-primary-600 hover:to-primary-700 transition-all flex items-center gap-2 shadow-md shadow-primary-500/30 active:scale-95">
                         <Save size={16} />
                         {category ? 'Lưu Thay Đổi' : 'Tạo Mới'}
                     </button>

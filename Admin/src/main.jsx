@@ -2,7 +2,8 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import { Provider } from 'react-redux'
-import { Toaster } from 'react-hot-toast'
+import { Toaster } from 'sileo'
+// import 'sileo/dist/styles.css'
 import { store } from './app/store'
 import { AuthProvider } from './contexts/AuthContext'
 import './index.css'
@@ -14,7 +15,7 @@ createRoot(document.getElementById('root')).render(
       <BrowserRouter>
         <AuthProvider>
           <App />
-          <Toaster position="top-right" />
+          <Toaster position="top-center" theme="dark" options={{ duration: 5000 }} />
         </AuthProvider>
       </BrowserRouter>
     </Provider>

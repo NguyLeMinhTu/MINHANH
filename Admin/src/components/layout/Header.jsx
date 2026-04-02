@@ -147,13 +147,13 @@ const Header = ({ isOpen, onToggle }) => {
                         onClick={() => setNotificationsOpen(!notificationsOpen)}
                         className={`relative p-2.5 rounded-xl transition-all group ${notificationsOpen ? 'bg-primary-500/10 text-primary-500' : 'text-gray-400 hover:bg-surface-100 hover:text-primary-500'}`}
                     >
-                        <Bell 
-                            size={21} 
-                            strokeWidth={1.5} 
-                            className={`transition-transform ${notificationsOpen ? 'rotate-12' : 'group-hover:rotate-12'} ${unhandledConsultations.length > 0 ? 'animate-bell-swing' : ''}`} 
+                        <Bell
+                            size={21}
+                            strokeWidth={1.5}
+                            className={`transition-transform ${notificationsOpen ? 'rotate-12' : 'group-hover:rotate-12'} ${unhandledConsultations.length > 0 ? 'animate-bell-swing' : ''}`}
                         />
                         {unhandledConsultations.length > 0 && (
-                            <span className="absolute top-1.5 right-1.5 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] font-black flex items-center justify-center rounded-full ring-2 ring-white shadow-sm animate-bounce-subtle">
+                            <span className="absolute top-1.5 right-1.5 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-[10px] font-bold flex items-center justify-center rounded-full ring-2 ring-white shadow-sm animate-bounce-subtle">
                                 {unhandledConsultations.length}
                             </span>
                         )}
@@ -163,7 +163,7 @@ const Header = ({ isOpen, onToggle }) => {
                     {notificationsOpen && (
                         <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-50 animate-in fade-in zoom-in duration-200">
                             <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
-                                <h3 className="text-sm font-black text-gray-800 tracking-tight">Thông báo mới</h3>
+                                <h3 className="text-sm font-bold text-gray-800 tracking-tight">Thông báo mới</h3>
                                 <span className="text-[10px] font-bold text-primary-600 bg-primary-500/10 px-2 py-0.5 rounded-full uppercase tracking-widest">
                                     {unhandledConsultations.length} yêu cầu
                                 </span>
@@ -180,7 +180,7 @@ const Header = ({ isOpen, onToggle }) => {
                                             className="px-5 py-4 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 cursor-pointer group"
                                         >
                                             <div className="flex gap-4">
-                                                <div className="w-10 h-10 rounded-xl bg-primary-500/10 text-primary-500 flex items-center justify-center font-black text-sm shrink-0 group-hover:bg-primary-500 group-hover:text-white transition-all">
+                                                <div className="w-10 h-10 rounded-xl bg-primary-500/10 text-primary-500 flex items-center justify-center font-bold text-sm shrink-0 group-hover:bg-primary-500 group-hover:text-white transition-all">
                                                     {(noti.tenKhach || 'K').charAt(0)}
                                                 </div>
                                                 <div className="space-y-0.5 flex-1">
@@ -208,7 +208,7 @@ const Header = ({ isOpen, onToggle }) => {
                                         navigate('/consultations')
                                         setNotificationsOpen(false)
                                     }}
-                                    className="w-full py-3.5 text-xs font-black text-gray-500 hover:text-primary-600 hover:bg-primary-500/5 transition-all uppercase tracking-widest border-t border-surface-50"
+                                    className="w-full py-3.5 text-xs font-bold text-gray-500 hover:text-primary-600 hover:bg-primary-500/5 transition-all uppercase tracking-widest border-t border-surface-50"
                                 >
                                     Xem tất cả yêu cầu
                                 </button>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Mail, Phone, Clock, CheckCircle, Trash2 } from 'lucide-react'
 import { lienHe } from '../assets/assets'
+import { sileo } from 'sileo'
 
 const statusStyle = {
     true: 'bg-emerald-100 text-emerald-700',
@@ -57,10 +58,37 @@ const Contacts = () => {
                                     </div>
                                 </div>
                                 <div className="flex gap-2">
-                                    <button className="p-2 rounded-lg hover:bg-primary-500/10 text-gray-400 hover:text-primary-600 transition-colors">
+                                    <button 
+                                        onClick={() => {
+                                            sileo.promise(new Promise(res => setTimeout(res, 800)), {
+                                                loading: { title: 'Đang xử lý...', description: 'Đang đánh dấu đã đọc.' },
+                                                success: () => {
+                                                    selected.da_xu_ly = true;
+                                                    setSelected({...selected});
+                                                    return { title: 'Thành công!', description: 'Yêu cầu đã được đánh dấu xử lý.' };
+                                                }
+                                            })
+                                        }}
+                                        className="p-2 rounded-lg hover:bg-primary-500/10 text-gray-400 hover:text-primary-600 transition-colors"
+                                    >
                                         <CheckCircle size={18} />
                                     </button>
-                                    <button className="p-2 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors">
+                                    <button 
+                                        onClick={() => {
+                                            sileo.action({
+                                                title: 'Xóa vĩnh viễn liên hệ?',
+                                                description: `Bạn có chắc muốn xóa vĩnh viễn tin nhắn từ "${selected.ho_ten}"?`,
+                                                button: {
+                                                    title: 'Xác nhận xóa',
+                                                    onClick: () => {
+                                                        sileo.success({ title: 'Đã xóa!', description: 'Tin nhắn đã được gỡ khỏi hệ thống.' });
+                                                        setSelected(null);
+                                                    }
+                                                }
+                                            })
+                                        }}
+                                        className="p-2 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors"
+                                    >
                                         <Trash2 size={18} />
                                     </button>
                                 </div>
@@ -78,7 +106,15 @@ const Contacts = () => {
                                     className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"
                                 />
                                 <div className="flex justify-end mt-3">
-                                    <button className="flex items-center gap-2 bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm">
+                                    <button 
+                                        onClick={() => {
+                                            sileo.promise(new Promise(res => setTimeout(res, 1200)), {
+                                                loading: { title: 'Đang gửi phản hồi...', description: 'Đang kết nối tới Mail Server.' },
+                                                success: { title: 'Đã gửi phản hôi!', description: `Phản hồi đã được gửi tới ${selected.email}` }
+                                            })
+                                        }}
+                                        className="flex items-center gap-2 bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm"
+                                    >
                                         <Mail size={15} />
                                         Gửi phản hồi
                                     </button>

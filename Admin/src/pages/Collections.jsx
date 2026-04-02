@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Plus, Pencil, Trash2, GripVertical, Eye, EyeOff, X, Upload, Loader2, Image as ImageIcon } from 'lucide-react'
 import axios from '../utils/axiosConfig'
+import { sileo } from 'sileo'
 
 // ====== Upload ảnh trực tiếp ======
 const uploadImage = async (file) => {
@@ -40,7 +41,7 @@ const CollectionModal = ({ collection, onClose, onSaved }) => {
             setForm(f => ({ ...f, urlHinh: url }))
             setPreview(url)
         } catch {
-            alert('Upload ảnh thất bại!')
+            sileo.error({ title: 'Lỗi upload ảnh', description: 'Không thể tải ảnh cho bộ sưu tập.' })
         } finally {
             setUploading(false)
         }
@@ -49,18 +50,19 @@ const CollectionModal = ({ collection, onClose, onSaved }) => {
     const handleSubmit = async (e) => {
         e.preventDefault()
         setSaving(true)
-        try {
-            if (collection) {
-                await axios.put(`/admin/collections/${collection.id}`, form)
-            } else {
-                await axios.post('/admin/collections', form)
-            }
-            onSaved()
-        } catch {
-            alert('Lưu thất bại!')
-        } finally {
-            setSaving(false)
-        }
+        const promise = collection 
+            ? axios.put(`/admin/collections/${collection.id}`, form)
+            : axios.post('/admin/collections', form);
+
+        sileo.promise(promise, {
+            loading: { title: 'Đang lưu bộ sưu tập...', description: 'Đang xử lý dữ liệu.' },
+            success: () => {
+                onSaved();
+                return { title: 'Thành công!', description: collection ? 'Bộ sưu tập đã được cập nhật.' : 'Bộ sưu tập mới đã được thêm.' };
+            },
+            error: (err) => ({ title: 'Lỗi khi lưu', description: err.message || 'Có lỗi xảy ra khi lưu dữ liệu.' })
+        });
+        setSaving(false);
     }
 
     return (
@@ -163,19 +165,37 @@ const Collections = () => {
 
     useEffect(() => { fetchData() }, [])
 
-    const handleToggle = async (item) => {
-        try {
-            const updated = await axios.patch(`/admin/collections/${item.id}/toggle`)
-            setList(prev => prev.map(s => s.id === item.id ? updated : s))
-        } catch { alert('Thất bại!') }
+    const handleToggle = (item) => {
+        const promise = axios.patch(`/admin/collections/${item.id}/toggle`)
+        sileo.promise(promise, {
+            loading: { title: 'Đang cập nhật...', description: 'Đang thay đổi trạng thái hiển thị.' },
+            success: (updated) => {
+                setList(prev => prev.map(s => s.id === item.id ? updated : s));
+                return { title: 'Đã cập nhật trạng thái!' };
+            },
+            error: (err) => ({ title: 'Lỗi', description: err.message || 'Không thể thay đổi trạng thái.' })
+        });
     }
 
-    const handleDelete = async (item) => {
-        if (!confirm(`Xóa bộ sưu tập "${item.tieuDe}"?`)) return
-        try {
-            await axios.delete(`/admin/collections/${item.id}`)
-            setList(prev => prev.filter(s => s.id !== item.id))
-        } catch { alert('Xóa thất bại!') }
+    const handleDelete = (item) => {
+        sileo.action({
+            title: 'Xóa vĩnh viễn bộ sưu tập?',
+            description: `Bạn có chắc muốn XÓA VĨNH VIỄN bộ sưu tập "${item.tieuDe}"? Thao tác này không thể hoàn tác.`,
+            button: {
+                title: 'Xác nhận xóa',
+                onClick: () => {
+                    const promise = axios.delete(`/admin/collections/${item.id}`)
+                    sileo.promise(promise, {
+                        loading: { title: 'Đang xóa...', description: `Đang xóa vĩnh viễn "${item.tieuDe}"` },
+                        success: () => {
+                            setList(prev => prev.filter(s => s.id !== item.id));
+                            return { title: 'Đã xóa thành công!', description: 'Bộ sưu tập đã được loại bỏ khỏi hệ thống.' };
+                        },
+                        error: (err) => ({ title: 'Lỗi xóa', description: err.message || 'Không thể xóa bộ sưu tập.' })
+                    });
+                }
+            }
+        });
     }
 
     const handleDragStart = (idx) => setDragging(idx)

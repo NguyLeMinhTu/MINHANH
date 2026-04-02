@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { sileo } from 'sileo';
 import { X, Trash2, Save, ImagePlus, Star, Plus } from 'lucide-react';
 import axiosInstance from '../utils/axiosConfig';
 import { useDispatch } from 'react-redux';
@@ -74,7 +75,7 @@ const ProductFormModal = ({ product, categories, onClose }) => {
             setFormData(prev => ({ ...prev, images: [...prev.images, ...uploadedUrls] }));
         } catch (error) {
             console.error("Lỗi upload ảnh:", error);
-            alert("Lỗi khi tải ảnh lên Cloudinary! Vui lòng thử lại.");
+            sileo.error({ title: 'Lỗi tải ảnh', description: 'Lỗi khi tải ảnh lên Cloudinary! Vui lòng thử lại.' });
         } finally {
             setLoading(false);
         }
@@ -185,7 +186,10 @@ const ProductFormModal = ({ product, categories, onClose }) => {
         for (let v of formData.bienThe) {
             const key = `${v.mauSac || ''}-${v.size || ''}`.toLowerCase().trim();
             if (uniqueSet.has(key)) {
-                alert(`Lỗi: Phân loại hàng (Màu: "${v.mauSac || ''}", Size: "${v.size || ''}") bị trùng lặp.\nVui lòng gộp chung số lượng lại hoặc xóa bớt dòng thừa!`);
+                sileo.error({ 
+                    title: 'Trùng lặp biến thể', 
+                    description: `Phân loại hàng (Màu: "${v.mauSac || ''}", Size: "${v.size || ''}") bị trùng lặp.` 
+                });
                 return; // Chặn đứng thao tác submit gọi API
             }
             uniqueSet.add(key);
@@ -201,10 +205,11 @@ const ProductFormModal = ({ product, categories, onClose }) => {
                 bienThe: formData.bienThe.map(v => ({...v, gia: v.gia ? Number(v.gia) : null, soLuong: Number(v.soLuong) }))
             };
             await dispatch(updateProduct({ id: product.sanPhamId, data: payload })).unwrap();
+            sileo.success({ title: 'Cập nhật sản phẩm thành công!' });
             dispatch(fetchProducts({ page: 0, size: 50 })); // Reload API
             onClose();
         } catch (error) {
-            alert("Lỗi cập nhật: " + (error.message || JSON.stringify(error)));
+            sileo.error({ title: 'Lỗi cập nhật', description: error.message || JSON.stringify(error) });
         } finally {
             setLoading(false);
         }
@@ -220,7 +225,7 @@ const ProductFormModal = ({ product, categories, onClose }) => {
     return (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center backdrop-blur-sm p-4">
             <div className="bg-white rounded-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
-                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-[/* No change needed here, just searching */]">
+                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-white">
                     <h3 className="font-bold text-gray-800 text-lg uppercase tracking-wide">Sửa thông tin sản phẩm</h3>
                     <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-gray-200 text-gray-500 transition-colors">
                         <X size={20} />
@@ -416,7 +421,7 @@ const ProductFormModal = ({ product, categories, onClose }) => {
                     </div>
                 </form>
 
-                <div className="px-8 py-4 border-t border-gray-100 bg-[/* No change needed here, just searching */] flex justify-end gap-3 rounded-b-2xl shrink-0">
+                <div className="px-8 py-4 border-t border-gray-100 bg-white flex justify-end gap-3 rounded-b-2xl shrink-0">
                     <button type="button" onClick={onClose} className="px-6 py-2.5 text-sm font-semibold text-gray-600 hover:text-gray-800 bg-white border border-gray-200 hover:bg-gray-50 rounded-xl transition-colors shadow-sm">Thoát không lưu</button>
                     <button type='submit' form="editForm" disabled={loading} className="px-8 py-2.5 text-sm font-bold text-white bg-linear-to-r from-primary-500 to-primary-600 rounded-xl hover:from-primary-600 hover:to-primary-700 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-primary-500/30 active:scale-95">
                         {loading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Save size={18} />}
