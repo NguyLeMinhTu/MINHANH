@@ -1,12 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { Menu, Bell, Search, ChevronDown, LogOut, User, Settings } from 'lucide-react'
+import { Menu, Bell, Search, LogOut } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import axiosInstance from '../../utils/axiosConfig'
 
 const routeTitles = {
     '/': 'Dashboard',
-    '/users': 'Người dùng',
     '/products': 'Sản phẩm',
     '/product-categories': 'Danh mục sản phẩm',
     '/post-categories': 'Danh mục bài viết',
@@ -37,9 +36,7 @@ const Header = ({ isOpen, onToggle }) => {
     const { user, logout } = useAuth()
     const location = useLocation()
     const navigate = useNavigate()
-    const [userMenuOpen, setUserMenuOpen] = useState(false)
     const [notificationsOpen, setNotificationsOpen] = useState(false)
-    const userMenuRef = useRef(null)
     const notificationsRef = useRef(null)
     const breadcrumbs = getBreadcrumb(location.pathname)
 
@@ -65,16 +62,13 @@ const Header = ({ isOpen, onToggle }) => {
 
     useEffect(() => {
         fetchNotifications()
-        const interval = setInterval(fetchNotifications, 10000) // 10s fallback
+        const interval = setInterval(fetchNotifications, 10000)
 
         const handleNewConsultation = () => {
             fetchNotifications()
         }
 
         const handleClickOutside = (e) => {
-            if (userMenuRef.current && !userMenuRef.current.contains(e.target)) {
-                setUserMenuOpen(false)
-            }
             if (notificationsRef.current && !notificationsRef.current.contains(e.target)) {
                 setNotificationsOpen(false)
             }
@@ -92,10 +86,8 @@ const Header = ({ isOpen, onToggle }) => {
 
     return (
         <header
-            className={`fixed top-0 right-0 h-16 bg-surface-50/80 backdrop-blur-md border-b border-surface-200 flex items-center justify-between px-5 z-30 transition-all duration-300 ${isOpen ? 'left-64' : 'left-16'
-                }`}
+            className={`fixed top-0 right-0 h-16 bg-surface-50/80 backdrop-blur-md border-b border-surface-200 flex items-center justify-between px-5 z-30 transition-all duration-300 ${isOpen ? 'left-64' : 'left-16'}`}
         >
-            {/* Left: Toggle + Breadcrumb */}
             <div className="flex items-center gap-3">
                 <button
                     onClick={onToggle}
@@ -105,7 +97,6 @@ const Header = ({ isOpen, onToggle }) => {
                     <Menu size={20} />
                 </button>
 
-                {/* Breadcrumb */}
                 <nav className="flex items-center gap-1.5 text-sm">
                     {breadcrumbs.map((crumb, index) => (
                         <React.Fragment key={crumb}>
@@ -126,9 +117,7 @@ const Header = ({ isOpen, onToggle }) => {
                 </nav>
             </div>
 
-            {/* Right: Search + Notifications + User */}
             <div className="flex items-center gap-2">
-                {/* Search */}
                 <div className="relative hidden md:flex items-center">
                     <Search
                         size={15}
@@ -141,7 +130,6 @@ const Header = ({ isOpen, onToggle }) => {
                     />
                 </div>
 
-                {/* Notifications */}
                 <div className="relative" ref={notificationsRef}>
                     <button
                         onClick={() => setNotificationsOpen(!notificationsOpen)}
@@ -159,7 +147,6 @@ const Header = ({ isOpen, onToggle }) => {
                         )}
                     </button>
 
-                    {/* Notification Dropdown */}
                     {notificationsOpen && (
                         <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden z-50 animate-in fade-in zoom-in duration-200">
                             <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
@@ -217,57 +204,27 @@ const Header = ({ isOpen, onToggle }) => {
                     )}
                 </div>
 
-                {/* User Dropdown */}
-                <div className="relative" ref={userMenuRef}>
-                    <button
-                        onClick={() => setUserMenuOpen(!userMenuOpen)}
-                        className="flex items-center gap-2 pl-2 pr-2 py-1.5 rounded-lg hover:bg-surface-100 transition-colors"
-                    >
-                        <div className="w-8 h-8 rounded-full overflow-hidden shadow-sm shrink-0">
-                            {user?.anh_dai_dien
-                                ? <img src={user.anh_dai_dien} alt={user.ten} className="w-full h-full object-cover" />
-                                : <div className="w-full h-full bg-linear-to-br from-primary-600 to-primary-400 flex items-center justify-center">
-                                    <span className="text-white text-sm font-semibold">{user?.ten?.charAt(0) ?? 'A'}</span>
-                                </div>
-                            }
-                        </div>
+                <div className="flex items-center gap-3 pl-3 border-l border-surface-200 ml-1">
+                    <div className="flex items-center gap-2">
+                        {/* {user?.anh_dai_dien
+                            ? <img src={user.anh_dai_dien} alt={user.ten} className="w-8 h-8 rounded-full object-cover shadow-sm ring-2 ring-primary-500/10" />
+                            : <div className="w-8 h-8 rounded-full bg-linear-to-br from-primary-600 to-primary-400 flex items-center justify-center shadow-sm">
+                                <span className="text-white text-sm font-semibold">{user?.ten?.charAt(0) ?? 'A'}</span>
+                            </div>
+                        } */}
                         <div className="hidden md:block text-left">
-                            <p className="text-sm font-bold text-gray-700 leading-tight">{user?.ten ?? 'Admin'}</p>
+                            <p className="text-sm font-extrabold text-[#333333] leading-tight">{user?.ten ?? 'Admin'}</p>
                             <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest leading-tight mt-0.5">Quản trị</p>
                         </div>
-                        <ChevronDown
-                            size={14}
-                            className={`text-gray-400 transition-transform duration-200 ${userMenuOpen ? 'rotate-180' : ''
-                                }`}
-                        />
-                    </button>
+                    </div>
 
-                    {/* Dropdown Menu */}
-                    {userMenuOpen && (
-                        <div className="absolute right-0 top-full mt-2 w-52 bg-white rounded-2xl shadow-2xl border border-gray-100 py-2 z-50 animate-in fade-in zoom-in duration-200">
-                            <div className="px-5 py-3 border-b border-gray-50 mb-1">
-                                <p className="text-sm font-bold text-gray-800">{user?.ten ?? 'Admin'}</p>
-                                <p className="text-[11px] text-gray-400 font-medium truncate">{user?.email ?? 'admin@minhanh.vn'}</p>
-                            </div>
-                            <button className="w-full flex items-center gap-3 px-5 py-2.5 text-sm text-gray-500 hover:bg-primary-50 rounded-lg hover:text-primary-600 transition-colors mx-1 w-[calc(100%-8px)]">
-                                <User size={16} />
-                                <span className="font-medium">Hồ sơ cá nhân</span>
-                            </button>
-                            <button className="w-full flex items-center gap-3 px-5 py-2.5 text-sm text-gray-500 hover:bg-primary-50 rounded-lg hover:text-primary-600 transition-colors mx-1 w-[calc(100%-8px)]">
-                                <Settings size={16} />
-                                <span className="font-medium">Cài đặt tài khoản</span>
-                            </button>
-                            <div className="border-t border-gray-50 mt-1 pt-1">
-                                <button
-                                    onClick={handleLogout}
-                                    className="w-full flex items-center gap-3 px-5 py-2.5 text-sm text-red-500 hover:bg-red-50 rounded-lg transition-colors mx-1 w-[calc(100%-8px)]"
-                                >
-                                    <LogOut size={16} />
-                                    <span className="font-semibold">Đăng xuất</span>
-                                </button>
-                            </div>
-                        </div>
-                    )}
+                    <button
+                        onClick={handleLogout}
+                        className="p-2.5 rounded-xl text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all duration-200 group"
+                        title="Đăng xuất"
+                    >
+                        <LogOut size={20} strokeWidth={1.5} className="group-hover:translate-x-0.5 transition-transform" />
+                    </button>
                 </div>
             </div>
         </header>

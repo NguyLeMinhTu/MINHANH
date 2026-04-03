@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Search, Plus, Mail, Phone, Lock, Unlock } from 'lucide-react'
 import { nguoiDung } from '../assets/assets'
+import Title from '../components/Title'
 
 const roleLabel = { admin: 'Admin', user: 'Khách hàng' }
 const roleStyle = { admin: 'bg-primary-500/10 text-primary-600', user: 'bg-gray-100 text-gray-600' }
@@ -16,11 +17,8 @@ const Users = () => {
     return (
         <div className="space-y-5">
             <div className="flex items-center justify-between">
-                <div>
-                    <h2 className="text-xl font-bold text-gray-800">DANH SÁCH NGƯỜI DÙNG</h2>
-                    <p className="text-sm text-gray-500 mt-0.5">Quản lý thông tin tài khoản người dùng</p>
-                </div>
-                <button className="flex items-center gap-2 bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm">
+                <Title text1="Danh sách" text2="người dùng" subText="Quản lý thông tin tài khoản và phân quyền người dùng" />
+                <button className="flex items-center gap-2 bg-linear-to-b from-primary-600 to-primary-700/60 hover:from-primary-600 hover:to-primary-800 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all shadow-sm active:scale-95 mb-8">
                     <Plus size={16} />
                     Thêm người dùng
                 </button>
@@ -90,8 +88,8 @@ const Users = () => {
                                         </span>
                                     </td>
                                     <td className="px-6 py-3.5">
-                                        <button className="p-1.5 rounded-lg hover:bg-primary-500/10 text-gray-400 hover:text-primary-600 transition-colors" title={user.trang_thai ? 'Khóa' : 'Mở khóa'}>
-                                            {user.trang_thai ? <Lock size={15} /> : <Unlock size={15} />}
+                                        <button className={`p-1.5 rounded-lg transition-all bg-white border shadow-sm ${user.trang_thai ? 'hover:bg-red-50 text-gray-400 hover:text-red-500 border-gray-100' : 'hover:bg-emerald-50 text-emerald-500 border-emerald-100'}`} title={user.trang_thai ? 'Khóa bản ghi' : 'Mở khóa bản ghi'}>
+                                            {user.trang_thai ? <Lock size={14} /> : <Unlock size={14} />}
                                         </button>
                                     </td>
                                 </tr>

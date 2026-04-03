@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Save, Globe, Mail, Phone, MapPin, Facebook, Instagram, Link } from 'lucide-react'
 import { cauHinh } from '../assets/assets'
 import { sileo } from 'sileo'
+import Title from '../components/Title'
 
 const buildInitial = () => {
     const obj = {}
@@ -23,10 +24,7 @@ const Settings = () => {
 
     return (
         <div className="space-y-6 max-w-3xl">
-            <div>
-                <h2 className="text-xl font-bold text-gray-800">CẤU HÌNH</h2>
-                <p className="text-sm text-gray-500 mt-0.5">Cài đặt thông tin chung của website</p>
-            </div>
+            <Title text1="Cấu hình" text2="Hệ thống" subText="Cài đặt thông tin chung, liên hệ và mạng xã hội của website" />
 
             {/* Contact Info */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-5">
@@ -125,9 +123,9 @@ const Settings = () => {
             </div>
 
             <div className="flex justify-end">
-                <button 
+                <button
                     onClick={handleSave}
-                    className="flex items-center gap-2 bg-primary-500 hover:bg-primary-600 text-white px-6 py-2.5 rounded-lg text-sm font-medium transition-colors shadow-sm"
+                    className="flex items-center gap-2 bg-linear-to-b from-primary-600 to-primary-700/60 hover:from-primary-600 hover:to-primary-800 text-white px-6 py-2.5 rounded-lg text-sm font-semibold transition-all shadow-sm active:scale-95"
                 >
                     <Save size={16} />
                     Lưu cài đặt

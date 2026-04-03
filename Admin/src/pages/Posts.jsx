@@ -3,7 +3,9 @@ import { sileo } from 'sileo'
 import { Plus, Pencil, Trash2, BookOpen, Search, Eye, Loader2 } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchPosts, deletePost } from '../app/slices/postSlice';
+import { fetchPostCategories } from '../app/slices/postCategorySlice';
 import PostFormModal from '../components/PostFormModal';
+import Title from '../components/Title';
 
 const Posts = () => {
     const dispatch = useDispatch();
@@ -12,14 +14,30 @@ const Posts = () => {
         pagination = { totalElements: 0, totalPages: 0, number: 0, size: 10 },
         status
     } = useSelector(state => state.posts || {});
+    const { items: categories } = useSelector(state => state.postCategories);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingPost, setEditingPost] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
+    const [categoryFilter, setCategoryFilter] = useState('');
+    const [statusFilter, setStatusFilter] = useState('');
 
     useEffect(() => {
-        dispatch(fetchPosts({ page: 0, size: 10 }));
+        dispatch(fetchPostCategories());
     }, [dispatch]);
+
+    useEffect(() => {
+        const delayDebounceFn = setTimeout(() => {
+            dispatch(fetchPosts({
+                page: 0,
+                size: 10,
+                search: searchTerm,
+                danhMucId: categoryFilter,
+                trangThai: statusFilter
+            }));
+        }, 400);
+        return () => clearTimeout(delayDebounceFn);
+    }, [dispatch, searchTerm, categoryFilter, statusFilter]);
 
     const handleDelete = (post) => {
         sileo.action({
@@ -42,7 +60,13 @@ const Posts = () => {
     };
 
     const handlePageChange = (newPage) => {
-        dispatch(fetchPosts({ page: newPage, size: pagination.size }));
+        dispatch(fetchPosts({
+            page: newPage,
+            size: pagination.size,
+            search: searchTerm,
+            danhMucId: categoryFilter,
+            trangThai: statusFilter
+        }));
     };
 
     const openAddModal = () => {
@@ -58,13 +82,10 @@ const Posts = () => {
     return (
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <h2 className="text-2xl font-bold text-gray-800">Quản lý Bài viết</h2>
-                    <p className="text-sm text-gray-500">Soạn thảo và quản lý các tin tức, blog trên hệ thống</p>
-                </div>
+                <Title text1="Quản lý" text2="bài viết" subText="Soạn thảo và quản lý các tin tức, blog trên hệ thống" />
                 <button
                     onClick={openAddModal}
-                    className="flex items-center justify-center gap-2 bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all shadow-sm active:scale-95"
+                    className="flex items-center justify-center gap-2 bg-linear-to-b from-primary-600 to-primary-700/60 hover:from-primary-600 hover:to-primary-800 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all shadow-sm active:scale-95 mb-8"
                 >
                     <Plus size={18} />
                     Viết bài mới
@@ -72,16 +93,62 @@ const Posts = () => {
             </div>
 
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                <div className="p-4 border-b border-gray-50 bg-gray-50/30 flex items-center gap-3">
-                    <div className="relative flex-1 max-w-md">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
-                        <input
-                            type="text"
-                            placeholder="Tìm kiếm bài viết..."
-                            className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500/40 text-sm bg-white"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
+                <div className="p-4 border-b border-gray-50 bg-gray-50/30 flex flex-wrap items-center justify-between gap-6">
+                    {/* Tabs for Status */}
+                    <div className="flex gap-1 bg-white p-1 rounded-xl border border-gray-200">
+                        {[
+                            { label: 'Tất cả', value: '' },
+                            { label: 'Công khai', value: 'PUBLISHED' },
+                            { label: 'Bản nháp', value: 'DRAFT' },
+                            { label: 'Đã ẩn', value: 'HIDDEN' }
+                        ].map((tab) => (
+                            <button
+                                key={tab.value}
+                                onClick={() => setStatusFilter(tab.value)}
+                                className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all ${statusFilter === tab.value
+                                    ? 'bg-primary-800 text-white shadow-sm'
+                                    : 'text-slate-500 hover:text-slate-700 hover:bg-slate-100'}`}
+                            >
+                                {tab.label}
+                            </button>
+                        ))}
+                    </div>
+
+                    <div className="flex-1 flex flex-wrap items-center justify-end gap-3 min-w-[300px]">
+                        <div className="relative flex-1 max-w-xs">
+                            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 font-bold" size={14} />
+                            <input
+                                type="text"
+                                placeholder="Tìm kiếm tiêu đề, slug..."
+                                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 text-[13px] bg-white transition-all placeholder:text-gray-300"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
+                        </div>
+
+                        <select
+                            value={categoryFilter}
+                            onChange={(e) => setCategoryFilter(e.target.value)}
+                            className="bg-white border border-gray-200 px-3 py-2 text-[13px] rounded-lg focus:outline-none focus:border-primary-500 transition-all text-gray-600 outline-none cursor-pointer"
+                        >
+                            <option value="">Tất cả danh mục</option>
+                            {categories.map(cat => (
+                                <option key={cat.danhMucBaiVietId} value={cat.danhMucBaiVietId}>{cat.tenDanhMuc}</option>
+                            ))}
+                        </select>
+
+                        {(searchTerm || categoryFilter || statusFilter) && (
+                            <button
+                                onClick={() => {
+                                    setSearchTerm('')
+                                    setCategoryFilter('')
+                                    setStatusFilter('')
+                                }}
+                                className="text-[11px] font-bold text-gray-400 hover:text-primary-600 transition-colors px-2"
+                            >
+                                Làm mới
+                            </button>
+                        )}
                     </div>
                 </div>
 
@@ -131,32 +198,32 @@ const Posts = () => {
                                     </td>
                                     <td className="px-6 py-4 font-semibold text-gray-600">
                                         <div className="flex items-center gap-1.5">
-                                            <Loader2 size={24} className="animate-spin text-primary-500" />
+                                            <Eye size={14} className="text-gray-400 font-bold" />
                                             {post.views || 0}
                                         </div>
                                     </td>
                                     <td className="px-6 py-4">
                                         <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${post.trangThai === 'PUBLISHED' ? 'bg-emerald-50 text-emerald-600' :
-                                                post.trangThai === 'DRAFT' ? 'bg-amber-50 text-amber-600' : 'bg-gray-50 text-gray-400'
+                                            post.trangThai === 'DRAFT' ? 'bg-amber-50 text-amber-600' : 'bg-gray-50 text-gray-400'
                                             }`}>
                                             {post.trangThai === 'PUBLISHED' ? 'Công khai' : post.trangThai === 'DRAFT' ? 'Bản nháp' : 'Đã ẩn'}
                                         </span>
                                     </td>
                                     <td className="px-6 py-4 text-right">
-                                        <div className="flex items-center justify-end gap-2 shadow-inner-sm">
+                                        <div className="flex items-center justify-end gap-2">
                                             <button
                                                 onClick={() => openEditModal(post)}
-                                                className="p-2 rounded-lg hover:bg-violet-50 text-gray-400 hover:text-primary-600 transition-all border border-transparent hover:border-violet-100"
+                                                className="p-1.5 rounded-lg hover:bg-violet-50 text-gray-400 hover:text-violet-600 transition-all bg-white border border-gray-100 shadow-sm"
                                                 title="Sửa"
                                             >
-                                                <Pencil size={15} />
+                                                <Pencil size={14} />
                                             </button>
                                             <button
                                                 onClick={() => handleDelete(post)}
-                                                className="p-2 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-all border border-transparent hover:border-red-100"
+                                                className="p-1.5 rounded-lg hover:bg-red-50 text-red-500 transition-all bg-white border border-red-100 shadow-sm"
                                                 title="Xóa"
                                             >
-                                                <Trash2 size={15} />
+                                                <Trash2 size={14} />
                                             </button>
                                         </div>
                                     </td>

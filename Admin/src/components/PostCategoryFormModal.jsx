@@ -39,7 +39,7 @@ const PostCategoryFormModal = ({ category, onClose }) => {
             trangThai: formData.trangThai
         };
 
-        const promise = category?.danhMucBaiVietId 
+        const promise = category?.danhMucBaiVietId
             ? dispatch(updatePostCategory({ id: category.danhMucBaiVietId, data: payload })).unwrap()
             : dispatch(createPostCategory(payload)).unwrap();
 
@@ -72,7 +72,7 @@ const PostCategoryFormModal = ({ category, onClose }) => {
                             <label className="block text-sm font-semibold text-gray-700 mb-1.5">Tên danh mục *</label>
                             <input required type="text" name="tenDanhMuc" value={formData.tenDanhMuc} onChange={handleChange} className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/40 focus:border-primary-500 bg-white transition-all shadow-sm" placeholder="VD: Tin tức thời trang" />
                         </div>
-                        
+
                         <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-1.5">Đường dẫn thân thiện (Slug)</label>
                             <input type="text" name="slug" value={formData.slug} onChange={handleChange} className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500/40 focus:border-primary-500 bg-white transition-all placeholder-gray-300 shadow-sm" placeholder="Để trống nếu muốn Auto Sinh" />
@@ -85,13 +85,13 @@ const PostCategoryFormModal = ({ category, onClose }) => {
 
                         <div className="pt-2">
                             <label className="flex items-center gap-2.5 text-sm text-gray-700 font-semibold cursor-pointer select-none">
-                                <input 
-                                    type="checkbox" 
-                                    name="trangThai" 
-                                    checked={formData.trangThai} 
-                                    onChange={handleChange} 
-                                    className="rounded text-primary-500 focus:ring-primary-500 w-4.5 h-4.5 cursor-pointer border-gray-300" 
-                                /> 
+                                <input
+                                    type="checkbox"
+                                    name="trangThai"
+                                    checked={formData.trangThai}
+                                    onChange={handleChange}
+                                    className="rounded text-primary-500 focus:ring-primary-500 w-4.5 h-4.5 cursor-pointer border-gray-300"
+                                />
                                 Trạng thái hiển thị Online
                             </label>
                         </div>
@@ -100,7 +100,7 @@ const PostCategoryFormModal = ({ category, onClose }) => {
 
                 <div className="px-8 py-4 border-t border-gray-100 bg-surface-100 flex justify-end gap-3 rounded-b-2xl shrink-0">
                     <button type="button" onClick={onClose} className="px-6 py-2.5 text-sm font-semibold text-gray-600 hover:text-gray-800 bg-white border border-gray-200 hover:bg-gray-50 rounded-xl transition-colors shadow-sm">Hủy bỏ</button>
-                    <button type='submit' form="postCategoryForm" className="px-8 py-2.5 text-sm font-bold text-white bg-linear-to-r from-primary-500 to-primary-600 rounded-xl hover:from-primary-600 hover:to-primary-700 transition-all flex items-center gap-2 shadow-md shadow-primary-500/30 active:scale-95">
+                    <button type='submit' form="postCategoryForm" className="px-8 py-2.5 text-sm font-bold text-white bg-linear-to-r from-primary-500 to-primary-600 rounded-xl hover:from-primary-600 hover:to-primary-700/60 transition-all flex items-center gap-2 shadow-md shadow-primary-500/30 active:scale-95">
                         <Save size={16} />
                         {category ? 'Lưu Thay Đổi' : 'Tạo Mới'}
                     </button>

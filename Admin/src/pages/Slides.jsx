@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { Plus, Pencil, Trash2, GripVertical, Eye, EyeOff, X, Upload, Loader2 } from 'lucide-react'
 import axios from '../utils/axiosConfig'
 import { sileo } from 'sileo'
+import Title from '../components/Title'
 
 // ====== Upload ảnh trực tiếp lên /api/upload ======
 const uploadImage = async (file) => {
@@ -50,7 +51,7 @@ const SlideModal = ({ slide, onClose, onSaved }) => {
     const handleSubmit = (e) => {
         e.preventDefault()
         setSaving(true)
-        const promise = slide 
+        const promise = slide
             ? axios.put(`/admin/slides/${slide.id}`, form)
             : axios.post('/admin/slides', form);
 
@@ -233,13 +234,10 @@ const Slides = () => {
         <div className="space-y-5">
             {/* Header */}
             <div className="flex items-center justify-between">
-                <div>
-                    <h2 className="text-xl font-bold text-gray-800">SLIDES</h2>
-                    <p className="text-sm text-gray-500 mt-0.5">Quản lý banner slide trang chủ</p>
-                </div>
+                <Title text1="Quản lý" text2="Slides" subText="Quản lý banner slide quảng bá trên trang chủ" />
                 <button
                     onClick={() => setModal('add')}
-                    className="flex items-center gap-2 bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm">
+                    className="flex items-center gap-2 bg-linear-to-b from-primary-600 to-primary-700/60 hover:from-primary-600 hover:to-primary-800 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all shadow-sm active:scale-95 mb-8">
                     <Plus size={16} /> Thêm slide
                 </button>
             </div>
@@ -300,18 +298,18 @@ const Slides = () => {
                                 <span className={`px-2.5 py-1 rounded-full text-xs font-medium shrink-0 ${s.trangThai ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-500'}`}>
                                     {s.trangThai ? 'Hiển thị' : 'Ẩn'}
                                 </span>
-                                <div className="flex items-center gap-1.5 shrink-0">
+                                <div className="flex items-center gap-2 shrink-0">
                                     <button onClick={() => handleToggle(s)} title={s.trangThai ? 'Ẩn slide' : 'Hiện slide'}
-                                        className="p-1.5 rounded-lg hover:bg-amber-50 text-gray-400 hover:text-amber-500 transition-colors">
-                                        {s.trangThai ? <EyeOff size={15} /> : <Eye size={15} />}
+                                        className={`p-1.5 rounded-lg transition-all bg-white border shadow-sm ${s.trangThai ? 'hover:bg-gray-100 text-gray-400 hover:text-gray-600 border-gray-100' : 'hover:bg-emerald-50 text-emerald-500 border-emerald-100'}`}>
+                                        {s.trangThai ? <EyeOff size={14} /> : <Eye size={14} />}
                                     </button>
                                     <button onClick={() => setModal(s)} title="Chỉnh sửa"
-                                        className="p-1.5 rounded-lg hover:bg-primary-500/10 text-gray-400 hover:text-primary-600 transition-colors">
-                                        <Pencil size={15} />
+                                        className="p-1.5 rounded-lg hover:bg-violet-50 text-gray-400 hover:text-violet-600 transition-all bg-white border border-gray-100 shadow-sm">
+                                        <Pencil size={14} />
                                     </button>
                                     <button onClick={() => handleDelete(s)} title="Xóa"
-                                        className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors">
-                                        <Trash2 size={15} />
+                                        className="p-1.5 rounded-lg hover:bg-red-50 text-red-400 transition-all bg-white border border-red-100 shadow-sm">
+                                        <Trash2 size={14} />
                                     </button>
                                 </div>
                             </div>

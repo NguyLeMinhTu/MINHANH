@@ -75,7 +75,7 @@ const CategoryFormModal = ({ category, categories, onClose }) => {
             parentId: formData.parentId ? formData.parentId : null
         };
 
-        const promise = category?.danhMucId 
+        const promise = category?.danhMucId
             ? dispatch(updateCategory({ id: category.danhMucId, data: payload })).unwrap()
             : dispatch(createCategory(payload)).unwrap();
 
@@ -88,7 +88,7 @@ const CategoryFormModal = ({ category, categories, onClose }) => {
             },
             error: (err) => ({ title: 'Lỗi lưu', description: err.message || 'Không thể lưu danh mục.' })
         });
-        
+
         setLoading(false);
     };
 
@@ -124,19 +124,19 @@ const CategoryFormModal = ({ category, categories, onClose }) => {
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-1.5">Danh mục Cha (Cấp độ)</label>
                                 <select
-                                value={formData.parentId}
-                                onChange={(e) => setFormData({ ...formData, parentId: e.target.value })}
-                                className="w-full border-gray-200 rounded-lg shadow-sm focus:border-primary-500 focus:ring focus:ring-primary-500 focus:ring-opacity-50 px-3.5 py-2.5 text-sm bg-white"
-                            >
-                                <option value="">-- Không có (Danh mục gốc) --</option>
-                                {categories
-                                    .filter(c => !c.parent && c.danhMucId !== category?.danhMucId)
-                                    .map(c => (
-                                        <option key={c.danhMucId} value={c.danhMucId}>
-                                            {c.tenDanhMuc}
-                                        </option>
-                                    ))}
-                            </select>
+                                    value={formData.parentId}
+                                    onChange={(e) => setFormData({ ...formData, parentId: e.target.value })}
+                                    className="w-full border-gray-200 rounded-lg shadow-sm focus:border-primary-500 focus:ring focus:ring-primary-500 focus:ring-opacity-50 px-3.5 py-2.5 text-sm bg-white"
+                                >
+                                    <option value="">-- Không có (Danh mục gốc) --</option>
+                                    {categories
+                                        .filter(c => !c.parent && c.danhMucId !== category?.danhMucId)
+                                        .map(c => (
+                                            <option key={c.danhMucId} value={c.danhMucId}>
+                                                {c.tenDanhMuc}
+                                            </option>
+                                        ))}
+                                </select>
                             </div>
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-1.5">Thứ tự hiển thị (Ưu tiên)</label>
@@ -151,7 +151,7 @@ const CategoryFormModal = ({ category, categories, onClose }) => {
 
                         <div className="flex items-center gap-6">
                             <label className="flex items-center gap-2 text-sm text-gray-700 font-semibold cursor-pointer">
-                                <input type="checkbox" name="trangThai" checked={formData.trangThai} onChange={handleChange} className="rounded text-primary-500 focus:ring-primary-500 w-4 h-4 cursor-pointer" /> 
+                                <input type="checkbox" name="trangThai" checked={formData.trangThai} onChange={handleChange} className="rounded text-primary-500 focus:ring-primary-500 w-4 h-4 cursor-pointer" />
                                 Trạng thái hiển thị Online
                             </label>
                         </div>
@@ -180,7 +180,7 @@ const CategoryFormModal = ({ category, categories, onClose }) => {
 
                 <div className="px-8 py-4 border-t border-gray-100 bg-surface-100 flex justify-end gap-3 rounded-b-2xl shrink-0">
                     <button type="button" onClick={onClose} className="px-6 py-2.5 text-sm font-semibold text-gray-600 hover:text-gray-800 bg-white border border-gray-200 hover:bg-gray-50 rounded-xl transition-colors shadow-sm">Hủy bỏ</button>
-                    <button type='submit' form="categoryForm" disabled={loading} className="px-8 py-2.5 text-sm font-bold text-white bg-linear-to-r from-primary-500 to-primary-600 rounded-xl hover:from-primary-600 hover:to-primary-700 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-primary-500/30 active:scale-95">
+                    <button type='submit' form="categoryForm" disabled={loading} className="px-8 py-2.5 text-sm font-bold text-white bg-linear-to-r from-primary-500 to-primary-600 rounded-xl hover:from-primary-600 hover:to-primary-700/60 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-primary-500/30 active:scale-95">
                         {loading && <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />}
                         {category ? 'Lưu Thay Đổi' : 'Tạo Mới'}
                     </button>

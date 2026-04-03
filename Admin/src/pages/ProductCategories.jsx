@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { sileo } from 'sileo'
-import { Plus, Pencil, Trash2, Tag, RefreshCcw } from 'lucide-react'
+import { Plus, Pencil, Trash2, Tag, RefreshCcw, Search } from 'lucide-react'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchCategories, deleteCategory, updateCategory } from '../app/slices/categorySlice'
 import { fetchProducts } from '../app/slices/productSlice'
 import CategoryFormModal from '../components/CategoryFormModal'
+import Title from '../components/Title'
 
 const statusStyle = {
     true: 'bg-emerald-100 text-emerald-700',
@@ -18,6 +19,8 @@ const ProductCategories = () => {
 
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [editingCategory, setEditingCategory] = useState(null)
+    const [search, setSearch] = useState('')
+    const [statusFilter, setStatusFilter] = useState('all')
 
     useEffect(() => {
         dispatch(fetchCategories())
@@ -25,10 +28,19 @@ const ProductCategories = () => {
     }, [dispatch])
 
     const sanPhamList = pageData?.content || []
-    
+
     const getProductCount = (dmId) => sanPhamList.filter(p => p.danhMuc?.danhMucId === dmId).length
 
-    const parentCategories = Array.isArray(categories) ? categories.filter(d => !d.parent) : []
+    const isFiltered = search !== '' || statusFilter !== 'all'
+
+    const filteredCategories = Array.isArray(categories) ? categories.filter(cat => {
+        const matchesSearch = cat.tenDanhMuc.toLowerCase().includes(search.toLowerCase())
+        const matchesStatus = statusFilter === 'all' ||
+            (statusFilter === 'true' ? cat.trangThai !== false : cat.trangThai === false)
+        return matchesSearch && matchesStatus
+    }) : []
+
+    const parentCategories = isFiltered ? filteredCategories : (Array.isArray(categories) ? categories.filter(d => !d.parent) : [])
 
     const handleDelete = (cat) => {
         sileo.action({
@@ -57,7 +69,7 @@ const ProductCategories = () => {
             button: {
                 title: 'Khôi phục',
                 onClick: () => {
-                    const payload = { 
+                    const payload = {
                         tenDanhMuc: cat.tenDanhMuc,
                         slug: cat.slug,
                         moTa: cat.moTa,
@@ -66,7 +78,7 @@ const ProductCategories = () => {
                         hinhAnh: cat.hinhAnh,
                         parentId: cat.parent ? cat.parent.danhMucId : null
                     };
-                    
+
                     sileo.promise(dispatch(updateCategory({ id: cat.danhMucId, data: payload })).unwrap(), {
                         loading: { title: 'Đang xử lý...', description: `Đang bật hiển thị cho "${cat.tenDanhMuc}"` },
                         success: () => {
@@ -91,54 +103,92 @@ const ProductCategories = () => {
     }
 
     const renderCategoryRow = (cat, level = 0) => {
-        const children = Array.isArray(categories) ? categories.filter(c => c.parent?.danhMucId === cat.danhMucId) : [];
-        
+        const children = isFiltered ? [] : (Array.isArray(categories) ? categories.filter(c => c.parent?.danhMucId === cat.danhMucId) : []);
+        const productCount = getProductCount(cat.danhMucId);
+
         return (
             <React.Fragment key={cat.danhMucId}>
-                <tr className={`hover:bg-gray-50 transition-colors ${level > 0 ? 'bg-gray-50/50' : ''}`}>
-                    <td className="px-6 py-3.5">
-                        <div 
-                            className={`flex items-center gap-3 ${level > 0 ? 'border-l-2 border-primary-500/30 pl-3' : ''}`}
-                            style={{ marginLeft: level > 0 ? `${(level - 1) * 1.5 + 2}rem` : '0' }}
+                <tr className="group border-b border-gray-100 hover:bg-primary-50 transition-colors">
+                    <td className="pl-6 pr-4 py-3.5 w-20">
+                        <div className="w-10 h-10 rounded border border-gray-100 bg-gray-50 overflow-hidden shadow-sm">
+                            <img
+                                src={cat.hinhAnh || 'https://placehold.co/100x100?text=No+Img'}
+                                alt={cat.tenDanhMuc}
+                                className="w-full h-full object-cover"
+                            />
+                        </div>
+                    </td>
+                    <td className="px-4 py-3.5">
+                        <div
+                            className="flex items-center gap-3"
+                            style={{ marginLeft: `${level * 1.5}rem` }}
                         >
-                            <div className={`flex items-center justify-center rounded-lg ${level === 0 ? 'w-9 h-9 bg-primary-500/10 text-primary-600' : 'w-8 h-8 bg-white border border-gray-100 text-gray-400'}`}>
-                                <Tag size={level === 0 ? 16 : 13} />
-                            </div>
-                            <div>
-                                <p className={`font-medium ${level === 0 ? 'text-gray-800' : 'text-gray-600'}`}>{cat.tenDanhMuc}</p>
-                                <p className="text-xs text-gray-400">{getProductCount(cat.danhMucId)} sản phẩm trực tiếp</p>
+                            {level > 0 && (
+                                <div className="flex items-center">
+                                    <div className="w-4 h-px bg-gray-200 mr-2"></div>
+                                </div>
+                            )}
+                            <div className="flex flex-col">
+                                <span className={`font-semibold tracking-tight ${level === 0 ? 'text-gray-900 text-sm' : 'text-gray-600 text-xs'}`}>
+                                    {cat.tenDanhMuc}
+                                </span>
+                                {level === 0 && <span className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">Danh mục gốc</span>}
                             </div>
                         </div>
                     </td>
-                    <td className="px-6 py-3.5 text-gray-400 font-mono text-xs">
-                        <div style={{ marginLeft: level > 0 ? `${(level - 1) * 1.5 + 2}rem` : '0' }} className={level > 0 ? "pl-3 border-l-2 border-transparent" : ""}>
+                    <td className="px-4 py-3.5">
+                        <span className="inline-block px-2 py-0.5 rounded bg-gray-100 text-gray-500 font-mono text-[10px] uppercase border border-gray-200/50">
                             {cat.slug || '—'}
-                        </div>
-                    </td>
-                    <td className="px-6 py-3.5 text-gray-500 max-w-xs truncate">{cat.moTa || '—'}</td>
-                    <td className="px-6 py-3.5">
-                        <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${statusStyle[cat.trangThai ?? true]}`}>
-                            {cat.trangThai !== false ? 'Hiển thị' : 'Ẩn'}
                         </span>
                     </td>
-                    <td className="px-6 py-3.5">
+                    <td className="px-4 py-3.5">
+                        <p className="text-[11px] text-gray-400 max-w-[200px] truncate italic" title={cat.moTa}>
+                            {cat.moTa || 'Không có mô tả'}
+                        </p>
+                    </td>
+                    <td className="px-4 py-3.5 text-center">
+                        <span className="text-[11px] font-bold text-gray-600 bg-gray-100 px-2 py-0.5 rounded-full border border-gray-200/50">
+                            {productCount}
+                        </span>
+                    </td>
+                    <td className="px-4 py-3.5">
                         <div className="flex items-center gap-2">
-                            <button onClick={() => openEditModal(cat)} title="Sửa" className="p-1.5 rounded-lg hover:bg-primary-500/10 text-gray-400 hover:text-primary-600 transition-colors">
-                                <Pencil size={15} />
+                            <div className={`w-1.5 h-1.5 rounded-full ${cat.trangThai !== false ? 'bg-primary-500 shadow-[0_0_8px_rgba(218,160,109,0.5)]' : 'bg-gray-300'}`}></div>
+                            <span className={`text-[11px] font-bold uppercase tracking-wider ${cat.trangThai !== false ? 'text-gray-700' : 'text-gray-400'}`}>
+                                {cat.trangThai !== false ? 'Hoạt động' : 'Đã ẩn'}
+                            </span>
+                        </div>
+                    </td>
+                    <td className="pl-4 pr-6 py-3.5 text-right">
+                        <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button
+                                onClick={() => openEditModal(cat)}
+                                className="p-1.5 rounded-lg hover:bg-violet-50 text-gray-400 hover:text-violet-600 transition-all bg-white border border-gray-100 shadow-sm"
+                                title="Chỉnh sửa"
+                            >
+                                <Pencil size={14} />
                             </button>
                             {cat.trangThai === false ? (
-                                <button onClick={() => handleToggleStatus(cat)} title="Khôi phục hiển thị" className="p-1.5 rounded-lg hover:bg-emerald-50 text-gray-400 hover:text-emerald-500 transition-colors">
-                                    <RefreshCcw size={15} />
+                                <button
+                                    onClick={() => handleToggleStatus(cat)}
+                                    className="p-1.5 rounded-lg hover:bg-primary-50 text-primary-500 transition-all bg-white border border-primary-100 shadow-sm"
+                                    title="Khôi phục"
+                                >
+                                    <RefreshCcw size={14} />
                                 </button>
                             ) : (
-                                <button onClick={() => handleDelete(cat)} title="Xóa ẩn (Xóa mềm)" className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors">
-                                    <Trash2 size={15} />
+                                <button
+                                    onClick={() => handleDelete(cat)}
+                                    className="p-1.5 rounded-lg hover:bg-red-50 text-red-500 transition-all bg-white border border-red-100 shadow-sm"
+                                    title="Xóa"
+                                >
+                                    <Trash2 size={14} />
                                 </button>
                             )}
                         </div>
                     </td>
                 </tr>
-                {children.map(child => renderCategoryRow(child, level + 1))}
+                {!isFiltered && children.map(child => renderCategoryRow(child, level + 1))}
             </React.Fragment>
         );
     };
@@ -146,35 +196,84 @@ const ProductCategories = () => {
     return (
         <div className="space-y-5">
             <div className="flex items-center justify-between">
-                <div>
-                    <h2 className="text-xl font-bold text-gray-800">DANH MỤC SẢN PHẨM</h2>
-                    <p className="text-sm text-gray-500 mt-0.5">Quản lý dữ liệu danh mục sản phẩm</p>
-                </div>
-                <button onClick={openAddModal} className="flex items-center gap-2 bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm">
+                <Title text1="Danh mục" text2="sản phẩm" subText="Quản lý phân loại và cấu trúc cây danh mục hàng hóa" />
+                <button onClick={openAddModal} className="flex items-center gap-2 bg-linear-to-b from-primary-600 to-primary-700/60 hover:from-primary-600 hover:to-primary-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm mb-8">
                     <Plus size={16} />
                     Thêm danh mục
                 </button>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+            <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                {/* Search & Filter Bar */}
+                <div className="px-6 py-4 border-b border-gray-100 bg-gray-50/50 flex flex-wrap items-center justify-between gap-6">
+                    {/* Tabs for Status */}
+                    <div className="flex gap-1 bg-white p-1 rounded-xl border border-gray-200">
+                        {[
+                            { label: 'Tất cả', value: 'all' },
+                            { label: 'Hoạt động', value: 'true' },
+                            { label: 'Tạm ẩn', value: 'false' }
+                        ].map((tab) => (
+                            <button
+                                key={tab.value}
+                                onClick={() => setStatusFilter(tab.value)}
+                                className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all ${statusFilter === tab.value
+                                    ? 'bg-primary-800 text-white shadow-sm'
+                                    : 'text-slate-500 hover:text-slate-700 hover:bg-slate-100'}`}
+                            >
+                                {tab.label}
+                            </button>
+                        ))}
+                    </div>
+
+                    <div className="relative flex-1 min-w-[280px] max-w-sm ml-auto">
+                        <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 font-bold" />
+                        <input
+                            type="text"
+                            placeholder="Tìm kiếm danh mục..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="bg-white border border-gray-200 pl-10 pr-4 py-2 w-full text-[13px] rounded-lg focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all placeholder:text-gray-300"
+                        />
+                    </div>
+
+                    {isFiltered && (
+                        <button
+                            onClick={() => {
+                                setSearch('')
+                                setStatusFilter('all')
+                            }}
+                            className="text-[11px] font-bold text-gray-400 hover:text-primary-600 transition-colors px-2"
+                        >
+                            Làm mới
+                        </button>
+                    )}
+                </div>
+
+                {/* Categories Table */}
                 {catStatus === 'loading' ? (
-                    <div className="p-8 text-center text-gray-500">Đang tải danh mục...</div>
+                    <div className="p-16 text-center text-gray-300 text-[10px] font-bold uppercase tracking-[0.2em] animate-pulse">
+                        Đang đồng bộ dữ liệu...
+                    </div>
                 ) : (
                     <div className="overflow-x-auto">
-                        <table className="w-full text-sm">
+                        <table className="w-full text-left border-collapse">
                             <thead>
-                                <tr className="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider">
-                                    <th className="text-left px-6 py-3 font-medium">Tên danh mục</th>
-                                    <th className="text-left px-6 py-3 font-medium">Đường dẫn</th>
-                                    <th className="text-left px-6 py-3 font-medium">Mô tả</th>
-                                    <th className="text-left px-6 py-3 font-medium">Trạng thái</th>
-                                    <th className="text-left px-6 py-3 font-medium">Hành động</th>
+                                <tr className="bg-white border-b border-gray-100">
+                                    <th className="pl-6 pr-4 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Ảnh</th>
+                                    <th className="px-4 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Danh mục</th>
+                                    <th className="px-4 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Slug</th>
+                                    <th className="px-4 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Mô tả</th>
+                                    <th className="px-4 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-center">Hàng hóa</th>
+                                    <th className="px-4 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Trạng thái</th>
+                                    <th className="pl-4 pr-6 py-3 text-right"></th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-50">
+                            <tbody>
                                 {parentCategories.length === 0 ? (
                                     <tr>
-                                        <td colSpan="5" className="text-center py-6 text-gray-400">Không có danh mục nào</td>
+                                        <td colSpan="7" className="py-24 text-center text-gray-300 text-[13px] font-medium italic">
+                                            Không có danh mục nào được tìm thấy
+                                        </td>
                                     </tr>
                                 ) : parentCategories.map(cat => renderCategoryRow(cat, 0))}
                             </tbody>
@@ -182,12 +281,12 @@ const ProductCategories = () => {
                     </div>
                 )}
             </div>
-            
+
             {isModalOpen && (
-                <CategoryFormModal 
-                    category={editingCategory} 
-                    categories={Array.isArray(categories) ? categories : []} 
-                    onClose={() => setIsModalOpen(false)} 
+                <CategoryFormModal
+                    category={editingCategory}
+                    categories={Array.isArray(categories) ? categories : []}
+                    onClose={() => setIsModalOpen(false)}
                 />
             )}
         </div>

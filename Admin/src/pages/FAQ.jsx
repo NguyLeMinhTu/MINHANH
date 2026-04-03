@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Plus, Pencil, Trash2, ChevronDown, ChevronRight, Eye, EyeOff } from 'lucide-react'
 import { faq } from '../assets/assets'
+import Title from '../components/Title'
 
 const FAQ = () => {
     const [expanded, setExpanded] = useState(null)
@@ -8,11 +9,8 @@ const FAQ = () => {
     return (
         <div className="space-y-5">
             <div className="flex items-center justify-between">
-                <div>
-                    <h2 className="text-xl font-bold text-gray-800">FAQ</h2>
-                    <p className="text-sm text-gray-500 mt-0.5">Quản lý câu hỏi thường gặp</p>
-                </div>
-                <button className="flex items-center gap-2 bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm">
+                <Title text1="Hỏi đáp" text2="FAQ" subText="Quản lý danh sách câu hỏi và câu trả lời thường gặp" />
+                <button className="flex items-center gap-2 bg-linear-to-b from-primary-600 to-primary-700/60 hover:from-primary-600 hover:to-primary-800 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all shadow-sm active:scale-95 mb-8">
                     <Plus size={16} />
                     Thêm câu hỏi
                 </button>
@@ -35,18 +33,20 @@ const FAQ = () => {
                                 <span className={`text-xs px-2 py-0.5 rounded-full ${item.trang_thai ? 'bg-emerald-100 text-emerald-600' : 'bg-gray-100 text-gray-500'}`}>
                                     {item.trang_thai ? 'Hiển' : 'Ẩn'}
                                 </span>
-                                <div className="flex gap-1">
+                                <div className="flex gap-2">
                                     <div
                                         onClick={(e) => { e.stopPropagation() }}
-                                        className="p-1.5 rounded-lg hover:bg-primary-500/10 text-gray-400 hover:text-primary-600 transition-colors cursor-pointer"
+                                        className="p-1.5 rounded-lg hover:bg-violet-50 text-gray-400 hover:text-violet-600 transition-all bg-white border border-gray-100 shadow-sm cursor-pointer"
                                         role="button"
+                                        title="Chỉnh sửa"
                                     >
                                         <Pencil size={14} />
                                     </div>
                                     <div
                                         onClick={(e) => { e.stopPropagation() }}
-                                        className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors cursor-pointer"
+                                        className="p-1.5 rounded-lg hover:bg-red-50 text-red-400 transition-all bg-white border border-red-100 shadow-sm cursor-pointer"
                                         role="button"
+                                        title="Xóa"
                                     >
                                         <Trash2 size={14} />
                                     </div>

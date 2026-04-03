@@ -109,7 +109,7 @@ const Dashboard = () => {
 
                         <h2 className="text-3xl md:text-4xl font-bold text-[#2d241e] mb-4 tracking-tight leading-tight">
                             {getGreeting()},<br />
-                            <span className="text-transparent bg-clip-text bg-linear-to-r from-primary-500 to-primary-700">
+                            <span className="text-transparent bg-clip-text bg-linear-to-r from-primary-500 to-primary-700/60">
                                 Quản trị viên!
                             </span>
                         </h2>
@@ -171,9 +171,9 @@ const Dashboard = () => {
                             <h3 className="text-xl font-bold text-neutral-800 tracking-tight">Yêu cầu tư vấn gần đây</h3>
                             <p className="text-xs text-neutral-400 font-medium mt-1">Hệ thống ghi nhận 5 yêu cầu mới nhất</p>
                         </div>
-                        <button 
+                        <button
                             onClick={() => navigate('/consultations')}
-                            className="px-5 py-2.5 text-xs font-bold text-white bg-primary-500 rounded-xl hover:bg-primary-600 transition-all duration-300 shadow-lg shadow-primary-500/20"
+                            className="px-5 py-2.5 text-xs font-bold text-white bg-linear-to-b from-primary-600 to-primary-700/60 hover:from-primary-600 hover:to-primary-800 rounded-xl transition-all duration-300 shadow-lg shadow-primary-500/20 active:scale-95"
                         >
                             Xem tất cả yêu cầu
                         </button>
@@ -212,11 +212,10 @@ const Dashboard = () => {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest ${
-                                                item.daXuLy 
-                                                ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' 
-                                                : 'bg-amber-50 text-amber-600 border border-amber-100'
-                                            }`}>
+                                            <span className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest ${item.daXuLy
+                                                    ? 'bg-emerald-50 text-emerald-600 border border-emerald-100'
+                                                    : 'bg-amber-50 text-amber-600 border border-amber-100'
+                                                }`}>
                                                 <span className={`w-1.5 h-1.5 rounded-full ${item.daXuLy ? 'bg-emerald-600' : 'bg-amber-600'}`}></span>
                                                 {item.daXuLy ? 'Đã xử lý' : 'Đang chờ'}
                                             </span>

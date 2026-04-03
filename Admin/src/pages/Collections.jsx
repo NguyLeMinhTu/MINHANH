@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { Plus, Pencil, Trash2, GripVertical, Eye, EyeOff, X, Upload, Loader2, Image as ImageIcon } from 'lucide-react'
 import axios from '../utils/axiosConfig'
 import { sileo } from 'sileo'
+import Title from '../components/Title'
 
 // ====== Upload ảnh trực tiếp ======
 const uploadImage = async (file) => {
@@ -50,7 +51,7 @@ const CollectionModal = ({ collection, onClose, onSaved }) => {
     const handleSubmit = async (e) => {
         e.preventDefault()
         setSaving(true)
-        const promise = collection 
+        const promise = collection
             ? axios.put(`/admin/collections/${collection.id}`, form)
             : axios.post('/admin/collections', form);
 
@@ -218,13 +219,10 @@ const Collections = () => {
     return (
         <div className="space-y-5">
             <div className="flex items-center justify-between">
-                <div>
-                    <h2 className="text-xl font-bold text-gray-800">BỘ SƯU TẬP NỔI BẬT</h2>
-                    <p className="text-sm text-gray-500 mt-0.5">Quản lý các banner bộ sưu tập trên trang chủ</p>
-                </div>
+                <Title text1="Bộ sưu tập" text2="nổi bật" subText="Quản lý các banner bộ sưu tập trình chiếu trên trang chủ" />
                 <button
                     onClick={() => setModal('add')}
-                    className="flex items-center gap-2 bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm">
+                    className="flex items-center gap-2 bg-linear-to-b from-primary-600 to-primary-700/60 hover:from-primary-600 hover:to-primary-800 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all shadow-sm active:scale-95 mb-8">
                     <Plus size={16} /> Thêm mới
                 </button>
             </div>
@@ -270,15 +268,15 @@ const Collections = () => {
                                     <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase transition-colors ${item.trangThai === 'hien' ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-400'}`}>
                                         {item.trangThai === 'hien' ? 'Hiển thị' : 'Ẩn'}
                                     </span>
-                                    <div className="flex items-center gap-1">
-                                        <button onClick={() => handleToggle(item)} className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-gray-600 transition-colors">
-                                            {item.trangThai === 'hien' ? <EyeOff size={15} /> : <Eye size={15} />}
+                                    <div className="flex items-center gap-2">
+                                        <button onClick={() => handleToggle(item)} className={`p-1.5 rounded-lg transition-all bg-white border shadow-sm ${item.trangThai === 'hien' ? 'hover:bg-gray-100 text-gray-400 hover:text-gray-600 border-gray-100' : 'hover:bg-emerald-50 text-emerald-500 border-emerald-100'}`} title={item.trangThai === 'hien' ? 'Ẩn bộ sưu tập' : 'Hiện bộ sưu tập'}>
+                                            {item.trangThai === 'hien' ? <EyeOff size={14} /> : <Eye size={14} />}
                                         </button>
-                                        <button onClick={() => setModal(item)} className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-primary-600 transition-colors">
-                                            <Pencil size={15} />
+                                        <button onClick={() => setModal(item)} className="p-1.5 rounded-lg hover:bg-violet-50 text-gray-400 hover:text-violet-600 transition-all bg-white border border-gray-100 shadow-sm" title="Chỉnh sửa">
+                                            <Pencil size={14} />
                                         </button>
-                                        <button onClick={() => handleDelete(item)} className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-red-500 transition-colors">
-                                            <Trash2 size={15} />
+                                        <button onClick={() => handleDelete(item)} className="p-1.5 rounded-lg hover:bg-red-50 text-red-400 transition-all bg-white border border-red-100 shadow-sm" title="Xóa">
+                                            <Trash2 size={14} />
                                         </button>
                                     </div>
                                 </div>

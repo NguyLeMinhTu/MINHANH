@@ -21,7 +21,7 @@ const ProductFormModal = ({ product, categories, onClose }) => {
     useEffect(() => {
         if (product) {
             const flattened = Array.isArray(product.bienThe) ? product.bienThe.map(v => ({ ...v })) : [];
-            
+
             // Logic "Unflatten": Từ Array phẳng [{mauSac, size...}, ...] -> Grouped { color: 'Đen', sizes: [...] }
             const groups = {};
             flattened.forEach(v => {
@@ -103,7 +103,7 @@ const ProductFormModal = ({ product, categories, onClose }) => {
         setFormData(prev => {
             const newGrouped = [...prev.groupedVariants];
             newGrouped[colorIndex].sizes[sizeIndex] = { ...newGrouped[colorIndex].sizes[sizeIndex], [field]: value };
-            
+
             // Re-flatten to update bienThe and soLuongTon
             const flattened = [];
             newGrouped.forEach(group => {
@@ -112,7 +112,7 @@ const ProductFormModal = ({ product, categories, onClose }) => {
                 });
             });
             const totalStock = flattened.reduce((sum, item) => sum + (Number(item.soLuong) || 0), 0);
-            
+
             return { ...prev, groupedVariants: newGrouped, bienThe: flattened, soLuongTon: totalStock };
         });
     };
@@ -121,7 +121,7 @@ const ProductFormModal = ({ product, categories, onClose }) => {
         setFormData(prev => {
             const newGrouped = [...prev.groupedVariants];
             newGrouped[colorIndex].color = newColorName;
-            
+
             // Re-flatten
             const flattened = [];
             newGrouped.forEach(group => {
@@ -152,7 +152,7 @@ const ProductFormModal = ({ product, categories, onClose }) => {
         setFormData(prev => {
             const newGrouped = [...prev.groupedVariants];
             newGrouped[colorIndex].sizes = newGrouped[colorIndex].sizes.filter((_, i) => i !== sizeIndex);
-            
+
             const flattened = [];
             newGrouped.forEach(group => {
                 group.sizes.forEach(s => {
@@ -180,15 +180,15 @@ const ProductFormModal = ({ product, categories, onClose }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         // Kiểm tra biến thể trùng lặp (Màu + Size = Unique)
         const uniqueSet = new Set();
         for (let v of formData.bienThe) {
             const key = `${v.mauSac || ''}-${v.size || ''}`.toLowerCase().trim();
             if (uniqueSet.has(key)) {
-                sileo.error({ 
-                    title: 'Trùng lặp biến thể', 
-                    description: `Phân loại hàng (Màu: "${v.mauSac || ''}", Size: "${v.size || ''}") bị trùng lặp.` 
+                sileo.error({
+                    title: 'Trùng lặp biến thể',
+                    description: `Phân loại hàng (Màu: "${v.mauSac || ''}", Size: "${v.size || ''}") bị trùng lặp.`
                 });
                 return; // Chặn đứng thao tác submit gọi API
             }
@@ -202,7 +202,7 @@ const ProductFormModal = ({ product, categories, onClose }) => {
                 giaBan: Number(formData.giaBan), giaKhuyenMai: Number(formData.giaKhuyenMai), giaThamKhao: Number(formData.giaThamKhao),
                 soLuongTon: Number(formData.soLuongTon),
                 hinhAnh: formData.images,
-                bienThe: formData.bienThe.map(v => ({...v, gia: v.gia ? Number(v.gia) : null, soLuong: Number(v.soLuong) }))
+                bienThe: formData.bienThe.map(v => ({ ...v, gia: v.gia ? Number(v.gia) : null, soLuong: Number(v.soLuong) }))
             };
             await dispatch(updateProduct({ id: product.sanPhamId, data: payload })).unwrap();
             sileo.success({ title: 'Cập nhật sản phẩm thành công!' });
@@ -239,7 +239,7 @@ const ProductFormModal = ({ product, categories, onClose }) => {
                         </button>
                     ))}
                 </div>
-                
+
                 <form id="editForm" onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-8 py-6 bg-gray-50/30">
                     {/* --- TAB THÔNG TIN --- */}
                     <div className={activeTab === 'thong_tin' ? 'block' : 'hidden'}>
@@ -247,20 +247,20 @@ const ProductFormModal = ({ product, categories, onClose }) => {
                             <div className="space-y-4">
                                 <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Tên sản phẩm *</label><input required type="text" name="tenSanPham" value={formData.tenSanPham} onChange={handleChange} className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#DAA06D]/40 focus:border-[#DAA06D] bg-white transition-all shadow-sm" /></div>
                                 <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Đường dẫn thân thiện (Slug)</label><input type="text" name="slug" value={formData.slug} onChange={handleChange} className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#DAA06D]/40 focus:border-[#DAA06D] bg-white transition-all placeholder-gray-300 shadow-sm" placeholder="vd: ao-lop-dep-2026" /></div>
-                                
+
                                 <div className="grid grid-cols-2 gap-4">
                                     <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Phân loại (Danh mục)</label>
-                                    <select name="danhMucId" value={formData.danhMucId} onChange={handleChange} className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-xl bg-white shadow-sm focus:outline-none focus:ring-[#DAA06D]/40"><option value="">-- Mục tự do --</option>{categories.map(c => <option key={c.danhMucId} value={c.danhMucId}>{c.tenDanhMuc}</option>)}</select></div>
+                                        <select name="danhMucId" value={formData.danhMucId} onChange={handleChange} className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-xl bg-white shadow-sm focus:outline-none focus:ring-[#DAA06D]/40"><option value="">-- Mục tự do --</option>{categories.map(c => <option key={c.danhMucId} value={c.danhMucId}>{c.tenDanhMuc}</option>)}</select></div>
                                     <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Trạng thái rổ hàng</label>
-                                    <select name="trangThai" value={formData.trangThai} onChange={handleChange} className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-xl bg-white shadow-sm focus:outline-none focus:ring-[#DAA06D]/40"><option value="cong_khai">Công khai</option><option value="an">Ẩn (Draft)</option><option value="het_hang">Hết hàng</option></select></div>
+                                        <select name="trangThai" value={formData.trangThai} onChange={handleChange} className="w-full px-3.5 py-2.5 text-sm border border-gray-200 rounded-xl bg-white shadow-sm focus:outline-none focus:ring-[#DAA06D]/40"><option value="cong_khai">Công khai</option><option value="an">Ẩn (Draft)</option><option value="het_hang">Hết hàng</option></select></div>
                                 </div>
-                                
+
                                 <div className="grid grid-cols-3 gap-4 pt-2">
                                     <label className="flex items-center gap-2 text-sm text-gray-700 font-medium cursor-pointer"><input type="checkbox" name="spNoiBat" checked={formData.spNoiBat} onChange={handleChange} className="rounded text-primary-500 focus:ring-primary-500 w-4 h-4 cursor-pointer" /> Sản Phẩm Nổi bật</label>
                                     <label className="flex items-center gap-2 text-sm text-gray-700 font-medium cursor-pointer"><input type="checkbox" name="spMoi" checked={formData.spMoi} onChange={handleChange} className="rounded text-primary-500 focus:ring-primary-500 w-4 h-4 cursor-pointer" /> Sản Phẩm Mới</label>
                                 </div>
                             </div>
-                            
+
                             <div className="space-y-4">
                                 <div className="grid grid-cols-2 gap-4">
                                     <div><label className="block text-sm font-semibold text-gray-700 mb-1.5">Khung giá bán lẻ (VNĐ) *</label><input required type="number" name="giaBan" value={formData.giaBan} onChange={handleChange} className="w-full px-3.5 py-2.5 text-sm font-mono border border-gray-200 rounded-xl bg-white shadow-sm focus:outline-none focus:ring-[#DAA06D]/40" /></div>
@@ -298,11 +298,11 @@ const ProductFormModal = ({ product, categories, onClose }) => {
                                 <Plus size={16} /> Thêm Màu Mới
                             </button>
                         </div>
-                        
+
                         <div className="space-y-6">
                             {(!formData.groupedVariants || formData.groupedVariants.length === 0) ? (
                                 <div className="text-center py-10 bg-white rounded-xl border border-dashed border-gray-300">
-                                    <p className="text-gray-400 text-sm">Chưa có màu sắc nào.<br/>Nhấn <b>Thêm Màu Mới</b> để bắt đầu.</p>
+                                    <p className="text-gray-400 text-sm">Chưa có màu sắc nào.<br />Nhấn <b>Thêm Màu Mới</b> để bắt đầu.</p>
                                 </div>
                             ) : (
                                 formData.groupedVariants.map((group, colorIndex) => (
@@ -311,16 +311,16 @@ const ProductFormModal = ({ product, categories, onClose }) => {
                                         <div className="bg-gray-50 px-4 py-3 border-b border-gray-100 flex items-center gap-4">
                                             <div className="flex-1 flex items-center gap-3">
                                                 <div className="w-2 h-8 bg-primary-500 rounded-full"></div>
-                                                <input 
-                                                    type="text" 
-                                                    placeholder="Tên Màu (vd: Đen, Trắng, Navy...)" 
-                                                    value={group.color} 
+                                                <input
+                                                    type="text"
+                                                    placeholder="Tên Màu (vd: Đen, Trắng, Navy...)"
+                                                    value={group.color}
                                                     onChange={(e) => handleColorNameChange(colorIndex, e.target.value)}
                                                     className="flex-1 bg-transparent font-bold text-gray-800 focus:outline-none placeholder-gray-400 border-b border-transparent focus:border-primary-500"
                                                 />
                                             </div>
-                                            <button 
-                                                type="button" 
+                                            <button
+                                                type="button"
                                                 onClick={() => removeColorGroup(colorIndex)}
                                                 className="text-gray-400 hover:text-red-500 p-1.5 hover:bg-red-50 rounded-lg transition-all"
                                                 title="Xóa toàn bộ nhóm màu này"
@@ -337,39 +337,39 @@ const ProductFormModal = ({ product, categories, onClose }) => {
                                                 <div className="col-span-4 text-[10px] font-bold text-gray-400 uppercase tracking-wider">Giá chênh lệch (nếu có)</div>
                                                 <div className="col-span-1"></div>
                                             </div>
-                                            
+
                                             {group.sizes.map((s, sizeIndex) => (
                                                 <div key={sizeIndex} className="grid grid-cols-12 gap-3 items-center group/row">
                                                     <div className="col-span-4">
-                                                        <input 
-                                                            type="text" 
-                                                            placeholder="Size (S, M, L...)" 
-                                                            value={s.size} 
+                                                        <input
+                                                            type="text"
+                                                            placeholder="Size (S, M, L...)"
+                                                            value={s.size}
                                                             onChange={(e) => handleVariantChange(colorIndex, sizeIndex, 'size', e.target.value)}
                                                             className="w-full text-sm px-3 py-2 border border-gray-200 rounded-xl focus:border-[#DAA06D] focus:ring-1 focus:ring-[#DAA06D] outline-none bg-gray-50/50 group-hover/row:bg-white transition-all"
                                                         />
                                                     </div>
                                                     <div className="col-span-3">
-                                                        <input 
-                                                            type="number" 
-                                                            placeholder="0" 
-                                                            value={s.soLuong} 
+                                                        <input
+                                                            type="number"
+                                                            placeholder="0"
+                                                            value={s.soLuong}
                                                             onChange={(e) => handleVariantChange(colorIndex, sizeIndex, 'soLuong', e.target.value)}
                                                             className="w-full text-sm px-3 py-2 border border-gray-200 rounded-xl focus:border-[#DAA06D] outline-none bg-gray-50/50 group-hover/row:bg-white transition-all font-mono text-blue-600"
                                                         />
                                                     </div>
                                                     <div className="col-span-4">
-                                                        <input 
-                                                            type="number" 
-                                                            placeholder="VD: 10000" 
-                                                            value={s.gia} 
+                                                        <input
+                                                            type="number"
+                                                            placeholder="VD: 10000"
+                                                            value={s.gia}
                                                             onChange={(e) => handleVariantChange(colorIndex, sizeIndex, 'gia', e.target.value)}
                                                             className="w-full text-sm px-3 py-2 border border-gray-200 rounded-xl focus:border-[#DAA06D] outline-none bg-gray-50/50 group-hover/row:bg-white transition-all font-mono text-amber-600"
                                                         />
                                                     </div>
                                                     <div className="col-span-1 flex justify-center">
-                                                        <button 
-                                                            type="button" 
+                                                        <button
+                                                            type="button"
                                                             onClick={() => removeSizeFromGroup(colorIndex, sizeIndex)}
                                                             className="text-gray-300 hover:text-red-400 transition-colors"
                                                         >
@@ -378,9 +378,9 @@ const ProductFormModal = ({ product, categories, onClose }) => {
                                                     </div>
                                                 </div>
                                             ))}
-                                            
-                                            <button 
-                                                type="button" 
+
+                                            <button
+                                                type="button"
                                                 onClick={() => addSizeToGroup(colorIndex)}
                                                 className="mt-2 w-full py-2 border-2 border-dashed border-gray-100 rounded-xl text-gray-400 hover:border-[#DAA06D]/30 hover:text-[#DAA06D] hover:bg-[#DAA06D]/5 text-xs font-bold uppercase tracking-widest transition-all"
                                             >
@@ -423,9 +423,9 @@ const ProductFormModal = ({ product, categories, onClose }) => {
 
                 <div className="px-8 py-4 border-t border-gray-100 bg-white flex justify-end gap-3 rounded-b-2xl shrink-0">
                     <button type="button" onClick={onClose} className="px-6 py-2.5 text-sm font-semibold text-gray-600 hover:text-gray-800 bg-white border border-gray-200 hover:bg-gray-50 rounded-xl transition-colors shadow-sm">Thoát không lưu</button>
-                    <button type='submit' form="editForm" disabled={loading} className="px-8 py-2.5 text-sm font-bold text-white bg-linear-to-r from-primary-500 to-primary-600 rounded-xl hover:from-primary-600 hover:to-primary-700 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-primary-500/30 active:scale-95">
+                    <button type='submit' form="editForm" disabled={loading} className="px-8 py-2.5 text-sm font-bold text-white bg-linear-to-r from-primary-500 to-primary-600 rounded-xl hover:from-primary-600 hover:to-primary-700/60 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-primary-500/30 active:scale-95">
                         {loading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Save size={18} />}
-                         Lưu
+                        Lưu
                     </button>
                 </div>
             </div>

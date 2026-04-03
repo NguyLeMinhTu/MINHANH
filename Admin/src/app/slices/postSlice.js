@@ -3,9 +3,14 @@ import axios from '../../utils/axiosConfig'
 
 const API_URL = '/admin/bai-viet'
 
-export const fetchPosts = createAsyncThunk('posts/fetchAll', async ({ page = 0, size = 10 }, { rejectWithValue }) => {
+export const fetchPosts = createAsyncThunk('posts/fetchAll', async ({ page = 0, size = 10, search = '', danhMucId = '', trangThai = '' }, { rejectWithValue }) => {
     try {
-        const response = await axios.get(`${API_URL}?page=${page}&size=${size}`)
+        let url = `${API_URL}?page=${page}&size=${size}`;
+        if (search) url += `&search=${encodeURIComponent(search)}`;
+        if (danhMucId) url += `&danhMucId=${danhMucId}`;
+        if (trangThai) url += `&trangThai=${trangThai}`;
+        
+        const response = await axios.get(url)
         return response
     } catch (error) {
         return rejectWithValue(error.response?.data || error.message)

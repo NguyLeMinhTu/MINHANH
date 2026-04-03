@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import { sileo } from 'sileo'
-import { Plus, Pencil, Trash2, Tag, RefreshCw } from 'lucide-react'
+import { Plus, Pencil, Trash2, Tag, RefreshCw, Search } from 'lucide-react'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchPostCategories, deletePostCategory, updatePostCategory } from '../app/slices/postCategorySlice'
 import PostCategoryFormModal from '../components/PostCategoryFormModal'
+import Title from '../components/Title'
 
 const statusStyle = {
     true: 'bg-emerald-50 text-emerald-600 border border-emerald-100',
@@ -16,10 +17,21 @@ const PostCategories = () => {
 
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [editingCategory, setEditingCategory] = useState(null)
+    const [search, setSearch] = useState('')
+    const [statusFilter, setStatusFilter] = useState('all')
 
     useEffect(() => {
         dispatch(fetchPostCategories())
     }, [dispatch])
+
+    const isFiltered = search !== '' || statusFilter !== 'all'
+
+    const filteredCategories = Array.isArray(categories) ? categories.filter(cat => {
+        const matchesSearch = cat.tenDanhMuc.toLowerCase().includes(search.toLowerCase())
+        const matchesStatus = statusFilter === 'all' ||
+            (statusFilter === 'true' ? cat.trangThai !== false : cat.trangThai === false)
+        return matchesSearch && matchesStatus
+    }) : []
 
     const handleDelete = (cat) => {
         sileo.action({
@@ -80,17 +92,59 @@ const PostCategories = () => {
     return (
         <div className="space-y-5">
             <div className="flex items-center justify-between">
-                <div>
-                    <h2 className="text-xl font-bold text-gray-800 uppercase tracking-tight">Danh mục Bài viết</h2>
-                    <p className="text-xs text-gray-500 mt-0.5">Quản lý phân loại tin tức (Hỗ trợ ẩn/hiện chuyên mục)</p>
-                </div>
-                <button onClick={openAddModal} className="flex items-center gap-2 bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all shadow-sm active:scale-95">
+                <Title text1="Danh mục" text2="bài viết" subText="Quản lý phân loại tin tức (Hỗ trợ ẩn/hiện chuyên mục)" />
+                <button onClick={openAddModal} className="flex items-center gap-2 bg-linear-to-b from-primary-600 to-primary-700/60 hover:from-primary-600 hover:to-primary-800 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all shadow-sm active:scale-95 mb-8">
                     <Plus size={16} />
                     Thêm danh mục
                 </button>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                {/* Search & Filter Bar */}
+                <div className="px-6 py-4 border-b border-gray-100 bg-gray-50/50 flex flex-wrap items-center justify-between gap-6">
+                    {/* Tabs for Status */}
+                    <div className="flex gap-1 bg-white p-1 rounded-xl border border-gray-200">
+                        {[
+                            { label: 'Tất cả', value: 'all' },
+                            { label: 'Đang hiển thị', value: 'true' },
+                            { label: 'Tạm ẩn', value: 'false' }
+                        ].map((tab) => (
+                            <button
+                                key={tab.value}
+                                onClick={() => setStatusFilter(tab.value)}
+                                className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all ${statusFilter === tab.value
+                                    ? 'bg-primary-800 text-white shadow-sm'
+                                    : 'text-slate-500 hover:text-slate-700 hover:bg-slate-100'}`}
+                            >
+                                {tab.label}
+                            </button>
+                        ))}
+                    </div>
+
+                    <div className="relative flex-1 min-w-[280px] max-w-sm ml-auto">
+                        <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 font-bold" />
+                        <input
+                            type="text"
+                            placeholder="Tìm kiếm danh mục..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="bg-white border border-gray-200 pl-10 pr-4 py-2 w-full text-[13px] rounded-lg focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all placeholder:text-gray-300"
+                        />
+                    </div>
+
+                    {isFiltered && (
+                        <button
+                            onClick={() => {
+                                setSearch('')
+                                setStatusFilter('all')
+                            }}
+                            className="text-[11px] font-bold text-gray-400 hover:text-primary-600 transition-colors px-2"
+                        >
+                            Làm mới
+                        </button>
+                    )}
+                </div>
+
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                         <thead>
@@ -104,9 +158,9 @@ const PostCategories = () => {
                         <tbody className="divide-y divide-gray-50">
                             {catStatus === 'loading' ? (
                                 <tr><td colSpan="4" className="text-center py-10 text-gray-400 italic">Đang tải dữ liệu...</td></tr>
-                            ) : (!categories || categories.length === 0) ? (
+                            ) : (!filteredCategories || filteredCategories.length === 0) ? (
                                 <tr><td colSpan="4" className="text-center py-10 text-gray-400 italic">Hệ thống chưa có danh mục nào</td></tr>
-                            ) : categories.map(cat => (
+                            ) : filteredCategories.map(cat => (
                                 <tr key={cat.danhMucBaiVietId} className={`hover:bg-gray-50/50 transition-colors ${cat.trangThai === false ? 'opacity-60' : ''}`}>
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-3">
@@ -132,7 +186,7 @@ const PostCategories = () => {
                                             <button onClick={() => openEditModal(cat)} className="p-1.5 rounded-lg hover:bg-violet-50 text-gray-400 hover:text-violet-600 transition-all bg-white border border-gray-100 shadow-sm" title="Chỉnh sửa">
                                                 <Pencil size={14} />
                                             </button>
-                                            
+
                                             {cat.trangThai === false ? (
                                                 <button onClick={() => handleRestore(cat)} className="p-1.5 rounded-lg hover:bg-emerald-50 text-emerald-500 transition-all bg-white border border-emerald-100 shadow-sm" title="Hiện lại">
                                                     <RefreshCw size={14} />
@@ -152,9 +206,9 @@ const PostCategories = () => {
             </div>
 
             {isModalOpen && (
-                <PostCategoryFormModal 
-                    category={editingCategory} 
-                    onClose={() => setIsModalOpen(false)} 
+                <PostCategoryFormModal
+                    category={editingCategory}
+                    onClose={() => setIsModalOpen(false)}
                 />
             )}
         </div>
