@@ -11,6 +11,8 @@ import com.minhanh.backend.repository.HinhAnhBaiVietRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +35,30 @@ public class BaiVietService {
 
     public Page<BaiVietResponseDto> getAll(Pageable pageable) {
         return repository.findAllOrderByNgayDangDesc(pageable).map(this::toDto);
+    }
+
+    public Page<BaiVietResponseDto> getAdminPosts(int page, int size, String search, String danhMucId, String trangThai) {
+        Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "ngayDang"));
+
+        Specification<BaiViet> spec = (root, query, cb) -> cb.conjunction();
+
+        if (search != null && !search.trim().isEmpty()) {
+            String s = "%" + search.trim().toLowerCase() + "%";
+            spec = spec.and((root, query, cb) -> cb.or(
+                    cb.like(cb.lower(root.get("tieuDe")), s),
+                    cb.like(cb.lower(root.get("slug")), s)
+            ));
+        }
+
+        if (danhMucId != null && !danhMucId.trim().isEmpty()) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.join("danhMuc").get("danhMucBaiVietId"), danhMucId.trim()));
+        }
+
+        if (trangThai != null && !trangThai.trim().isEmpty()) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("trangThai"), trangThai.trim()));
+        }
+
+        return repository.findAll(spec, pageable).map(this::toDto);
     }
 
     /**
