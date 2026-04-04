@@ -15,7 +15,7 @@ createRoot(document.getElementById('root')).render(
       <BrowserRouter>
         <AuthProvider>
           <App />
-          <Toaster position="top-center" theme="dark" options={{ duration: 5000 }} />
+          <Toaster position="top-center" theme="dark" options={{ duration: 3500 }} />
         </AuthProvider>
       </BrowserRouter>
     </Provider>

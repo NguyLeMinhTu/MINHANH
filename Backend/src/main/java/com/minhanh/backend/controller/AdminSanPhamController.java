@@ -46,8 +46,8 @@ public class AdminSanPhamController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> softDeleteSanPham(@PathVariable String id) {
-        sanPhamService.softDeleteSanPham(id);
+    public ResponseEntity<String> deleteSanPham(@PathVariable String id) {
+        sanPhamService.deleteSanPham(id);
         return ResponseEntity.ok("Xóa sản phẩm thành công");
     }
 }

@@ -339,15 +339,17 @@ public class SanPhamService {
     }
 
     @Transactional
-    public void softDeleteSanPham(String id) {
+    public void deleteSanPham(String id) {
         SanPham sp = sanPhamRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy sản phẩm: " + id));
-        // Xóa toàn bộ ảnh của sản phẩm khỏi Cloudinary trước khi ẩn
+        
+        // Xóa toàn bộ ảnh của sản phẩm khỏi Cloudinary
         if (sp.getHinhAnh() != null) {
             sp.getHinhAnh().forEach(img -> fileUploadService.deleteFile(img.getUrlAnh()));
         }
-        sp.setTrangThai("an");
-        sanPhamRepository.save(sp);
+        
+        // Xóa vĩnh viễn sản phẩm khỏi Database
+        sanPhamRepository.delete(sp);
     }
 
         /**

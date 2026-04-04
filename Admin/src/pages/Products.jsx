@@ -16,119 +16,213 @@ const trangThaiStyle = {
 const trangThaiLabel = { cong_khai: 'Công khai', an: 'Ẩn', het_hang: 'Hết hàng' }
 
 const ProductDetail = ({ product, onClose }) => {
-    const [activeImg, setActiveImg] = useState(0)
+    const [activeTab, setActiveTab] = useState('thong_tin');
 
-    // Xử lý list hình ảnh từ backend: [{hinhAnhId, urlAnh, ...}]
+    // Logic "Unflatten" biến thể: Group by Color
+    const groupedVariants = React.useMemo(() => {
+        const flattened = Array.isArray(product.bienThe) ? product.bienThe : [];
+        const groups = {};
+        flattened.forEach(v => {
+            const color = v.mauSac || 'Mặc định';
+            if (!groups[color]) groups[color] = [];
+            groups[color].push({ size: v.size || 'F', soLuong: v.soLuong || 0, gia: v.gia || 0 });
+        });
+        return Object.keys(groups).map(color => ({
+            color: color,
+            sizes: groups[color]
+        }));
+    }, [product.bienThe]);
+
+    // Xử lý danh sách hình ảnh
     let images = Array.isArray(product.hinhAnh) && product.hinhAnh.length > 0
         ? [...product.hinhAnh].sort((a, b) => a.hinhAnhId - b.hinhAnhId).map(img => img.urlAnh || img.url)
-        : ['https://placehold.co/400x400?text=No+Image']
+        : ['https://placehold.co/400x400?text=No+Image'];
 
-    // MOCK DATA: Chèn thêm 4 ảnh phụ để test thử layout hiển thị nhiều ảnh
-    if (images.length === 1 && !images[0].includes('placehold.co')) {
-        images = [
-            images[0],
-            'https://placehold.co/400x400/f8f9fa/a1a1aa?text=Anh+phu+1',
-            'https://placehold.co/400x400/f8f9fa/a1a1aa?text=Anh+phu+2',
-            'https://placehold.co/400x400/f8f9fa/a1a1aa?text=Anh+phu+3',
-            'https://placehold.co/400x400/f8f9fa/a1a1aa?text=Anh+phu+4'
-        ]
-    }
+    const tabs = [
+        { id: 'thong_tin', label: 'Thông tin chung' },
+        { id: 'noi_dung', label: 'Nội dung chi tiết' },
+        { id: 'bien_the', label: `Phân loại hàng (${product.bienThe?.length || 0})` },
+        { id: 'hinh_anh', label: `Bộ sưu tập ảnh (${images.length})` }
+    ];
+
+    const InfoItem = ({ label, value, className = "" }) => (
+        <div className={`p-4 bg-gray-50/50 border border-gray-100 rounded-2xl ${className}`}>
+            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">{label}</p>
+            <p className="text-sm font-bold text-gray-800">{value || '—'}</p>
+        </div>
+    );
 
     return (
-        <>
-            <div className="fixed inset-0 bg-black/40 z-50 backdrop-blur-md flex items-center justify-center p-0 animate-in fade-in duration-300" onClick={onClose}>
-                <div className="relative w-full max-w-2xl h-screen bg-white shadow-2xl flex flex-col overflow-hidden scale-100 animate-in zoom-in duration-300" onClick={e => e.stopPropagation()}>
-                    <div className="flex items-center justify-between px-8 py-5 border-b border-gray-100 shrink-0">
-                        <h3 className="font-bold text-gray-800 text-lg uppercase tracking-tight">Chi tiết sản phẩm</h3>
-                        <button onClick={onClose} className="p-2 rounded-xl hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-all active:scale-90">
-                            <X size={20} />
-                        </button>
-                    </div>
-                <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
-                    {/* Gallery */}
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center backdrop-blur-sm p-4 animate-in fade-in duration-300" onClick={onClose}>
+            <div className="bg-white rounded-3xl w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl animate-in zoom-in duration-300" onClick={e => e.stopPropagation()}>
+                {/* Header */}
+                <div className="flex items-center justify-between px-8 py-5 border-b border-gray-50 shrink-0">
                     <div>
-                        <div className="w-full h-80 rounded-xl border border-gray-100 overflow-hidden bg-gray-50 flex items-center justify-center p-2">
-                            <img src={images[activeImg]} alt={product.tenSanPham} className="w-full h-full object-contain" />
+                        <h3 className="font-extrabold text-gray-900 text-xl uppercase tracking-tight">Chi tiết sản phẩm</h3>
+                        <p className="text-xs text-gray-400 mt-0.5 font-medium">Xem toàn bộ thông tin chi tiết của mã hàng #{product.sanPhamId?.substring(0, 8)}</p>
+                    </div>
+                    <button onClick={onClose} className="p-2 rounded-xl hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-all active:scale-90">
+                        <X size={20} />
+                    </button>
+                </div>
+
+                {/* Tabs selection */}
+                <div className="flex gap-6 px-8 pt-4 border-b border-gray-50 bg-white shrink-0 overflow-x-auto no-scrollbar">
+                    {tabs.map(tab => (
+                        <button
+                            key={tab.id}
+                            onClick={(e) => { e.stopPropagation(); setActiveTab(tab.id); }}
+                            className={`pb-3 px-1 text-sm font-bold transition-all border-b-2 whitespace-nowrap ${activeTab === tab.id ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-400 hover:text-gray-600'
+                                }`}
+                        >
+                            {tab.label}
+                        </button>
+                    ))}
+                </div>
+
+                {/* Content Area */}
+                <div className="flex-1 overflow-y-auto px-8 py-6 bg-gray-50/20">
+                    {/* TAB: THÔNG TIN CHUNG */}
+                    <div className={activeTab === 'thong_tin' ? 'space-y-6 block' : 'hidden'}>
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                            <div className="lg:col-span-4">
+                                <div className="aspect-square rounded-3xl overflow-hidden border border-gray-100 bg-white p-2 shadow-sm">
+                                    <img src={images[0]} alt="" className="w-full h-full object-contain" />
+                                </div>
+                            </div>
+                            <div className="lg:col-span-8 flex flex-col gap-4">
+                                <div className="p-5 bg-white border border-gray-100 rounded-3xl shadow-sm">
+                                    <div className="flex justify-between items-start gap-4">
+                                        <h2 className="text-xl font-bold text-gray-900 leading-tight mb-2">{product.tenSanPham}</h2>
+                                    </div>
+                                    <div className="flex flex-wrap gap-2">
+                                        <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${trangThaiStyle[product.trangThai || 'an']}`}>
+                                            {trangThaiLabel[product.trangThai] || 'Ẩn'}
+                                        </span>
+                                        {product.spNoiBat && <span className="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-[10px] font-bold uppercase tracking-wider">Nổi bật</span>}
+                                        {product.spMoi && <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-[10px] font-bold uppercase tracking-wider">Mới</span>}
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                    <InfoItem label="Danh mục" value={product.danhMuc?.tenDanhMuc} />
+                                    <InfoItem label="Thương hiệu" value={product.thuongHieu} />
+                                    <InfoItem label="Giá niêm yết" value={`${(product.giaBan || 0).toLocaleString('vi-VN')}₫`} />
+                                    <InfoItem label="Giá khuyến mãi" value={product.giaKhuyenMai > 0 ? `${(product.giaKhuyenMai || 0).toLocaleString('vi-VN')}₫` : '—'} />
+                                    <InfoItem label="Tồn kho" value={`${product.soLuongTon || 0} ${product.donViTinh || 'Cái'}`} />
+                                    <InfoItem label="Lượt xem" value={(product.views || 0).toLocaleString()} />
+                                </div>
+                            </div>
                         </div>
-                        {images.length > 1 && (
-                            <div className="grid grid-cols-5 gap-2 mt-2">
-                                {images.map((imgUrl, i) => (
-                                    <img
-                                        key={i} src={imgUrl} alt=""
-                                        onClick={() => setActiveImg(i)}
-                                        className={`w-full aspect-square object-cover rounded-lg border-2 cursor-pointer transition-all ${i === activeImg ? 'border-primary-500' : 'border-transparent opacity-60 hover:opacity-100 hover:border-gray-200'
-                                            }`}
-                                    />
+                    </div>
+
+                    {/* TAB: NỘI DUNG CHI TIẾT */}
+                    <div className={activeTab === 'noi_dung' ? 'space-y-6 block' : 'hidden'}>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div className="md:col-span-2 space-y-6">
+                                <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">Bài viết mô tả sản phẩm</p>
+                                    <div className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">
+                                        {product.moTa || 'Chưa có nội dung mô tả sản phẩm này.'}
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="space-y-6">
+                                <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">Thông số kỹ thuật</p>
+                                    <div className="space-y-4">
+                                        <div className="flex justify-between text-xs">
+                                            <span className="text-gray-400 font-medium text-[10px] uppercase tracking-wider">Chất liệu</span>
+                                            <span className="text-gray-900 font-bold text-right">{product.chatLieu || '—'}</span>
+                                        </div>
+                                        <div className="flex justify-between text-xs">
+                                            <span className="text-gray-400 font-medium text-[10px] uppercase tracking-wider">Xuất xứ</span>
+                                            <span className="text-gray-900 font-bold text-right">{product.xuatXu || '—'}</span>
+                                        </div>
+                                        <div className="flex justify-between text-xs">
+                                            <span className="text-gray-400 font-medium text-[10px] uppercase tracking-wider">Đơn vị</span>
+                                            <span className="text-gray-900 font-bold text-right">{product.donViTinh || 'Cái'}</span>
+                                        </div>
+                                        <div className="flex justify-between text-xs">
+                                            <span className="text-gray-400 font-medium text-[10px] uppercase tracking-wider">Ngày tạo</span>
+                                            <span className="text-gray-900 font-bold text-right">{product.ngayTao ? new Date(product.ngayTao).toLocaleDateString('vi-VN') : '—'}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
+                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4">Hướng dẫn bảo quản</p>
+                                    <p className="text-xs text-gray-600 italic leading-relaxed">{product.baoQuan || 'Sử dụng và bảo quản theo quy trình thông thường.'}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* TAB: PHÂN LOẠI HÀNG */}
+                    <div className={activeTab === 'bien_the' ? 'space-y-4 block' : 'hidden'}>
+                        {groupedVariants.length === 0 ? (
+                            <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-gray-200">
+                                <p className="text-gray-400 text-sm font-medium italic">Sản phẩm này không có biến thể phân loại hàng.</p>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {groupedVariants.map((group, idx) => (
+                                    <div key={idx} className="bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                                        <div className="bg-gray-50/50 px-5 py-3 border-b border-gray-50 flex items-center gap-3">
+                                            <div className="w-1.5 h-4 bg-primary-500 rounded-full"></div>
+                                            <span className="font-extrabold text-gray-900 text-sm">{group.color}</span>
+                                        </div>
+                                        <div className="p-4">
+                                            <table className="w-full">
+                                                <thead>
+                                                    <tr className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                                                        <th className="text-left py-2">Kích cỡ</th>
+                                                        <th className="text-center py-2">Số lượng</th>
+                                                        <th className="text-right py-2">Giá TB</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="divide-y divide-gray-50">
+                                                    {group.sizes.map((s, sIdx) => (
+                                                        <tr key={sIdx} className="text-sm group/row hover:bg-gray-50/50 transition-colors">
+                                                            <td className="py-2.5 font-bold text-gray-800">{s.size}</td>
+                                                            <td className="py-2.5 text-center font-mono text-blue-600 font-bold">{s.soLuong}</td>
+                                                            <td className="py-2.5 text-right font-mono font-bold text-amber-600">
+                                                                {s.gia > 0 ? `${s.gia.toLocaleString('vi-VN')}₫` : 'Theo giá gốc'}
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
                                 ))}
                             </div>
                         )}
                     </div>
-                    {/* Name & badges */}
-                    <div>
-                        <h2 className="text-lg font-bold text-gray-800 leading-snug">{product.tenSanPham}</h2>
-                        <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">{product.thuongHieu || 'Không rõ'}</span>
-                            <span className="text-xs bg-primary-500/10 text-primary-600 px-2 py-0.5 rounded-full">{product.danhMuc?.tenDanhMuc || 'Chưa phân loại'}</span>
-                            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${trangThaiStyle[product.trangThai || 'an'] ?? 'bg-gray-100 text-gray-600'}`}>
-                                {trangThaiLabel[product.trangThai] ?? product.trangThai ?? 'Ẩn'}
-                            </span>
-                        </div>
-                    </div>
-                    {/* Price */}
-                    <div className="bg-gray-50 rounded-xl p-4">
-                        <p className="text-xs text-gray-400 uppercase tracking-wider font-medium mb-1.5">Giá</p>
-                        <div className="flex items-end gap-3">
-                            <span className="text-2xl font-bold text-gray-800">{(product.giaBan || 0).toLocaleString('vi-VN')}đ</span>
-                            {product.giaKhuyenMai > 0 && (
-                                <span className="text-sm font-semibold text-red-500 mb-0.5">{(product.giaKhuyenMai || 0).toLocaleString('vi-VN')}đ KM</span>
-                            )}
-                        </div>
-                        {product.giaThamKhao > 0 && (
-                            <p className="text-xs text-gray-400 line-through mt-0.5">{(product.giaThamKhao || 0).toLocaleString('vi-VN')}đ</p>
-                        )}
-                    </div>
-                    {/* Stats */}
-                    <div className="grid grid-cols-3 gap-3">
-                        {[{ label: 'Tồn kho', value: product.soLuongTon || 0 },
-                        { label: 'Lượt xem', value: product.views >= 1000 ? `${(product.views / 1000).toFixed(1).replace('.0', '')}k` : (product.views || 0).toLocaleString() },
-                        { label: 'Đã bán', value: product.luotMua || 0 }].map(({ label, value }) => (
-                            <div key={label} className="bg-gray-50 rounded-xl p-3 text-center">
-                                <p className="text-lg font-bold text-gray-800">{value}</p>
-                                <p className="text-xs text-gray-400 mt-0.5">{label}</p>
-                            </div>
-                        ))}
-                    </div>
-                    {/* Details */}
-                    <div className="space-y-3">
-                        <p className="text-xs text-gray-400 uppercase tracking-wider font-medium">Thông tin</p>
-                        {[{ label: 'Chất liệu', value: product.chatLieu || '—' },
-                        { label: 'Xuất xứ', value: product.xuatXu || '—' },
-                        { label: 'Đơn vị', value: product.donViTinh || 'Cái' },
-                        { label: 'Ngày tạo', value: product.ngayTao ? new Date(product.ngayTao).toLocaleDateString('vi-VN') : '—' },
-                        ].map(({ label, value }) => (
-                            <div key={label} className="flex justify-between text-sm">
-                                <span className="text-gray-400 shrink-0">{label}</span>
-                                <span className="text-gray-700 font-medium text-right ml-4">{value}</span>
-                            </div>
-                        ))}
-                    </div>
-                    {/* Description */}
-                    <div>
-                        <p className="text-xs text-gray-400 uppercase tracking-wider font-medium mb-2">Mô tả</p>
-                        <p className="text-sm text-gray-600 leading-relaxed">{product.moTa || 'Chưa có mô tả'}</p>
-                    </div>
-                    {/* Preservation */}
-                    <div>
-                        <p className="text-xs text-gray-400 uppercase tracking-wider font-medium mb-2">Bảo quản</p>
-                        <p className="text-sm text-gray-600 leading-relaxed">{product.baoQuan || '—'}</p>
-                    </div>
 
+                    {/* TAB: BỘ SƯU TẬP ẢNH */}
+                    <div className={activeTab === 'hinh_anh' ? 'block' : 'hidden'}>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                            {images.map((url, i) => (
+                                <div key={i} className="aspect-square rounded-2xl overflow-hidden border border-gray-100 bg-white p-1 hover:shadow-md transition-shadow group relative shadow-sm">
+                                    <img src={url} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                    <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                    {i === 0 && <span className="absolute top-2 left-2 bg-[#DAA06D] text-white text-[8px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-tighter border border-white/20 shadow-sm">Ảnh bìa</span>}
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
+
+                {/* Footer */}
+                <div className="px-8 py-4 border-t border-gray-50 bg-white flex justify-end shrink-0">
+                    <button onClick={onClose} className="px-10 py-2.5 text-sm font-black text-white bg-primary-900 rounded-2xl hover:bg-primary-600 transition-all active:scale-95 shadow-xl shadow-gray-200">
+                        Đóng thông tin
+                    </button>
+                </div>
             </div>
-        </>
-    )
+        </div>
+    );
 }
+
 
 const Products = () => {
     const dispatch = useDispatch()
@@ -148,18 +242,23 @@ const Products = () => {
         dispatch(fetchCategories())
     }, [dispatch])
 
-    const sanPhamList = pageData.content || []
+    const filtered = React.useMemo(() => {
+        const sanPhamList = pageData?.content || [];
+        return sanPhamList.filter((p) => {
+            const matchesSearch = p.tenSanPham?.toLowerCase().includes(search.toLowerCase());
 
-    const filtered = sanPhamList.filter((p) => {
-        const matchesSearch = p.tenSanPham?.toLowerCase().includes(search.toLowerCase())
+            // So sánh ID danh mục linh hoạt (hỗ trợ cả kiểu chuỗi và số)
+            const productCatId = p.danhMuc?.danhMucId || p.danhMucId;
+            const matchesCategory = categoryFilter === 'all' || String(productCatId) === String(categoryFilter);
 
-        // So sánh ID danh mục linh hoạt (hỗ trợ cả kiểu chuỗi và số)
-        const productCatId = p.danhMuc?.danhMucId || p.danhMucId;
-        const matchesCategory = categoryFilter === 'all' || String(productCatId) === String(categoryFilter);
+            const matchesStatus = statusFilter === 'all' || p.trangThai === statusFilter;
+            return matchesSearch && matchesCategory && matchesStatus;
+        });
+    }, [pageData?.content, search, categoryFilter, statusFilter]);
 
-        const matchesStatus = statusFilter === 'all' || p.trangThai === statusFilter;
-        return matchesSearch && matchesCategory && matchesStatus;
-    })
+    const parentCategories = React.useMemo(() => 
+        Array.isArray(categoriesList) ? categoriesList.filter(c => !c.parent) : []
+    , [categoriesList]);
 
     // Helper để hiển thị danh mục theo cấp bậc trong dropdown
     const renderCategoryOptions = (cats, level = 0) => {
@@ -168,17 +267,14 @@ const Products = () => {
                 <option value={cat.danhMucId}>
                     {'\u00A0'.repeat(level * 4)}{level > 0 ? '↳ ' : ''}{cat.tenDanhMuc}
                 </option>
-                {/* Nếu có children thì render tiếp (nếu bạn có cấu trúc lồng, nếu không thì categoriesList là phẳng) */}
-                {/* Ở đây categoriesList là phẳng nhưng có parent, ta có thể lọc theo parent */}
+                {/* Ở đây categoriesList là phẳng nhưng có parent, lọc theo parent */}
                 {Array.isArray(categoriesList) && categoriesList
                     .filter(c => c.parent?.danhMucId === cat.danhMucId)
                     .map(child => renderCategoryOptions([child], level + 1))
                 }
             </React.Fragment>
-        ))
-    }
-
-    const parentCategories = Array.isArray(categoriesList) ? categoriesList.filter(c => !c.parent) : []
+        ));
+    };
 
     const handleDelete = (p) => {
         sileo.action({
@@ -348,17 +444,17 @@ const Products = () => {
                                                     </td>
                                                     <td className="px-6 py-4 text-center">
                                                         <span className="text-sm font-semibold text-blue-600">
-                                                            {p.views >= 1000 
-                                                                ? `${(p.views / 1000).toFixed(1).replace('.0', '')}k` 
+                                                            {p.views >= 1000
+                                                                ? `${(p.views / 1000).toFixed(1).replace('.0', '')}k`
                                                                 : (p.views || 0).toLocaleString()}
                                                         </span>
                                                     </td>
                                                     <td className="px-6 py-4">
                                                         <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap ${p.trangThai === 'cong_khai'
-                                                                ? 'bg-green-100 text-green-700'
-                                                                : p.trangThai === 'het_hang'
-                                                                    ? 'bg-red-100 text-red-700'
-                                                                    : 'bg-gray-100 text-gray-600'
+                                                            ? 'bg-green-100 text-green-700'
+                                                            : p.trangThai === 'het_hang'
+                                                                ? 'bg-red-100 text-red-700'
+                                                                : 'bg-gray-100 text-gray-600'
                                                             }`}>
                                                             {trangThaiLabel[p.trangThai] || 'Không rõ'}
                                                         </div>
@@ -408,10 +504,10 @@ const Products = () => {
                                                 </div>
                                                 <div className="absolute bottom-2 left-2">
                                                     <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider backdrop-blur-md ${p.trangThai === 'cong_khai'
-                                                            ? 'bg-green-500/80 text-white'
-                                                            : p.trangThai === 'het_hang'
-                                                                ? 'bg-red-500/80 text-white'
-                                                                : 'bg-gray-500/80 text-white'
+                                                        ? 'bg-green-500/80 text-white'
+                                                        : p.trangThai === 'het_hang'
+                                                            ? 'bg-red-500/80 text-white'
+                                                            : 'bg-gray-500/80 text-white'
                                                         }`}>
                                                         {trangThaiLabel[p.trangThai] || 'Ẩn'}
                                                     </span>

@@ -37,10 +37,10 @@ const configItems = [
 ]
 
 const navLinkClass = (isActive, isCollapsed) =>
-    `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150 ${isActive
-        ? 'bg-primary-600 text-white shadow-sm'
-        : 'text-gray-500 hover:bg-primary-600/10 hover:text-primary-600'
-    } ${isCollapsed ? 'justify-center' : ''}`
+    `flex items-center gap-3 rounded-xl px-3.5 py-2 text-[13px] font-bold transition-all duration-300 relative group/link ${isActive
+        ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/30 font-black'
+        : 'text-gray-500 hover:bg-primary-50 hover:text-primary-600 hover:pl-5'
+    } ${isCollapsed ? 'justify-center mx-1' : 'mx-2'}`
 
 const Sidebar = ({ isOpen }) => {
     const [managementOpen, setManagementOpen] = useState(true)
@@ -52,28 +52,25 @@ const Sidebar = ({ isOpen }) => {
 
     return (
         <aside
-            className={`fixed left-0 top-0 h-full bg-surface-50 border-r border-surface-200 flex flex-col transition-all duration-300 z-40 shadow-sm ${isOpen ? 'w-64' : 'w-16'
+            className={`fixed left-0 top-0 h-full bg-white border-r border-gray-100 flex flex-col transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) z-40 ${isOpen ? 'w-64' : 'w-20'
                 }`}
         >
             {/* Logo */}
             <div
-                className={`flex items-center gap-3 h-16 border-b border-gray-100 shrink-0 ${isOpen ? 'px-5' : 'justify-center'
+                className={`flex items-center gap-3 h-20 border-b border-gray-50 shrink-0 transition-all duration-500 ${isOpen ? 'px-6' : 'justify-center'
                     }`}
             >
-                {/* <div className="w-8 h-8 bg-[#DAA06D] rounded-lg flex items-center justify-center shrink-0 shadow-lg"> */}
-                {/* <span className="text-white font-bold text-sm">M</span> */}
-                <img src={logo} alt="Logo" className="h-12 w-auto" />
-                {/* </div> */}
+                <img src={logo} alt="Logo" className={`h-10 w-auto transition-transform duration-500 ${!isOpen ? 'scale-110' : ''}`} />
                 {isOpen && (
-                    <div>
-                        <p className="font-bold text-gray-800 text-sm leading-tight">Minh Anh</p>
-                        <p className="text-primary-600 text-xs">Trang quản trị</p>
+                    <div className="animate-in fade-in slide-in-from-left-4 duration-500">
+                        <p className="font-black text-gray-900 text-[15px] leading-none tracking-tight">Minh Anh</p>
+                        <p className="text-primary-600 text-[10px] font-bold uppercase tracking-widest mt-1 opacity-80">Quản trị hệ thống</p>
                     </div>
                 )}
             </div>
 
             {/* Navigation */}
-            <nav className="flex-1 overflow-y-auto py-4 px-2 space-y-0.5 scrollbar-thin">
+            <nav className="flex-1 overflow-y-auto py-4 px-1 space-y-1.5 no-scrollbar">
                 {/* Dashboard */}
                 <NavLink
                     to="/"
@@ -81,39 +78,38 @@ const Sidebar = ({ isOpen }) => {
                     title={!isOpen ? 'Dashboard' : undefined}
                     className={({ isActive }) => navLinkClass(isActive, !isOpen)}
                 >
-                    <LayoutDashboard size={20} className="shrink-0" />
-                    {isOpen && <span>Dashboard</span>}
+                    {({ isActive }) => (
+                        <>
+                            <LayoutDashboard size={isOpen ? 18 : 22} className="shrink-0 transition-all duration-300" />
+                            <span className={`transition-all duration-300 origin-left ${isOpen ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4 w-0 hidden'}`}>
+                                Tổng quan
+                            </span>
+                            {isActive && !isOpen && (
+                                <div className="absolute left-0 w-1 h-6 bg-white rounded-r-full"></div>
+                            )}
+                        </>
+                    )}
                 </NavLink>
 
                 {/* Section Divider */}
-                {isOpen ? (
-                    <div className="pt-3 pb-1">
+                <div className="pt-4 pb-2 px-4">
+                    {isOpen ? (
                         <button
                             onClick={() => setManagementOpen(!managementOpen)}
-                            className={`w-full flex items-center justify-between px-3 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-colors ${isManagementActive
-                                ? 'text-primary-600'
-                                : 'text-gray-400 hover:text-gray-600'
+                            className={`w-full flex items-center justify-between text-[10px] font-black uppercase tracking-[0.2em] transition-colors ${isManagementActive ? 'text-primary-600' : 'text-gray-300 hover:text-gray-500'
                                 }`}
                         >
                             <span>Quản lý</span>
-                            <span className="transition-transform duration-200">
-                                {managementOpen ? (
-                                    <ChevronDown size={14} />
-                                ) : (
-                                    <ChevronRight size={14} />
-                                )}
-                            </span>
+                            <ChevronDown size={14} className={`transition-transform duration-300 ${managementOpen ? '' : '-rotate-90'}`} />
                         </button>
-                    </div>
-                ) : (
-                    <div className="py-2">
-                        <div className="border-t border-gray-100" />
-                    </div>
-                )}
+                    ) : (
+                        <div className="h-px bg-gray-50 mx-auto w-8" />
+                    )}
+                </div>
 
                 {/* Management Items */}
                 <div
-                    className={`space-y-0.5 overflow-hidden transition-all duration-300 ${isOpen && !managementOpen ? 'max-h-0' : 'max-h-96'
+                    className={`space-y-1.5 overflow-hidden transition-all duration-500 ease-in-out ${isOpen && !managementOpen ? 'max-h-0 opacity-0' : 'max-h-[500px] opacity-100'
                         }`}
                 >
                     {managementItems.map(({ to, icon: Icon, label }) => (
@@ -121,29 +117,31 @@ const Sidebar = ({ isOpen }) => {
                             key={to}
                             to={to}
                             title={!isOpen ? label : undefined}
-                            className={({ isActive }) =>
-                                isOpen
-                                    ? `flex items-center gap-3 rounded-lg pl-5 pr-3 py-2 text-sm transition-all duration-150 ${isActive
-                                        ? 'bg-primary-600 text-white shadow-sm'
-                                        : 'text-gray-500 hover:bg-primary-600/10 hover:text-primary-600'
-                                    }`
-                                    : navLinkClass(isActive, true)
-                            }
+                            className={({ isActive }) => navLinkClass(isActive, !isOpen)}
                         >
-                            <Icon size={isOpen ? 17 : 20} className="shrink-0" />
-                            {isOpen && <span>{label}</span>}
+                            {({ isActive }) => (
+                                <>
+                                    <Icon size={isOpen ? 18 : 22} className="shrink-0 transition-all duration-300 group-hover/link:scale-110" />
+                                    <span className={`transition-all duration-300 origin-left ${isOpen ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4 w-0 hidden'}`}>
+                                        {label}
+                                    </span>
+                                    {isActive && !isOpen && (
+                                        <div className="absolute left-0 w-1 h-6 bg-white rounded-r-full"></div>
+                                    )}
+                                </>
+                            )}
                         </NavLink>
                     ))}
                 </div>
 
-                {/* Config Section */}
-                <div className="pt-3 pb-1">
+                {/* Config Section Divider */}
+                <div className="pt-3 pb-2 px-4">
                     {isOpen ? (
-                        <p className="px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-gray-400">
+                        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary-600">
                             Hệ thống
                         </p>
                     ) : (
-                        <div className="border-t border-gray-100 mb-1" />
+                        <div className="h-px bg-gray-50 mx-auto w-8" />
                     )}
                 </div>
 
@@ -154,8 +152,17 @@ const Sidebar = ({ isOpen }) => {
                         title={!isOpen ? label : undefined}
                         className={({ isActive }) => navLinkClass(isActive, !isOpen)}
                     >
-                        <Icon size={20} className="shrink-0" />
-                        {isOpen && <span>{label}</span>}
+                        {({ isActive }) => (
+                            <>
+                                <Icon size={isOpen ? 18 : 22} className="shrink-0 transition-all duration-300 group-hover/link:scale-110" />
+                                <span className={`transition-all duration-300 origin-left ${isOpen ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4 w-0 hidden'}`}>
+                                    {label}
+                                </span>
+                                {isActive && !isOpen && (
+                                    <div className="absolute left-0 w-1 h-6 bg-white rounded-r-full"></div>
+                                )}
+                            </>
+                        )}
                     </NavLink>
                 ))}
             </nav>
