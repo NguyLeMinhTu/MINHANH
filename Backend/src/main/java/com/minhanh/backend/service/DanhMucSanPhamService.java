@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class DanhMucSanPhamService {
 
     private final DanhMucSanPhamRepository repository;
+    private final com.minhanh.backend.repository.SanPhamRepository sanPhamRepository;
 
     // Lấy cây danh mục (Cha -> Con) cho Menu
     public List<DanhMucMenuDto> getCategoryTree() {
@@ -151,21 +152,40 @@ public class DanhMucSanPhamService {
         return repository.save(existing);
     }
 
-    // Xóa Mềm (Soft Delete) tránh dập Database 
-   @Transactional
+    // Xử lý Xóa Danh mục theo yêu cầu:
+    // 1. Xóa Con: Sản phẩm nhảy lên Cha.
+    // 2. Xóa Cha: Xác nhận (Front) -> Xóa vĩnh viễn cả Danh mục & Sản phẩm.
+    @Transactional
     public void delete(String id) {
         DanhMucSanPham danhMuc = getById(id);
-        
-        // 1. Chỉnh cờ Trạng Thái về Ẩn (False)
-        danhMuc.setTrangThai(false);
-        
-        // 2.Nếu nó là Danh Mục Cha (vd: Áo Nam) thì lôi hết các Danh mục Con (vd: Áo Sơ Mi, Áo Thun) ra Ẩn sạch sẽ theo dây chuyền!
-        if (danhMuc.getChildren() != null && !danhMuc.getChildren().isEmpty()) {
-            for (DanhMucSanPham child : danhMuc.getChildren()) {
-                child.setTrangThai(false);
+
+        if (danhMuc.getParent() != null) {
+            // Trường hợp: Xóa Danh mục CON
+            String parentId = danhMuc.getParent().getDanhMucId();
+            // CHUYỂN SẢN PHẨM SANG CHA
+            sanPhamRepository.migrateProductsToParent(id, parentId);
+            // XÓA DANH MỤC
+            repository.delete(danhMuc);
+        } else {
+            // Trường hợp: Xóa Danh mục CHA
+            // 1. Tìm tất cả ID danh mục con của nó
+            List<String> childrenIds = repository.findByParentOrderByThuTuAsc(danhMuc)
+                    .stream()
+                    .map(DanhMucSanPham::getDanhMucId)
+                    .collect(Collectors.toList());
+
+            // 2. XÓA TẤT CẢ SẢN PHẨM (của cả cha và con)
+            if (!childrenIds.isEmpty()) {
+                sanPhamRepository.deleteByDanhMucIdIn(childrenIds);
+                // Xóa danh mục con (Gốc: SET_NULL, nên ta xóa chủ động)
+                for (String childId : childrenIds) {
+                    repository.deleteById(childId);
+                }
             }
+            sanPhamRepository.deleteByDanhMucId(id);
+
+            // 3. XÓA DANH MỤC CHA
+            repository.delete(danhMuc);
         }
-        
-        repository.save(danhMuc);
     }
 }

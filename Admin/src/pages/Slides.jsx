@@ -51,9 +51,15 @@ const SlideModal = ({ slide, onClose, onSaved }) => {
     const handleSubmit = (e) => {
         e.preventDefault()
         setSaving(true)
+        
+        // 1. Xử lý dữ liệu (Local logic)
+        const payload = { ...form }
+        if (payload.thuTu === '') delete payload.thuTu
+        
+        // 2. Gửi request và hiển thị thông báo (Git logic - Sileo)
         const promise = slide
-            ? axios.put(`/admin/slides/${slide.id}`, form)
-            : axios.post('/admin/slides', form);
+            ? axios.put(`/admin/slides/${slide.id}`, payload)
+            : axios.post('/admin/slides', payload);
 
         sileo.promise(promise, {
             loading: { title: 'Đang lưu slide...', description: 'Đang gửi dữ liệu.' },
@@ -116,22 +122,13 @@ const SlideModal = ({ slide, onClose, onSaved }) => {
                             placeholder="Mô tả ngắn..." />
                     </div>
 
-                    {/* Link + Thứ tự */}
-                    <div className="flex gap-3">
-                        <div className="flex-1">
-                            <label className="block text-xs font-semibold text-gray-600 mb-1.5">Link</label>
-                            <input
-                                value={form.link} onChange={e => setForm(f => ({ ...f, link: e.target.value }))}
-                                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary-500"
-                                placeholder="/san-pham" />
-                        </div>
-                        <div className="w-24">
-                            <label className="block text-xs font-semibold text-gray-600 mb-1.5">Thứ tự</label>
-                            <input
-                                type="number" min={1}
-                                value={form.thuTu} onChange={e => setForm(f => ({ ...f, thuTu: e.target.value }))}
-                                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary-500" />
-                        </div>
+                    {/* Link */}
+                    <div>
+                        <label className="block text-xs font-semibold text-gray-600 mb-1.5">Link</label>
+                        <input
+                            value={form.link} onChange={e => setForm(f => ({ ...f, link: e.target.value }))}
+                            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary-500"
+                            placeholder="/san-pham" />
                     </div>
 
                     {/* Trạng thái */}
@@ -293,7 +290,7 @@ const Slides = () => {
                                     <p className="text-xs text-gray-300 font-mono mt-0.5 truncate">{s.link}</p>
                                 </div>
                                 <span className="text-xs font-medium text-gray-400 bg-gray-100 px-2.5 py-1 rounded-full shrink-0">
-                                    #{s.thuTu ?? idx + 1}
+                                    #{idx + 1}
                                 </span>
                                 <span className={`px-2.5 py-1 rounded-full text-xs font-medium shrink-0 ${s.trangThai ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-500'}`}>
                                     {s.trangThai ? 'Hiển thị' : 'Ẩn'}

@@ -36,14 +36,14 @@ const ProductDetail = ({ product, onClose }) => {
 
     return (
         <>
-            <div className="fixed inset-0 bg-black/30 z-40 backdrop-blur-sm" onClick={onClose} />
-            <div className="fixed top-0 right-0 h-full w-[480px] max-w-full bg-white z-50 shadow-2xl flex flex-col overflow-hidden">
-                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 shrink-0">
-                    <h3 className="font-bold text-gray-800 text-base">Chi tiết sản phẩm</h3>
-                    <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors">
-                        <X size={18} />
-                    </button>
-                </div>
+            <div className="fixed inset-0 bg-black/40 z-50 backdrop-blur-md flex items-center justify-center p-0 animate-in fade-in duration-300" onClick={onClose}>
+                <div className="relative w-full max-w-2xl h-screen bg-white shadow-2xl flex flex-col overflow-hidden scale-100 animate-in zoom-in duration-300" onClick={e => e.stopPropagation()}>
+                    <div className="flex items-center justify-between px-8 py-5 border-b border-gray-100 shrink-0">
+                        <h3 className="font-bold text-gray-800 text-lg uppercase tracking-tight">Chi tiết sản phẩm</h3>
+                        <button onClick={onClose} className="p-2 rounded-xl hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-all active:scale-90">
+                            <X size={20} />
+                        </button>
+                    </div>
                 <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
                     {/* Gallery */}
                     <div>
@@ -90,7 +90,7 @@ const ProductDetail = ({ product, onClose }) => {
                     {/* Stats */}
                     <div className="grid grid-cols-3 gap-3">
                         {[{ label: 'Tồn kho', value: product.soLuongTon || 0 },
-                        { label: 'Lượt xem', value: (product.views || 0).toLocaleString() },
+                        { label: 'Lượt xem', value: product.views >= 1000 ? `${(product.views / 1000).toFixed(1).replace('.0', '')}k` : (product.views || 0).toLocaleString() },
                         { label: 'Đã bán', value: product.luotMua || 0 }].map(({ label, value }) => (
                             <div key={label} className="bg-gray-50 rounded-xl p-3 text-center">
                                 <p className="text-lg font-bold text-gray-800">{value}</p>
@@ -123,6 +123,7 @@ const ProductDetail = ({ product, onClose }) => {
                         <p className="text-sm text-gray-600 leading-relaxed">{product.baoQuan || '—'}</p>
                     </div>
 
+                    </div>
                 </div>
             </div>
         </>
@@ -300,6 +301,7 @@ const Products = () => {
                                             <th className="text-left px-6 py-4">Danh mục</th>
                                             <th className="text-left px-6 py-4">Giá bán</th>
                                             <th className="text-center px-6 py-4">Tồn kho</th>
+                                            <th className="text-center px-6 py-4">Lượt xem</th>
                                             <th className="text-left px-6 py-4">Trạng thái</th>
                                             <th className="text-right px-6 py-4">Thao tác</th>
                                         </tr>
@@ -307,7 +309,7 @@ const Products = () => {
                                     <tbody className="divide-y divide-gray-50">
                                         {filtered.length === 0 ? (
                                             <tr>
-                                                <td colSpan="6" className="text-center py-10 text-gray-400 italic">Không có sản phẩm nào phù hợp</td>
+                                                <td colSpan="7" className="text-center py-10 text-gray-400 italic">Không có sản phẩm nào phù hợp</td>
                                             </tr>
                                         ) : filtered.map((p) => {
                                             const images = p.hinhAnh ? (Array.isArray(p.hinhAnh) ? p.hinhAnh : JSON.parse(p.hinhAnh)) : []
@@ -316,25 +318,25 @@ const Products = () => {
                                             return (
                                                 <tr key={p.sanPhamId} className="hover:bg-gray-50/50 transition-colors">
                                                     <td className="px-6 py-4">
-                                                        <div className="flex items-center gap-3">
+                                                        <div className="flex items-center gap-3 max-w-[240px]">
                                                             <img
                                                                 src={imgUrl}
                                                                 alt={p.tenSanPham}
-                                                                className="w-10 h-10 rounded-lg object-cover border border-gray-100"
+                                                                className="w-10 h-10 rounded-lg object-cover border border-gray-100 shrink-0"
                                                             />
-                                                            <div>
-                                                                <p className="text-sm font-semibold text-gray-900 line-clamp-1">{p.tenSanPham}</p>
-                                                                <p className="text-[11px] text-gray-400 font-medium uppercase">{p.thuongHieu || 'Không rõ'}</p>
+                                                            <div className="min-w-0">
+                                                                <p className="text-sm font-semibold text-gray-900 truncate">{p.tenSanPham}</p>
+                                                                <p className="text-[11px] text-gray-400 font-medium uppercase truncate">{p.thuongHieu || 'Minh Anh Uniform'}</p>
                                                             </div>
                                                         </div>
                                                     </td>
                                                     <td className="px-6 py-4">
-                                                        <span className="text-xs font-medium text-gray-600 bg-gray-100 px-2.5 py-1 rounded">
+                                                        <span className="inline-block whitespace-nowrap text-xs font-medium text-gray-600 bg-gray-100 px-2.5 py-1 rounded">
                                                             {p.danhMuc?.tenDanhMuc || '—'}
                                                         </span>
                                                     </td>
                                                     <td className="px-6 py-4">
-                                                        <div className="flex flex-col">
+                                                        <div className="flex flex-col whitespace-nowrap">
                                                             <span className="text-sm font-bold text-gray-900">{(p.giaBan || 0).toLocaleString('vi-VN')}₫</span>
                                                             {p.giaKhuyenMai > 0 && (
                                                                 <span className="text-[11px] text-red-500 line-through">{(p.giaBan || 0).toLocaleString('vi-VN')}₫</span>
@@ -344,8 +346,15 @@ const Products = () => {
                                                     <td className="px-6 py-4 text-center">
                                                         <span className="text-sm text-gray-600">{p.soLuongTon || 0}</span>
                                                     </td>
+                                                    <td className="px-6 py-4 text-center">
+                                                        <span className="text-sm font-semibold text-blue-600">
+                                                            {p.views >= 1000 
+                                                                ? `${(p.views / 1000).toFixed(1).replace('.0', '')}k` 
+                                                                : (p.views || 0).toLocaleString()}
+                                                        </span>
+                                                    </td>
                                                     <td className="px-6 py-4">
-                                                        <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${p.trangThai === 'cong_khai'
+                                                        <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold whitespace-nowrap ${p.trangThai === 'cong_khai'
                                                                 ? 'bg-green-100 text-green-700'
                                                                 : p.trangThai === 'het_hang'
                                                                     ? 'bg-red-100 text-red-700'

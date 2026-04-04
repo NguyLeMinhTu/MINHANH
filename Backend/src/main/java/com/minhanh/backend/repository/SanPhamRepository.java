@@ -8,6 +8,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.minhanh.backend.entity.SanPham;
 
 public interface SanPhamRepository extends JpaRepository<SanPham, String>, JpaSpecificationExecutor<SanPham> {
@@ -31,6 +36,22 @@ public interface SanPhamRepository extends JpaRepository<SanPham, String>, JpaSp
             Pageable pageable
     );
 
+    // Xử lý logic xóa danh mục
+    @Transactional
+    @Modifying
+    @Query("UPDATE SanPham s SET s.danhMuc = (SELECT dm FROM DanhMucSanPham dm WHERE dm.danhMucId = :newId) WHERE s.danhMuc.danhMucId = :oldId")
+    void migrateProductsToParent(@Param("oldId") String oldId, @Param("newId") String newId);
+
+    @Transactional
+    @Modifying
+    @Query("DELETE FROM SanPham s WHERE s.danhMuc.danhMucId = :danhMucId")
+    void deleteByDanhMucId(@Param("danhMucId") String danhMucId);
+
+    @Transactional
+    @Modifying
+    @Query("DELETE FROM SanPham s WHERE s.danhMuc.danhMucId IN :ids")
+    void deleteByDanhMucIdIn(@Param("ids") List<String> ids);
+
     // Public + sản phẩm mới
     Page<SanPham> findByTrangThaiAndSpMoi(
             String trangThai,
@@ -52,7 +73,12 @@ public interface SanPhamRepository extends JpaRepository<SanPham, String>, JpaSp
             Pageable pageable
     );
 
-        List<SanPham> findTop10ByTrangThaiAndSpNoiBatTrueOrderByNgayTaoDesc(String trangThai);
+    @Transactional
+    @Modifying
+    @Query("UPDATE SanPham s SET s.views = s.views + 1 WHERE s.sanPhamId = :id")
+    void incrementViews(@Param("id") String id);
+
+    List<SanPham> findTop10ByTrangThaiAndSpNoiBatTrueOrderByNgayTaoDesc(String trangThai);
 
         List<SanPham> findTop10ByTrangThaiAndSpMoiTrueOrderByNgayTaoDesc(String trangThai);
 }

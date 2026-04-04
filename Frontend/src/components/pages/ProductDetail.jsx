@@ -79,6 +79,25 @@ export default function ProductDetail() {
                 setLoading(false)
             })
     }, [slug])
+    
+    // Tăng lượt xem sản phẩm (chống view ảo bằng sessionStorage)
+    useEffect(() => {
+        if (product && product.sanPhamId) {
+            const viewedKey = `viewed_sp_${product.sanPhamId}`;
+            const hasViewed = sessionStorage.getItem(viewedKey);
+            
+            if (!hasViewed) {
+                fetch(`/api/san-pham/${product.sanPhamId}/view`, { 
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                .then(() => {
+                    sessionStorage.setItem(viewedKey, 'true');
+                })
+                .catch(err => console.error("Lỗi khi tăng lượt xem:", err));
+            }
+        }
+    }, [product])
 
     if (loading) {
         return (

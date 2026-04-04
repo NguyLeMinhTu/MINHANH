@@ -23,4 +23,5 @@ public class ProductCardDto {
     private String xuatXu;     // Thêm để lọc ở frontend (ví dụ: Việt Nam, Hàn Quốc)
     private Boolean spMoi;
     private Boolean spNoiBat;
+    private Integer views;
 }

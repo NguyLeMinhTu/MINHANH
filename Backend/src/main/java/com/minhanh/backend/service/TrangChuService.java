@@ -131,7 +131,8 @@ public class TrangChuService {
                 sp.getChatLieu(),
                 sp.getXuatXu(),
                 sp.getSpMoi(),
-                sp.getSpNoiBat()
+                sp.getSpNoiBat(),
+                sp.getViews()
         );
     }
 }

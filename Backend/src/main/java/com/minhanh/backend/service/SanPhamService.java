@@ -141,6 +141,11 @@ public class SanPhamService {
     }
 
     @Transactional
+    public void incrementViewCount(String id) {
+        sanPhamRepository.incrementViews(id);
+    }
+
+    @Transactional
     public SanPham createSanPham(SanPhamRequestDto dto) {
         SanPham sp = new SanPham(); // Tạo vùng nhớ trống trong RAM chuẩn bị nặn hình Sản Phẩm
         
@@ -517,7 +522,8 @@ public class SanPhamService {
                 sp.getChatLieu(),
                 sp.getXuatXu(),
                 sp.getSpMoi(),
-                sp.getSpNoiBat()
+                sp.getSpNoiBat(),
+                sp.getViews()
         );
     }
 }

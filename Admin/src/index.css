@@ -134,5 +134,12 @@
   --color-golden-earth-900: #2b2008;
   --color-golden-earth-950: #1e1706;
 
-  --font-sans: "Inter", "Be Vietnam Pro", sans-serif;
+  --font-sans: "Be Vietnam Pro", "Inter", system-ui, sans-serif;
 }
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}

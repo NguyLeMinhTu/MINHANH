@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { sileo } from 'sileo'
-import { Plus, Pencil, Trash2, Tag, RefreshCcw, Search } from 'lucide-react'
+import { Plus, Pencil, Trash2, Tag, RefreshCcw, Search, CornerDownRight } from 'lucide-react'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchCategories, deleteCategory, updateCategory } from '../app/slices/categorySlice'
 import { fetchProducts } from '../app/slices/productSlice'
 import CategoryFormModal from '../components/CategoryFormModal'
+import ConfirmDeleteModal from '../components/ConfirmDeleteModal'
 import Title from '../components/Title'
 
 const statusStyle = {
@@ -19,6 +20,7 @@ const ProductCategories = () => {
 
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [editingCategory, setEditingCategory] = useState(null)
+    const [confirmDeleteCategory, setConfirmDeleteCategory] = useState(null)
     const [search, setSearch] = useState('')
     const [statusFilter, setStatusFilter] = useState('all')
 
@@ -43,22 +45,23 @@ const ProductCategories = () => {
     const parentCategories = isFiltered ? filteredCategories : (Array.isArray(categories) ? categories.filter(d => !d.parent) : [])
 
     const handleDelete = (cat) => {
-        sileo.action({
-            title: 'Xác nhận xóa danh mục?',
-            description: `Bạn có chắc muốn VĨNH VIỄN XÓA danh mục "${cat.tenDanhMuc}" không?`,
-            button: {
-                title: 'Xác nhận xóa',
-                onClick: () => {
-                    sileo.promise(dispatch(deleteCategory(cat.danhMucId)).unwrap(), {
-                        loading: { title: 'Đang xử lý...', description: `Đang xóa "${cat.tenDanhMuc}" vĩnh viễn` },
-                        success: () => {
-                            dispatch(fetchCategories());
-                            return { title: 'Đã xóa thành công!' };
-                        },
-                        error: (err) => ({ title: 'Lỗi', description: err.message || JSON.stringify(err) })
-                    });
-                }
-            }
+        setConfirmDeleteCategory(cat)
+    }
+
+    const executeDelete = (cat) => {
+        const isParent = !cat.parent;
+        const msg = isParent 
+            ? `Đang xóa vĩnh viễn "${cat.tenDanhMuc}" cùng tất cả sản phẩm...`
+            : `Đang chuyển sản phẩm và xóa "${cat.tenDanhMuc}"...`;
+
+        sileo.promise(dispatch(deleteCategory(cat.danhMucId)).unwrap(), {
+            loading: { title: 'Đang xử lý...', description: msg },
+            success: () => {
+                dispatch(fetchCategories());
+                setConfirmDeleteCategory(null);
+                return { title: 'Thành công!', description: 'Yêu cầu của bạn đã được thực thi.' };
+            },
+            error: (err) => ({ title: 'Lỗi', description: err.message || JSON.stringify(err) })
         });
     }
 
@@ -120,19 +123,19 @@ const ProductCategories = () => {
                     </td>
                     <td className="px-4 py-3.5">
                         <div
-                            className="flex items-center gap-3"
-                            style={{ marginLeft: `${level * 1.5}rem` }}
+                            className="flex items-center gap-2"
+                            style={{ paddingLeft: `${level * 1.5}rem` }}
                         >
-                            {level > 0 && (
-                                <div className="flex items-center">
-                                    <div className="w-4 h-px bg-gray-200 mr-2"></div>
-                                </div>
-                            )}
+                            {level > 0 && <CornerDownRight size={16} className="text-gray-400 shrink-0" />}
                             <div className="flex flex-col">
-                                <span className={`font-semibold tracking-tight ${level === 0 ? 'text-gray-900 text-sm' : 'text-gray-600 text-xs'}`}>
+                                <span className={`font-semibold tracking-tight ${level === 0 ? 'text-gray-900 text-[13.5px]' : 'text-gray-600 text-[12.5px]'}`}>
                                     {cat.tenDanhMuc}
                                 </span>
-                                {level === 0 && <span className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">Danh mục gốc</span>}
+                                {level === 0 ? (
+                                    <span className="text-[9px] text-primary-600 font-bold uppercase tracking-widest bg-primary-50 px-1.5 py-0.5 rounded border border-primary-100/50 w-fit mt-1">Danh mục gốc</span>
+                                ) : (
+                                    <span className="text-[9px] text-gray-400 font-medium uppercase tracking-widest mt-0.5">Danh mục con</span>
+                                )}
                             </div>
                         </div>
                     </td>
@@ -153,8 +156,8 @@ const ProductCategories = () => {
                     </td>
                     <td className="px-4 py-3.5">
                         <div className="flex items-center gap-2">
-                            <div className={`w-1.5 h-1.5 rounded-full ${cat.trangThai !== false ? 'bg-primary-500 shadow-[0_0_8px_rgba(218,160,109,0.5)]' : 'bg-gray-300'}`}></div>
-                            <span className={`text-[11px] font-bold uppercase tracking-wider ${cat.trangThai !== false ? 'text-gray-700' : 'text-gray-400'}`}>
+                            <div className={`w-1.5 h-1.5 rounded-full ${cat.trangThai !== false ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-gray-300'}`}></div>
+                            <span className={`text-[11px] font-bold uppercase tracking-wider ${cat.trangThai !== false ? 'text-emerald-700' : 'text-gray-400'}`}>
                                 {cat.trangThai !== false ? 'Hoạt động' : 'Đã ẩn'}
                             </span>
                         </div>
@@ -287,6 +290,15 @@ const ProductCategories = () => {
                     category={editingCategory}
                     categories={Array.isArray(categories) ? categories : []}
                     onClose={() => setIsModalOpen(false)}
+                />
+            )}
+
+            {confirmDeleteCategory && (
+                <ConfirmDeleteModal
+                    category={confirmDeleteCategory}
+                    productCount={getProductCount(confirmDeleteCategory.danhMucId)}
+                    onConfirm={() => executeDelete(confirmDeleteCategory)}
+                    onClose={() => setConfirmDeleteCategory(null)}
                 />
             )}
         </div>
