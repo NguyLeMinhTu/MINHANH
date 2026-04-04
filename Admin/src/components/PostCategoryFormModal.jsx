@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Save } from 'lucide-react';
 import { useDispatch } from 'react-redux';
 import { sileo } from 'sileo';
 import { createPostCategory, updatePostCategory, fetchPostCategories } from '../app/slices/postCategorySlice';
+import useScrollLock from '../hooks/useScrollLock';
 
 const PostCategoryFormModal = ({ category, onClose }) => {
+    useScrollLock();
     const dispatch = useDispatch();
     const [formData, setFormData] = useState({
         tenDanhMuc: '',
@@ -54,9 +57,9 @@ const PostCategoryFormModal = ({ category, onClose }) => {
         });
     };
 
-    return (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center backdrop-blur-sm p-4">
-            <div className="bg-white rounded-2xl w-full max-w-lg overflow-hidden flex flex-col shadow-2xl">
+    return createPortal(
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center backdrop-blur-md p-4 animate-in fade-in duration-300">
+            <div className="bg-white rounded-2xl w-full max-w-lg overflow-hidden flex flex-col shadow-2xl animate-in zoom-in-95 duration-300">
                 <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-surface-100">
                     <h3 className="font-bold text-gray-800 text-lg uppercase tracking-wide">
                         {category ? 'Chỉnh sửa Danh Mục' : 'Thêm Danh Mục Mới'}
@@ -106,7 +109,8 @@ const PostCategoryFormModal = ({ category, onClose }) => {
                     </button>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
 

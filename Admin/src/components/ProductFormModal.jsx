@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { sileo } from 'sileo';
 import { X, Trash2, Save, ImagePlus, Star, Plus } from 'lucide-react';
 import axiosInstance from '../utils/axiosConfig';
 import { useDispatch } from 'react-redux';
 import { updateProduct, fetchProducts } from '../app/slices/productSlice';
+import useScrollLock from '../hooks/useScrollLock';
 
 const ProductFormModal = ({ product, categories, onClose }) => {
+    useScrollLock();
     const dispatch = useDispatch();
     const [loading, setLoading] = useState(false);
     const [activeTab, setActiveTab] = useState('thong_tin');
@@ -222,9 +225,9 @@ const ProductFormModal = ({ product, categories, onClose }) => {
         { id: 'hinh_anh', label: `Lệnh Ảnh (${formData.images?.length || 0})` }
     ];
 
-    return (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center backdrop-blur-sm p-4">
-            <div className="bg-white rounded-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
+    return createPortal(
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center backdrop-blur-md p-4 animate-in fade-in duration-300">
+            <div className="bg-white rounded-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl animate-in zoom-in-95 duration-300">
                 <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-white">
                     <h3 className="font-bold text-gray-800 text-lg uppercase tracking-wide">Sửa thông tin sản phẩm</h3>
                     <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-gray-200 text-gray-500 transition-colors">
@@ -429,7 +432,8 @@ const ProductFormModal = ({ product, categories, onClose }) => {
                     </button>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
 

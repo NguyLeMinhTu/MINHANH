@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { sileo } from 'sileo'
 import { Search, Plus, Pencil, Trash2, Eye, LayoutGrid, List, X } from 'lucide-react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -7,6 +8,7 @@ import { fetchCategories } from '../app/slices/categorySlice'
 import ProductFormModal from '../components/ProductFormModal'
 import ProductAddForm from '../components/ProductAddForm'
 import Title from '../components/Title'
+import useScrollLock from '../hooks/useScrollLock'
 
 const trangThaiStyle = {
     cong_khai: 'bg-emerald-100 text-emerald-700',
@@ -16,6 +18,7 @@ const trangThaiStyle = {
 const trangThaiLabel = { cong_khai: 'Công khai', an: 'Ẩn', het_hang: 'Hết hàng' }
 
 const ProductDetail = ({ product, onClose }) => {
+    useScrollLock();
     const [activeTab, setActiveTab] = useState('thong_tin');
 
     // Logic "Unflatten" biến thể: Group by Color
@@ -52,9 +55,9 @@ const ProductDetail = ({ product, onClose }) => {
         </div>
     );
 
-    return (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center backdrop-blur-sm p-4 animate-in fade-in duration-300" onClick={onClose}>
-            <div className="bg-white rounded-3xl w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl animate-in zoom-in duration-300" onClick={e => e.stopPropagation()}>
+    return createPortal(
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center backdrop-blur-md p-4 animate-in fade-in duration-300" onClick={onClose}>
+            <div className="bg-white rounded-3xl w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl animate-in zoom-in-95 duration-300" onClick={e => e.stopPropagation()}>
                 {/* Header */}
                 <div className="flex items-center justify-between px-8 py-5 border-b border-gray-50 shrink-0">
                     <div>
@@ -219,7 +222,8 @@ const ProductDetail = ({ product, onClose }) => {
                     </button>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 }
 

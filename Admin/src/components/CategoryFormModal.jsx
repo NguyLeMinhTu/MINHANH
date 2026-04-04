@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Save, ImagePlus, Trash2 } from 'lucide-react';
 import axiosInstance from '../utils/axiosConfig';
 import { useDispatch } from 'react-redux';
 import { createCategory, updateCategory, fetchCategories } from '../app/slices/categorySlice';
 import { sileo } from 'sileo';
+import useScrollLock from '../hooks/useScrollLock';
 
 const CategoryFormModal = ({ category, categories, onClose }) => {
+    useScrollLock();
     const dispatch = useDispatch();
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
@@ -95,9 +98,9 @@ const CategoryFormModal = ({ category, categories, onClose }) => {
     // Lọc ra danh sách Mẹ: Danh mục mẹ không thể là chính nó
     const availableParents = categories.filter(c => c.danhMucId !== category?.danhMucId);
 
-    return (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center backdrop-blur-sm p-4">
-            <div className="bg-white rounded-2xl w-full max-w-2xl overflow-hidden flex flex-col shadow-2xl">
+    return createPortal(
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center backdrop-blur-md p-4 animate-in fade-in duration-300">
+            <div className="bg-white rounded-2xl w-full max-w-2xl overflow-hidden flex flex-col shadow-2xl animate-in zoom-in-95 duration-300">
                 <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-surface-100">
                     <h3 className="font-bold text-gray-800 text-lg uppercase tracking-wide">
                         {category ? 'Chỉnh sửa Danh Mục' : 'Thêm Danh Mục Mới'}
@@ -186,7 +189,8 @@ const CategoryFormModal = ({ category, categories, onClose }) => {
                     </button>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
 

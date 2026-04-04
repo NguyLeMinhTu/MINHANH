@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { Plus, Pencil, Trash2, GripVertical, Eye, EyeOff, X, Upload, Loader2 } from 'lucide-react'
 import axios from '../utils/axiosConfig'
 import { sileo } from 'sileo'
 import Title from '../components/Title'
+import useScrollLock from '../hooks/useScrollLock'
 
 // ====== Upload ảnh trực tiếp lên /api/upload ======
 const uploadImage = async (file) => {
@@ -20,6 +22,7 @@ const uploadImage = async (file) => {
 
 // ====== Modal Thêm / Sửa Slide ======
 const SlideModal = ({ slide, onClose, onSaved }) => {
+    useScrollLock();
     const [form, setForm] = useState({
         tieuDe: slide?.tieuDe || '',
         moTa: slide?.moTa || '',
@@ -72,9 +75,9 @@ const SlideModal = ({ slide, onClose, onSaved }) => {
         setSaving(false);
     }
 
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden">
+    return createPortal(
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md p-4 animate-in fade-in duration-300">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden animate-in zoom-in-95 duration-300">
                 <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
                     <h3 className="font-bold text-gray-800">{slide ? 'Chỉnh sửa slide' : 'Thêm slide mới'}</h3>
                     <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-lg transition-colors"><X size={18} /></button>
@@ -151,7 +154,8 @@ const SlideModal = ({ slide, onClose, onSaved }) => {
                     </div>
                 </form>
             </div>
-        </div>
+        </div>,
+        document.body
     )
 }
 

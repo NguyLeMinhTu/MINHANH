@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Save, Upload, Type, Link, Image as ImageIcon, BookOpen } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { sileo } from 'sileo';
@@ -7,6 +8,7 @@ import { fetchPostCategories } from '../app/slices/postCategorySlice';
 import axiosInstance from '../utils/axiosConfig';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
+import useScrollLock from '../hooks/useScrollLock';
 
 const statusOptions = [
     { label: 'Công khai', value: 'PUBLISHED' },
@@ -15,6 +17,7 @@ const statusOptions = [
 ];
 
 const PostFormModal = ({ post, onClose }) => {
+    useScrollLock();
     const dispatch = useDispatch();
     const quillRef = useRef(null);
     const { items: categories } = useSelector(state => state.postCategories);
@@ -133,9 +136,9 @@ const PostFormModal = ({ post, onClose }) => {
         });
     };
 
-    return (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center backdrop-blur-sm p-4 text-gray-800">
-            <div className="bg-white rounded-2xl w-full max-w-6xl h-[95vh] flex flex-col shadow-2xl relative animate-in fade-in zoom-in duration-200">
+    return createPortal(
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center backdrop-blur-md p-4 text-gray-800 animate-in fade-in duration-300">
+            <div className="bg-white rounded-2xl w-full max-w-6xl h-[95vh] flex flex-col shadow-2xl relative animate-in zoom-in-95 duration-300">
                 {/* Header */}
                 <div className="flex items-center justify-between px-8 py-4 border-b border-gray-100 bg-gray-50/50 rounded-t-2xl">
                     <div className="flex items-center gap-3">
@@ -271,7 +274,8 @@ const PostFormModal = ({ post, onClose }) => {
                     </button>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
 

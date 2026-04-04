@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { AlertTriangle, X, Trash2, ArrowRight } from 'lucide-react';
+import useScrollLock from '../hooks/useScrollLock';
 
 const ConfirmDeleteModal = ({ category, productCount, onConfirm, onClose }) => {
+    useScrollLock();
     const [isConfirmed, setIsConfirmed] = useState(false);
     const isParent = !category.parent;
     const canSubmit = isParent ? isConfirmed : true;
 
-    return (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center backdrop-blur-md p-4 animate-in fade-in duration-200" onClick={onClose}>
-            <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl border border-gray-100 flex flex-col transform transition-all scale-100" onClick={e => e.stopPropagation()}>
+    return createPortal(
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center backdrop-blur-md p-4 animate-in fade-in duration-300" onClick={onClose}>
+            <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl border border-gray-100 flex flex-col transform transition-all scale-100 animate-in zoom-in-95 duration-300" onClick={e => e.stopPropagation()}>
                 {/* Header */}
                 <div className={`px-6 py-5 flex items-center gap-3 ${isParent ? 'bg-primary-50 border-b border-primary-100' : 'bg-primary-50 border-b border-primary-100'}`}>
                     <div className={`p-2 rounded-xl scale-110 ${isParent ? 'bg-primary-600 text-white shadow-lg shadow-primary-200' : 'bg-primary-500 text-white shadow-lg shadow-primary-200'}`}>
@@ -98,7 +101,8 @@ const ConfirmDeleteModal = ({ category, productCount, onConfirm, onClose }) => {
                     </button>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 }
 ;
