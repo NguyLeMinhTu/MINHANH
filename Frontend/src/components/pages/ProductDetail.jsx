@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import ProductCard from '../product/ProductCard'
 import Title from '../common/Title'
-import { Factory, Truck, CheckCircle, Users } from "lucide-react"
+import { Factory, Truck, CheckCircle, Users, X, Loader2 } from "lucide-react"
 
 const slugify = (s) =>
     s?.toString().toLowerCase().trim()
@@ -25,6 +25,77 @@ export default function ProductDetail() {
     const [activeTab, setActiveTab] = useState('description')
     const scrollRef = useRef(null)
     const [isHovered, setIsHovered] = useState(false)
+
+    // Consultation modal state
+    const [showConsultModal, setShowConsultModal] = useState(false)
+    const [consultForm, setConsultForm] = useState({
+        tenSanPham: '',
+        hoTen: '',
+        soDienThoai: '',
+        soLuong: ''
+    })
+    const [consultErrors, setConsultErrors] = useState({})
+    const [consultLoading, setConsultLoading] = useState(false)
+    const [consultSuccess, setConsultSuccess] = useState(false)
+
+    const openConsultModal = () => {
+        setConsultForm({
+            tenSanPham: product?.tenSanPham || '',
+            hoTen: '',
+            soDienThoai: '',
+            soLuong: ''
+        })
+        setConsultErrors({})
+        setConsultSuccess(false)
+        setShowConsultModal(true)
+    }
+
+    const validatePhone = (phone) => {
+        const cleaned = phone.replace(/\s/g, '')
+        return /^(0[2-9]\d{8}|84[2-9]\d{8})$/.test(cleaned)
+    }
+
+    const handleConsultSubmit = async (e) => {
+        e.preventDefault()
+        const errors = {}
+
+        if (!consultForm.hoTen.trim()) errors.hoTen = 'Vui lòng nhập họ tên'
+        if (!consultForm.soDienThoai.trim()) {
+            errors.soDienThoai = 'Vui lòng nhập số điện thoại'
+        } else if (!validatePhone(consultForm.soDienThoai)) {
+            errors.soDienThoai = 'Số điện thoại không hợp lệ (VD: 0901234567)'
+        }
+
+        if (Object.keys(errors).length > 0) {
+            setConsultErrors(errors)
+            return
+        }
+        setConsultErrors({})
+        setConsultLoading(true)
+
+        try {
+            const payload = {
+                tenKhach: consultForm.hoTen,
+                soDienThoai: consultForm.soDienThoai,
+                noiDung: `[Tư vấn áo mẫu] Sản phẩm: ${consultForm.tenSanPham}${consultForm.soLuong ? ` | Số lượng: ${consultForm.soLuong}` : ''}`
+            }
+            const res = await fetch('/api/yeu-cau-tu-van', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+
+            if (res.ok) {
+                setConsultSuccess(true)
+            } else {
+                setConsultErrors({ submit: 'Có lỗi xảy ra. Vui lòng thử lại sau.' })
+            }
+        } catch {
+            setConsultErrors({ submit: 'Không thể kết nối máy chủ. Vui lòng thử lại.' })
+        } finally {
+            setConsultLoading(false)
+        }
+    }
 
     const scroll = (direction) => {
         if (scrollRef.current) {
@@ -79,22 +150,22 @@ export default function ProductDetail() {
                 setLoading(false)
             })
     }, [slug])
-    
+
     // Tăng lượt xem sản phẩm (chống view ảo bằng sessionStorage)
     useEffect(() => {
         if (product && product.sanPhamId) {
             const viewedKey = `viewed_sp_${product.sanPhamId}`;
             const hasViewed = sessionStorage.getItem(viewedKey);
-            
+
             if (!hasViewed) {
-                fetch(`/api/san-pham/${product.sanPhamId}/view`, { 
+                fetch(`/api/san-pham/${product.sanPhamId}/view`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' }
                 })
-                .then(() => {
-                    sessionStorage.setItem(viewedKey, 'true');
-                })
-                .catch(err => console.error("Lỗi khi tăng lượt xem:", err));
+                    .then(() => {
+                        sessionStorage.setItem(viewedKey, 'true');
+                    })
+                    .catch(err => console.error("Lỗi khi tăng lượt xem:", err));
             }
         }
     }, [product])
@@ -403,9 +474,10 @@ export default function ProductDetail() {
                                     </div>
                                 </a>
                                 <button
+                                    onClick={openConsultModal}
                                     className="flex flex-col items-center justify-center w-full bg-white border-2 border-[#9b7b31] hover:bg-[#9b7b31] text-[#9b7b31] hover:text-white rounded-2xl py-3.5 transition-all hover:scale-[1.02] shadow-sm hover:shadow-md"
                                 >
-                                    <p className="text-sm font-bold uppercase tracking-wide leading-tight">Đặt áo mẫu</p>
+                                    <p className="text-sm font-bold uppercase tracking-wide leading-tight">Tư vấn áo mẫu</p>
                                     <p className="text-xs font-medium opacity-80">Gửi mẫu tận nơi hoàn toàn miễn phí</p>
                                 </button>
                             </div>
@@ -553,6 +625,144 @@ export default function ProductDetail() {
                                     className={`w-2 h-2 rounded-full transition-all ${activeImg === i ? 'bg-white w-6' : 'bg-white/40'}`}
                                 />
                             ))}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* ── Consultation Modal ── */}
+            {showConsultModal && (
+                <div
+                    className="fixed inset-0 z-100 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+                    onClick={() => setShowConsultModal(false)}
+                >
+                    <div
+                        className="relative bg-white rounded-2xl shadow-2xl w-full max-w-xl overflow-hidden animate-in zoom-in-95 fade-in duration-300 flex flex-col sm:flex-row"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* ── Left: Product Image + Name ── */}
+                        <div className="sm:w-48 shrink-0 bg-carbon-black-50 border-r border-carbon-black-100 flex flex-col items-center justify-center p-6 gap-4">
+                            <div className="w-32 h-40 rounded-xl overflow-hidden shadow-sm shrink-0 border border-carbon-black-100">
+                                <img
+                                    src={images[activeImg] || ''}
+                                    alt={name}
+                                    className="w-full h-full object-cover"
+                                />
+                            </div>
+
+                            <div className="text-center space-y-1">
+                                <p className="text-[10px] font-bold text-carbon-black-400 uppercase tracking-widest">Sản phẩm</p>
+                                <p className="text-sm font-bold text-carbon-black-800 leading-snug line-clamp-3">{name}</p>
+                                {(formattedDiscount || formattedPrice) && (
+                                    <p className="text-xs font-bold text-brown-bark-700 pt-0.5">
+                                        Từ {formattedDiscount || formattedPrice}₫
+                                    </p>
+                                )}
+                            </div>
+
+                            <div className="flex items-center gap-1.5 border border-emerald-200 bg-emerald-50 rounded-full px-3 py-1">
+                                <CheckCircle size={11} className="text-emerald-500 shrink-0" />
+                                <span className="text-[10px] font-semibold text-emerald-700">Gửi mẫu miễn phí</span>
+                            </div>
+                        </div>
+
+                        {/* ── Right: Form ── */}
+                        <div className="flex-1 flex flex-col min-w-0">
+                            {/* Header */}
+                            <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-carbon-black-100">
+                                <div>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-carbon-black-400">Đăng ký nhận</p>
+                                    <h3 className="text-base font-bold text-carbon-black-900 mt-0.5">Tư vấn áo mẫu miễn phí</h3>
+                                </div>
+                                <button
+                                    onClick={() => setShowConsultModal(false)}
+                                    className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-carbon-black-100 text-carbon-black-400 transition-colors shrink-0"
+                                >
+                                    <X size={16} />
+                                </button>
+                            </div>
+
+                            {consultSuccess ? (
+                                <div className="flex-1 flex flex-col items-center justify-center p-8 text-center gap-3">
+                                    <div className="w-14 h-14 rounded-full bg-emerald-100 flex items-center justify-center">
+                                        <CheckCircle className="w-7 h-7 text-emerald-600" />
+                                    </div>
+                                    <h4 className="text-base font-bold text-carbon-black-900">Gửi yêu cầu thành công!</h4>
+                                    <p className="text-sm text-carbon-black-500 max-w-xs">Đội ngũ tư vấn sẽ liên hệ bạn trong thời gian sớm nhất.</p>
+                                    <button
+                                        onClick={() => setShowConsultModal(false)}
+                                        className="mt-2 px-6 py-2.5 bg-carbon-black-900 text-white rounded-xl text-sm font-bold hover:bg-carbon-black-800 transition-colors"
+                                    >
+                                        Đóng
+                                    </button>
+                                </div>
+                            ) : (
+                                <form onSubmit={handleConsultSubmit} className="flex-1 p-5 space-y-4">
+                                    {/* Họ tên */}
+                                    <div>
+                                        <label className="block text-xs font-semibold text-carbon-black-600 mb-1.5">
+                                            Họ và Tên <span className="text-red-500">*</span>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={consultForm.hoTen}
+                                            onChange={(e) => setConsultForm(f => ({ ...f, hoTen: e.target.value }))}
+                                            className={`w-full h-11 rounded-xl border px-4 text-sm text-carbon-black-900 outline-none transition-colors placeholder:text-carbon-black-300 ${consultErrors.hoTen ? 'border-red-400 bg-red-50/50' : 'border-carbon-black-200 bg-carbon-black-50/50 focus:bg-white focus:border-carbon-black-400'}`}
+                                            placeholder="Họ và tên đầy đủ"
+                                        />
+                                        {consultErrors.hoTen && <p className="text-xs text-red-500 mt-1">{consultErrors.hoTen}</p>}
+                                    </div>
+
+                                    {/* Số điện thoại */}
+                                    <div>
+                                        <label className="block text-xs font-semibold text-carbon-black-600 mb-1.5">
+                                            Số điện thoại <span className="text-red-500">*</span>
+                                        </label>
+                                        <input
+                                            type="tel"
+                                            inputMode="tel"
+                                            value={consultForm.soDienThoai}
+                                            onChange={(e) => setConsultForm(f => ({ ...f, soDienThoai: e.target.value }))}
+                                            className={`w-full h-11 rounded-xl border px-4 text-sm text-carbon-black-900 outline-none transition-colors placeholder:text-carbon-black-300 ${consultErrors.soDienThoai ? 'border-red-400 bg-red-50/50' : 'border-carbon-black-200 bg-carbon-black-50/50 focus:bg-white focus:border-carbon-black-400'}`}
+                                            placeholder="Số điện thoại"
+                                        />
+                                        {consultErrors.soDienThoai && <p className="text-xs text-red-500 mt-1">{consultErrors.soDienThoai}</p>}
+                                    </div>
+
+                                    {/* Số lượng */}
+                                    <div>
+                                        <label className="block text-xs font-semibold text-carbon-black-600 mb-1.5">
+                                            Số lượng cần báo
+                                        </label>
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            value={consultForm.soLuong}
+                                            onChange={(e) => setConsultForm(f => ({ ...f, soLuong: e.target.value }))}
+                                            className="w-full h-11 rounded-xl border border-carbon-black-200 bg-carbon-black-50/50 focus:bg-white focus:border-carbon-black-400 px-4 text-sm text-carbon-black-900 outline-none transition-colors placeholder:text-carbon-black-300"
+                                            placeholder="Số lượng cần báo"
+                                        />
+                                    </div>
+
+                                    {consultErrors.submit && (
+                                        <p className="text-xs text-red-500 text-center bg-red-50 rounded-lg py-2">{consultErrors.submit}</p>
+                                    )}
+
+                                    {/* Submit */}
+                                    <button
+                                        type="submit"
+                                        disabled={consultLoading}
+                                        className="w-full flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-600 text-white rounded-full py-3.5 text-sm font-bold uppercase tracking-widest transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                                    >
+                                        {consultLoading && <Loader2 size={15} className="animate-spin" />}
+                                        {consultLoading ? 'Đang gửi...' : 'Nhận tư vấn'}
+                                    </button>
+
+                                    <p className="text-[10px] text-carbon-black-400 text-center pb-1">
+                                        Bằng việc gửi thông tin, bạn đồng ý để chúng tôi liên hệ tư vấn.
+                                    </p>
+                                </form>
+                            )}
                         </div>
                     </div>
                 </div>
