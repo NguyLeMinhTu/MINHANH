@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { sileo } from 'sileo'
 import { Search, Plus, Pencil, Trash2, Eye, LayoutGrid, List, X } from 'lucide-react'
 import { useDispatch, useSelector } from 'react-redux'
+import { motion } from 'framer-motion'
 import { fetchProducts, deleteProduct } from '../app/slices/productSlice'
 import { fetchCategories } from '../app/slices/categorySlice'
 import ProductFormModal from '../components/ProductFormModal'
@@ -75,10 +76,17 @@ const ProductDetail = ({ product, onClose }) => {
                         <button
                             key={tab.id}
                             onClick={(e) => { e.stopPropagation(); setActiveTab(tab.id); }}
-                            className={`pb-3 px-1 text-sm font-bold transition-all border-b-2 whitespace-nowrap ${activeTab === tab.id ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-400 hover:text-gray-600'
+                            className={`relative pb-3 px-1 text-sm font-bold transition-colors whitespace-nowrap ${activeTab === tab.id ? 'text-primary-600' : 'text-gray-400 hover:text-gray-600'
                                 }`}
                         >
                             {tab.label}
+                            {activeTab === tab.id && (
+                                <motion.div
+                                    layoutId="activeTabProductDetail"
+                                    className="absolute bottom-0 left-0 right-0 h-[2px] bg-primary-500"
+                                    transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                                />
+                            )}
                         </button>
                     ))}
                 </div>
@@ -240,6 +248,8 @@ const Products = () => {
     const [selected, setSelected] = useState(null)
     const [editingProduct, setEditingProduct] = useState(null)
     const [isAdding, setIsAdding] = useState(false)
+    const [currentPage, setCurrentPage] = useState(1)
+    const itemsPerPage = 12
 
     useEffect(() => {
         dispatch(fetchProducts({ page: 0, size: 50 }))
@@ -259,6 +269,13 @@ const Products = () => {
             return matchesSearch && matchesCategory && matchesStatus;
         });
     }, [pageData?.content, search, categoryFilter, statusFilter]);
+
+    useEffect(() => {
+        setCurrentPage(1)
+    }, [search, categoryFilter, statusFilter])
+
+    const totalPages = Math.ceil(filtered.length / itemsPerPage)
+    const paginatedProducts = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
 
     const parentCategories = React.useMemo(() => 
         Array.isArray(categoriesList) ? categoriesList.filter(c => !c.parent) : []
@@ -326,11 +343,18 @@ const Products = () => {
                             <button
                                 key={tab.value}
                                 onClick={() => setStatusFilter(tab.value)}
-                                className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all ${statusFilter === tab.value
-                                    ? 'bg-primary-800 text-white shadow-sm'
+                                className={`relative px-4 py-1.5 text-xs font-bold rounded-lg transition-colors ${statusFilter === tab.value
+                                    ? 'text-white'
                                     : 'text-slate-500 hover:text-slate-700 hover:bg-slate-100'}`}
                             >
-                                {tab.label}
+                                {statusFilter === tab.value && (
+                                    <motion.div
+                                        layoutId="activeTabProductStatus"
+                                        className="absolute inset-0 bg-primary-800 rounded-lg shadow-sm"
+                                        transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                                    />
+                                )}
+                                <span className="relative z-10">{tab.label}</span>
                             </button>
                         ))}
                     </div>
@@ -407,11 +431,11 @@ const Products = () => {
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-50">
-                                        {filtered.length === 0 ? (
+                                        {paginatedProducts.length === 0 ? (
                                             <tr>
                                                 <td colSpan="7" className="text-center py-10 text-gray-400 italic">Không có sản phẩm nào phù hợp</td>
                                             </tr>
-                                        ) : filtered.map((p) => {
+                                        ) : paginatedProducts.map((p) => {
                                             const images = p.hinhAnh ? (Array.isArray(p.hinhAnh) ? p.hinhAnh : JSON.parse(p.hinhAnh)) : []
                                             const imgUrl = (images[0]?.urlAnh || images[0]?.url || images[0]) || 'https://placehold.co/100x100?text=No+Img'
 
@@ -484,9 +508,9 @@ const Products = () => {
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
-                                {filtered.length === 0 ? (
+                                {paginatedProducts.length === 0 ? (
                                     <div className="col-span-full text-center py-10 text-gray-400 italic">Không có sản phẩm nào phù hợp</div>
-                                ) : filtered.map((p) => {
+                                ) : paginatedProducts.map((p) => {
                                     const images = p.hinhAnh ? (Array.isArray(p.hinhAnh) ? p.hinhAnh : JSON.parse(p.hinhAnh)) : []
                                     const imgUrl = (images[0]?.urlAnh || images[0]?.url || images[0]) || 'https://placehold.co/400x400?text=No+Img'
 
@@ -539,6 +563,40 @@ const Products = () => {
                                 })}
                             </div>
                         )}
+                    </div>
+                )}
+
+                {totalPages > 1 && (
+                    <div className="px-6 py-4 bg-gray-50/30 border-t border-gray-100 flex items-center justify-center relative">
+                        <p className="text-xs text-gray-500 italic absolute left-6 hidden sm:block">
+                            Hiển thị {paginatedProducts.length} sản phẩm trên tổng số {filtered.length}
+                        </p>
+                        <div className="flex gap-1.5">
+                            <button
+                                disabled={currentPage === 1}
+                                onClick={() => setCurrentPage(prev => prev - 1)}
+                                className="px-3 py-1 text-xs border border-gray-200 rounded-lg hover:bg-white disabled:opacity-40 transition-colors"
+                            >
+                                Trước
+                            </button>
+                            {[...Array(totalPages)].map((_, i) => (
+                                <button
+                                    key={i}
+                                    onClick={() => setCurrentPage(i + 1)}
+                                    className={`w-8 h-8 flex items-center justify-center rounded-lg text-xs font-semibold transition-all ${currentPage === i + 1 ? 'bg-primary-500 text-white shadow-sm' : 'hover:bg-white border border-transparent hover:border-gray-200 text-gray-600'
+                                        }`}
+                                >
+                                    {i + 1}
+                                </button>
+                            ))}
+                            <button
+                                disabled={currentPage === totalPages}
+                                onClick={() => setCurrentPage(prev => prev + 1)}
+                                className="px-3 py-1 text-xs border border-gray-200 rounded-lg hover:bg-white disabled:opacity-40 transition-colors"
+                            >
+                                Sau
+                            </button>
+                        </div>
                     </div>
                 )}
             </div>

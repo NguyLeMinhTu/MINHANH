@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { sileo } from 'sileo'
 import { Plus, Pencil, Trash2, Tag, RefreshCcw, Search, CornerDownRight } from 'lucide-react'
 import { useDispatch, useSelector } from 'react-redux'
+import { motion } from 'framer-motion'
 import { fetchCategories, deleteCategory, updateCategory } from '../app/slices/categorySlice'
 import { fetchProducts } from '../app/slices/productSlice'
 import CategoryFormModal from '../components/CategoryFormModal'
@@ -23,6 +24,8 @@ const ProductCategories = () => {
     const [confirmDeleteCategory, setConfirmDeleteCategory] = useState(null)
     const [search, setSearch] = useState('')
     const [statusFilter, setStatusFilter] = useState('all')
+    const [currentPage, setCurrentPage] = useState(1)
+    const itemsPerPage = 5
 
     useEffect(() => {
         dispatch(fetchCategories())
@@ -43,6 +46,13 @@ const ProductCategories = () => {
     }) : []
 
     const parentCategories = isFiltered ? filteredCategories : (Array.isArray(categories) ? categories.filter(d => !d.parent) : [])
+
+    useEffect(() => {
+        setCurrentPage(1)
+    }, [search, statusFilter])
+
+    const totalPages = Math.ceil(parentCategories.length / itemsPerPage)
+    const paginatedCategories = parentCategories.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
 
     const handleDelete = (cat) => {
         setConfirmDeleteCategory(cat)
@@ -219,11 +229,18 @@ const ProductCategories = () => {
                             <button
                                 key={tab.value}
                                 onClick={() => setStatusFilter(tab.value)}
-                                className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all ${statusFilter === tab.value
-                                    ? 'bg-primary-800 text-white shadow-sm'
+                                className={`relative px-4 py-1.5 text-xs font-bold rounded-lg transition-colors ${statusFilter === tab.value
+                                    ? 'text-white'
                                     : 'text-slate-500 hover:text-slate-700 hover:bg-slate-100'}`}
                             >
-                                {tab.label}
+                                {statusFilter === tab.value && (
+                                    <motion.div
+                                        layoutId="activeTabProductCatStatus"
+                                        className="absolute inset-0 bg-primary-800 rounded-lg shadow-sm"
+                                        transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                                    />
+                                )}
+                                <span className="relative z-10">{tab.label}</span>
                             </button>
                         ))}
                     </div>
@@ -272,15 +289,49 @@ const ProductCategories = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {parentCategories.length === 0 ? (
+                                {paginatedCategories.length === 0 ? (
                                     <tr>
                                         <td colSpan="7" className="py-24 text-center text-gray-300 text-[13px] font-medium italic">
                                             Không có danh mục nào được tìm thấy
                                         </td>
                                     </tr>
-                                ) : parentCategories.map(cat => renderCategoryRow(cat, 0))}
+                                ) : paginatedCategories.map(cat => renderCategoryRow(cat, 0))}
                             </tbody>
                         </table>
+                    </div>
+                )}
+                {/* Pagination */}
+                {totalPages > 1 && (
+                    <div className="px-6 py-4 bg-gray-50/30 border-t border-gray-100 flex items-center justify-center relative">
+                        <p className="text-xs text-gray-500 italic absolute left-6 hidden sm:block">
+                            Hiển thị {paginatedCategories.length} mục trên tổng số {parentCategories.length}
+                        </p>
+                        <div className="flex gap-1.5">
+                            <button
+                                disabled={currentPage === 1}
+                                onClick={() => setCurrentPage(prev => prev - 1)}
+                                className="px-3 py-1 text-xs border border-gray-200 rounded-lg hover:bg-white disabled:opacity-40 transition-colors"
+                            >
+                                Trước
+                            </button>
+                            {[...Array(totalPages)].map((_, i) => (
+                                <button
+                                    key={i}
+                                    onClick={() => setCurrentPage(i + 1)}
+                                    className={`w-8 h-8 flex items-center justify-center rounded-lg text-xs font-semibold transition-all ${currentPage === i + 1 ? 'bg-primary-500 text-white shadow-sm' : 'hover:bg-white border border-transparent hover:border-gray-200 text-gray-600'
+                                        }`}
+                                >
+                                    {i + 1}
+                                </button>
+                            ))}
+                            <button
+                                disabled={currentPage === totalPages}
+                                onClick={() => setCurrentPage(prev => prev + 1)}
+                                className="px-3 py-1 text-xs border border-gray-200 rounded-lg hover:bg-white disabled:opacity-40 transition-colors"
+                            >
+                                Sau
+                            </button>
+                        </div>
                     </div>
                 )}
             </div>

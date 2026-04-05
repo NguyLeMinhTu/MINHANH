@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Search, Plus, Mail, Phone, Lock, Unlock } from 'lucide-react'
 import { nguoiDung } from '../assets/assets'
 import Title from '../components/Title'
@@ -9,10 +9,20 @@ const statusStyle = { true: 'bg-emerald-100 text-emerald-700', false: 'bg-red-10
 
 const Users = () => {
     const [search, setSearch] = useState('')
+    const [currentPage, setCurrentPage] = useState(1)
+    const itemsPerPage = 5
+
     const filtered = nguoiDung.filter((u) =>
         u.ten.toLowerCase().includes(search.toLowerCase()) ||
         u.email.toLowerCase().includes(search.toLowerCase())
     )
+
+    useEffect(() => {
+        setCurrentPage(1)
+    }, [search])
+
+    const totalPages = Math.ceil(filtered.length / itemsPerPage)
+    const paginatedItems = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
 
     return (
         <div className="space-y-5">
@@ -50,7 +60,7 @@ const Users = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50">
-                            {filtered.map((user) => (
+                            {paginatedItems.map((user) => (
                                 <tr key={user.nguoi_dung_id} className="hover:bg-gray-50 transition-colors">
                                     <td className="px-6 py-3.5">
                                         <div className="flex items-center gap-3">
@@ -97,6 +107,40 @@ const Users = () => {
                         </tbody>
                     </table>
                 </div>
+
+                {totalPages > 1 && (
+                    <div className="px-6 py-4 bg-gray-50/30 border-t border-gray-100 flex items-center justify-center relative">
+                        <p className="text-xs text-gray-500 italic absolute left-6 hidden sm:block">
+                            Hiển thị {paginatedItems.length} mục trên tổng số {filtered.length}
+                        </p>
+                        <div className="flex gap-1.5">
+                            <button
+                                disabled={currentPage === 1}
+                                onClick={() => setCurrentPage(prev => prev - 1)}
+                                className="px-3 py-1 text-xs border border-gray-200 rounded-lg hover:bg-white disabled:opacity-40 transition-colors"
+                            >
+                                Trước
+                            </button>
+                            {[...Array(totalPages)].map((_, i) => (
+                                <button
+                                    key={i}
+                                    onClick={() => setCurrentPage(i + 1)}
+                                    className={`w-8 h-8 flex items-center justify-center rounded-lg text-xs font-semibold transition-all ${currentPage === i + 1 ? 'bg-primary-500 text-white shadow-sm' : 'hover:bg-white border border-transparent hover:border-gray-200 text-gray-600'
+                                        }`}
+                                >
+                                    {i + 1}
+                                </button>
+                            ))}
+                            <button
+                                disabled={currentPage === totalPages}
+                                onClick={() => setCurrentPage(prev => prev + 1)}
+                                className="px-3 py-1 text-xs border border-gray-200 rounded-lg hover:bg-white disabled:opacity-40 transition-colors"
+                            >
+                                Sau
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     )

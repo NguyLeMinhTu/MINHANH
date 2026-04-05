@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Phone, MessageSquare, Clock, CheckCircle2, Trash2, Search, AlertCircle, Save, X } from 'lucide-react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useSearchParams } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import { fetchConsultations, updateConsultationStatus, deleteConsultation } from '../app/slices/consultationSlice'
 import { fetchProducts } from '../app/slices/productSlice'
 
@@ -23,6 +24,7 @@ const Consultations = () => {
     const [editingId, setEditingId] = useState(null)
     const [note, setNote] = useState('')
     const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '')
+    const [currentPage, setCurrentPage] = useState(0)
 
     useEffect(() => {
         const s = searchParams.get('search')
@@ -34,11 +36,15 @@ const Consultations = () => {
 
         if (searchTerm.length === 0 || searchTerm.length >= 10) {
             const delayDebounceFn = setTimeout(() => {
-                dispatch(fetchConsultations({ page: 0, size: 20, search: searchTerm, daXuLy }))
+                dispatch(fetchConsultations({ page: currentPage, size: 5, search: searchTerm, daXuLy }))
             }, 300)
             return () => clearTimeout(delayDebounceFn)
         }
-    }, [dispatch, activeTab, searchTerm])
+    }, [dispatch, activeTab, searchTerm, currentPage])
+
+    useEffect(() => {
+        setCurrentPage(0)
+    }, [activeTab, searchTerm])
 
     useEffect(() => {
         dispatch(fetchProducts({ page: 0, size: 1000 }))
@@ -129,11 +135,18 @@ const Consultations = () => {
                             <button
                                 key={tab}
                                 onClick={() => setActiveTab(tab)}
-                                className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all ${activeTab === tab
-                                    ? 'bg-primary-800 text-white shadow-sm'
+                                className={`relative px-4 py-1.5 text-xs font-bold rounded-lg transition-colors ${activeTab === tab
+                                    ? 'text-white'
                                     : 'text-slate-500 hover:text-slate-700 hover:bg-slate-100'}`}
                             >
-                                {tab}
+                                {activeTab === tab && (
+                                    <motion.div
+                                        layoutId="activeTabConsultations"
+                                        className="absolute inset-0 bg-primary-800 rounded-lg shadow-sm"
+                                        transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                                    />
+                                )}
+                                <span className="relative z-10">{tab}</span>
                             </button>
                         ))}
                     </div>
@@ -263,6 +276,40 @@ const Consultations = () => {
                         </div>
                     ))}
                 </div>
+
+                {pagination?.totalPages > 1 && (
+                    <div className="px-6 py-4 bg-gray-50/30 border-t border-gray-100 flex items-center justify-center relative">
+                        <p className="text-xs text-slate-500 italic absolute left-6 hidden sm:block">
+                            Hiển thị {consultations.length} yêu cầu trên tổng số {pagination.totalElements}
+                        </p>
+                        <div className="flex gap-1.5">
+                            <button
+                                disabled={pagination.number === 0}
+                                onClick={() => setCurrentPage(prev => prev - 1)}
+                                className="px-3 py-1 text-xs border border-slate-200 rounded-lg hover:bg-white disabled:opacity-40 transition-colors"
+                            >
+                                Trước
+                            </button>
+                            {[...Array(pagination.totalPages)].map((_, i) => (
+                                <button
+                                    key={i}
+                                    onClick={() => setCurrentPage(i)}
+                                    className={`w-8 h-8 flex items-center justify-center rounded-lg text-xs font-semibold transition-all ${pagination.number === i ? 'bg-primary-500 text-white shadow-sm' : 'hover:bg-white border border-transparent hover:border-slate-200 text-slate-600'
+                                        }`}
+                                >
+                                    {i + 1}
+                                </button>
+                            ))}
+                            <button
+                                disabled={pagination.number === pagination.totalPages - 1}
+                                onClick={() => setCurrentPage(prev => prev + 1)}
+                                className="px-3 py-1 text-xs border border-slate-200 rounded-lg hover:bg-white disabled:opacity-40 transition-colors"
+                            >
+                                Sau
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     )

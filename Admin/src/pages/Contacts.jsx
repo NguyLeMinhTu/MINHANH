@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Mail, Phone, Clock, CheckCircle, Trash2 } from 'lucide-react'
 import { lienHe } from '../assets/assets'
 import { sileo } from 'sileo'
+import { motion } from 'framer-motion'
 import Title from '../components/Title'
 
 const statusStyle = {
@@ -11,6 +12,11 @@ const statusStyle = {
 
 const Contacts = () => {
     const [selected, setSelected] = useState(null)
+    const [currentPage, setCurrentPage] = useState(1)
+    const itemsPerPage = 5
+
+    const totalPages = Math.ceil(lienHe.length / itemsPerPage)
+    const paginatedContacts = lienHe.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
 
     return (
         <div className="space-y-6">
@@ -29,7 +35,7 @@ const Contacts = () => {
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Tin nhắn mới nhất</p>
                     </div>
                     <div className="flex-1 overflow-y-auto divide-y divide-slate-100 scrollbar-thin scrollbar-thumb-slate-200">
-                        {lienHe.map((contact) => (
+                        {paginatedContacts.map((contact) => (
                             <button
                                 key={contact.lien_he_id}
                                 onClick={() => setSelected(contact)}
@@ -39,7 +45,11 @@ const Contacts = () => {
                                     }`}
                             >
                                 {selected?.lien_he_id === contact.lien_he_id && (
-                                    <div className="absolute inset-y-0 left-0 w-1 bg-primary-500 rounded-r-full" />
+                                    <motion.div 
+                                        layoutId="activeContactStrip"
+                                        className="absolute inset-y-0 left-0 w-1 bg-primary-500 rounded-r-full" 
+                                        transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                                    />
                                 )}
                                 <div className="flex items-center justify-between gap-2 mb-2">
                                     <p className={`text-sm font-bold tracking-tight ${!contact.da_xu_ly ? 'text-slate-900' : 'text-slate-600'}`}>
@@ -58,6 +68,30 @@ const Contacts = () => {
                             </button>
                         ))}
                     </div>
+
+                    {totalPages > 1 && (
+                        <div className="p-4 bg-slate-50/30 border-t border-slate-200 flex items-center justify-center relative">
+                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider absolute left-4 hidden sm:block">
+                                Hiển thị {paginatedContacts.length} / {lienHe.length}
+                            </p>
+                            <div className="flex gap-1.5">
+                                <button
+                                    disabled={currentPage === 1}
+                                    onClick={() => setCurrentPage(prev => prev - 1)}
+                                    className="px-3 py-1.5 text-xs font-bold border border-slate-200 rounded-lg hover:bg-white disabled:opacity-40 transition-colors text-slate-600 bg-slate-50"
+                                >
+                                    Trước
+                                </button>
+                                <button
+                                    disabled={currentPage === totalPages}
+                                    onClick={() => setCurrentPage(prev => prev + 1)}
+                                    className="px-3 py-1.5 text-xs font-bold border border-slate-200 rounded-lg hover:bg-white disabled:opacity-40 transition-colors text-slate-600 bg-slate-50"
+                                >
+                                    Sau
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Detail View */}

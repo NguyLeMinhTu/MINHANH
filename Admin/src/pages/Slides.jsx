@@ -165,6 +165,11 @@ const Slides = () => {
     const [loading, setLoading] = useState(true)
     const [modal, setModal] = useState(null) // null | 'add' | slide object
     const [dragging, setDragging] = useState(null)
+    const [currentPage, setCurrentPage] = useState(1)
+    const itemsPerPage = 5
+
+    const totalPages = Math.ceil(slides.length / itemsPerPage)
+    const paginatedSlides = slides.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
 
     const fetchSlides = async () => {
         try {
@@ -266,15 +271,17 @@ const Slides = () => {
                     </div>
                 ) : (
                     <div className="divide-y divide-gray-50">
-                        {slides.map((s, idx) => (
-                            <div
-                                key={s.id}
-                                draggable
-                                onDragStart={() => handleDragStart(idx)}
-                                onDragOver={(e) => handleDragOver(e, idx)}
-                                onDragEnd={handleDragEnd}
-                                className={`flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors ${dragging === idx ? 'opacity-50' : ''}`}
-                            >
+                        {paginatedSlides.map((s, idx) => {
+                            const actualIdx = idx + (currentPage - 1) * itemsPerPage;
+                            return (
+                                <div
+                                    key={s.id}
+                                    draggable
+                                    onDragStart={() => handleDragStart(actualIdx)}
+                                    onDragOver={(e) => handleDragOver(e, actualIdx)}
+                                    onDragEnd={handleDragEnd}
+                                    className={`flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors ${dragging === actualIdx ? 'opacity-50' : ''}`}
+                                >
                                 <button className="text-gray-300 hover:text-gray-400 cursor-grab active:cursor-grabbing">
                                     <GripVertical size={18} />
                                 </button>
@@ -314,7 +321,42 @@ const Slides = () => {
                                     </button>
                                 </div>
                             </div>
-                        ))}
+                            );
+                        })}
+                    </div>
+                )}
+                
+                {totalPages > 1 && (
+                    <div className="px-6 py-4 bg-gray-50/30 border-t border-gray-100 flex items-center justify-center relative">
+                        <p className="text-xs text-gray-500 italic absolute left-6 hidden sm:block">
+                            Hiển thị {paginatedSlides.length} slide trên tổng số {slides.length}
+                        </p>
+                        <div className="flex gap-1.5">
+                            <button
+                                disabled={currentPage === 1}
+                                onClick={() => setCurrentPage(prev => prev - 1)}
+                                className="px-3 py-1 text-xs border border-gray-200 rounded-lg hover:bg-white disabled:opacity-40 transition-colors"
+                            >
+                                Trước
+                            </button>
+                            {[...Array(totalPages)].map((_, i) => (
+                                <button
+                                    key={i}
+                                    onClick={() => setCurrentPage(i + 1)}
+                                    className={`w-8 h-8 flex items-center justify-center rounded-lg text-xs font-semibold transition-all ${currentPage === i + 1 ? 'bg-primary-500 text-white shadow-sm' : 'hover:bg-white border border-transparent hover:border-gray-200 text-gray-600'
+                                        }`}
+                                >
+                                    {i + 1}
+                                </button>
+                            ))}
+                            <button
+                                disabled={currentPage === totalPages}
+                                onClick={() => setCurrentPage(prev => prev + 1)}
+                                className="px-3 py-1 text-xs border border-gray-200 rounded-lg hover:bg-white disabled:opacity-40 transition-colors"
+                            >
+                                Sau
+                            </button>
+                        </div>
                     </div>
                 )}
             </div>

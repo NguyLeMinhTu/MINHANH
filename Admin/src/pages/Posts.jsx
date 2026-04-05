@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { sileo } from 'sileo'
 import { Plus, Pencil, Trash2, BookOpen, Search, Eye, Loader2 } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
+import { motion } from 'framer-motion';
 import { fetchPosts, deletePost } from '../app/slices/postSlice';
 import { fetchPostCategories } from '../app/slices/postCategorySlice';
 import PostFormModal from '../components/PostFormModal';
@@ -11,7 +12,7 @@ const Posts = () => {
     const dispatch = useDispatch();
     const {
         items: posts = [],
-        pagination = { totalElements: 0, totalPages: 0, number: 0, size: 10 },
+        pagination = { totalElements: 0, totalPages: 0, number: 0, size: 5 },
         status
     } = useSelector(state => state.posts || {});
     const { items: categories } = useSelector(state => state.postCategories);
@@ -30,7 +31,7 @@ const Posts = () => {
         const delayDebounceFn = setTimeout(() => {
             dispatch(fetchPosts({
                 page: 0,
-                size: 10,
+                size: 5,
                 search: searchTerm,
                 danhMucId: categoryFilter,
                 trangThai: statusFilter
@@ -105,11 +106,18 @@ const Posts = () => {
                             <button
                                 key={tab.value}
                                 onClick={() => setStatusFilter(tab.value)}
-                                className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all ${statusFilter === tab.value
-                                    ? 'bg-primary-800 text-white shadow-sm'
+                                className={`relative px-4 py-1.5 text-xs font-bold rounded-lg transition-colors ${statusFilter === tab.value
+                                    ? 'text-white'
                                     : 'text-slate-500 hover:text-slate-700 hover:bg-slate-100'}`}
                             >
-                                {tab.label}
+                                {statusFilter === tab.value && (
+                                    <motion.div
+                                        layoutId="activeTabPostStatus"
+                                        className="absolute inset-0 bg-primary-800 rounded-lg shadow-sm"
+                                        transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                                    />
+                                )}
+                                <span className="relative z-10">{tab.label}</span>
                             </button>
                         ))}
                     </div>
@@ -234,8 +242,8 @@ const Posts = () => {
                 </div>
 
                 {pagination.totalPages > 1 && (
-                    <div className="px-6 py-4 bg-gray-50/30 border-t border-gray-100 flex items-center justify-between">
-                        <p className="text-xs text-gray-500 italic">
+                    <div className="px-6 py-4 bg-gray-50/30 border-t border-gray-100 flex items-center justify-center relative">
+                        <p className="text-xs text-gray-500 italic absolute left-6 hidden sm:block">
                             Hiển thị {posts.length} bài viết trên tổng số {pagination.totalElements}
                         </p>
                         <div className="flex gap-1.5">
