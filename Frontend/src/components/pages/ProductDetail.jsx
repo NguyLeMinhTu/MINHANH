@@ -171,18 +171,18 @@ export default function ProductDetail() {
                 setConsultForm({ tenSanPham: '', hoTen: '', soDienThoai: '', soLuong: '' })
                 setConsultSuccess(true)
                 setConsultErrors({})
-                return { 
-                    title: 'Gửi thành công!', 
-                    description: 'Chúng tôi sẽ liên hệ sớm nhất có thể.' 
+                return {
+                    title: 'Gửi thành công!',
+                    description: 'Chúng tôi sẽ liên hệ sớm nhất có thể.'
                 }
             },
             error: (err) => {
                 setConsultLoading(false)
                 const errorMsg = err.message || 'Không thể gửi yêu cầu. Vui lòng thử lại.'
                 setConsultErrors({ submit: errorMsg })
-                return { 
-                    title: 'Lỗi', 
-                    description: errorMsg 
+                return {
+                    title: 'Lỗi',
+                    description: errorMsg
                 }
             }
         })
@@ -760,8 +760,8 @@ export default function ProductDetail() {
                                                 setActiveImg(i)
                                             }}
                                             className={`rounded-full overflow-hidden border-2 transition-all duration-300 ${activeImg === i
-                                                    ? 'border-white shadow-lg shadow-white/20'
-                                                    : 'border-transparent opacity-50 hover:opacity-80'
+                                                ? 'border-white shadow-lg shadow-white/20'
+                                                : 'border-transparent opacity-50 hover:opacity-80'
                                                 }`}
                                             animate={{
                                                 width: activeImg === i ? 40 : 28,

@@ -59,7 +59,7 @@ const Contact = () => {
         const now = Date.now()
         const timeSinceLastSubmit = now - lastSubmitTime
         const MIN_INTERVAL = 5000 // 5 seconds minimum between submissions
-        
+
         if (timeSinceLastSubmit < MIN_INTERVAL) {
             return `Vui lòng đợi ${Math.ceil((MIN_INTERVAL - timeSinceLastSubmit) / 1000)} giây trước khi gửi lại`
         }
@@ -116,7 +116,7 @@ const Contact = () => {
 
         // Validate all fields
         const newErrors = {}
-        
+
         const nameError = validateName(name)
         if (nameError) newErrors.name = nameError
 
@@ -187,18 +187,18 @@ const Contact = () => {
                 form.reset()
                 setErrors({})
                 window?.scrollTo?.({ top: 0, behavior: 'smooth' })
-                return { 
-                    title: 'Gửi thành công!', 
-                    description: 'Cảm ơn bạn đã liên hệ. Chúng tôi sẽ phản hồi sớm.' 
+                return {
+                    title: 'Gửi thành công!',
+                    description: 'Cảm ơn bạn đã liên hệ. Chúng tôi sẽ phản hồi sớm.'
                 }
             },
             error: (err) => {
                 setLoading(false)
                 const errorMsg = err.message || 'Không thể gửi thông tin. Vui lòng thử lại sau.'
                 setErrors({ submit: errorMsg })
-                return { 
-                    title: 'Lỗi', 
-                    description: errorMsg 
+                return {
+                    title: 'Lỗi',
+                    description: errorMsg
                 }
             }
         })
@@ -346,9 +346,8 @@ const Contact = () => {
                                     <input
                                         required
                                         name="name"
-                                        className={`h-11 rounded-2xl border bg-white/80 px-4 text-sm text-carbon-black-900 outline-none focus:border-brown-bark-300 ${
-                                            errors.name ? 'border-red-400' : 'border-carbon-black-200'
-                                        }`}
+                                        className={`h-11 rounded-2xl border bg-white/80 px-4 text-sm text-carbon-black-900 outline-none focus:border-brown-bark-300 ${errors.name ? 'border-red-400' : 'border-carbon-black-200'
+                                            }`}
                                         placeholder="Nhập họ tên"
                                     />
                                     {errors.name && <p className="mt-1 text-xs text-red-600 font-semibold">{errors.name}</p>}
@@ -360,9 +359,8 @@ const Contact = () => {
                                         required
                                         name="phone"
                                         inputMode="tel"
-                                        className={`h-11 rounded-2xl border bg-white/80 px-4 text-sm text-carbon-black-900 outline-none focus:border-brown-bark-300 ${
-                                            errors.phone ? 'border-red-400' : 'border-carbon-black-200'
-                                        }`}
+                                        className={`h-11 rounded-2xl border bg-white/80 px-4 text-sm text-carbon-black-900 outline-none focus:border-brown-bark-300 ${errors.phone ? 'border-red-400' : 'border-carbon-black-200'
+                                            }`}
                                         placeholder="VD: 0886 268 268"
                                     />
                                     {errors.phone && <p className="mt-1 text-xs text-red-600 font-semibold">{errors.phone}</p>}
@@ -373,9 +371,8 @@ const Contact = () => {
                                     <input
                                         name="email"
                                         inputMode="email"
-                                        className={`h-11 rounded-2xl border bg-white/80 px-4 text-sm text-carbon-black-900 outline-none focus:border-brown-bark-300 ${
-                                            errors.email ? 'border-red-400' : 'border-carbon-black-200'
-                                        }`}
+                                        className={`h-11 rounded-2xl border bg-white/80 px-4 text-sm text-carbon-black-900 outline-none focus:border-brown-bark-300 ${errors.email ? 'border-red-400' : 'border-carbon-black-200'
+                                            }`}
                                         placeholder="email@domain.com"
                                     />
                                     {errors.email && <p className="mt-1 text-xs text-red-600 font-semibold">{errors.email}</p>}
@@ -387,9 +384,8 @@ const Contact = () => {
                                         required
                                         name="message"
                                         rows={5}
-                                        className={`rounded-2xl border bg-white/80 px-4 py-3 text-sm text-carbon-black-900 outline-none focus:border-brown-bark-300 ${
-                                            errors.message ? 'border-red-400' : 'border-carbon-black-200'
-                                        }`}
+                                        className={`rounded-2xl border bg-white/80 px-4 py-3 text-sm text-carbon-black-900 outline-none focus:border-brown-bark-300 ${errors.message ? 'border-red-400' : 'border-carbon-black-200'
+                                            }`}
                                         placeholder="Bạn cần đồng phục gì? Số lượng? Có logo không?"
                                     />
                                     {errors.message && <p className="mt-1 text-xs text-red-600 font-semibold">{errors.message}</p>}
