@@ -26,18 +26,6 @@ export const categories = [
             { label: "Áo khoác đồng phục", href: "/ao-khoac" },
         ],
     },
-    {
-        id: 4,
-        label: "ĐỒNG PHỤC MAY SẴN",
-        href: "/dong-phuc-may-san",
-        hasSubmenu: true,
-        submenu: [
-            { label: "Đồng phục mầm non", href: "/mam-non" },
-            { label: "Đồng phục học lớp", href: "/hoc-lop" },
-            { label: "Bảo hộ lao động", href: "/bao-ho-lao-dong" },
-            { label: "Đồng phục khác", href: "/khac" },
-        ],
-    },
 
     {
         id: 5,

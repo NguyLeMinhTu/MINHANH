@@ -1,8 +1,66 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
+import { motion, AnimatePresence, useMotionValue, useTransform } from 'motion/react'
+import { sileo } from 'sileo'
 import ProductCard from '../product/ProductCard'
 import Title from '../common/Title'
+import ProductDetailTabs from '../product/ProductDetailTabs'
 import { Factory, Truck, CheckCircle, Users, X, Loader2 } from "lucide-react"
+
+// Premium spring configs
+const springSmooth = { type: 'spring', stiffness: 300, damping: 30, mass: 0.8 }
+const springBouncy = { type: 'spring', stiffness: 400, damping: 25, mass: 0.6 }
+const springGentle = { type: 'spring', stiffness: 200, damping: 28, mass: 1 }
+
+// Slide variants with 3D perspective
+const imageSlideVariants = {
+    enter: (dir) => ({
+        x: dir > 0 ? '40%' : '-40%',
+        opacity: 0,
+        scale: 0.92,
+        filter: 'blur(8px)',
+        rotateY: dir > 0 ? 8 : -8,
+    }),
+    center: {
+        x: 0,
+        opacity: 1,
+        scale: 1,
+        filter: 'blur(0px)',
+        rotateY: 0,
+    },
+    exit: (dir) => ({
+        x: dir > 0 ? '-30%' : '30%',
+        opacity: 0,
+        scale: 0.95,
+        filter: 'blur(6px)',
+        rotateY: dir > 0 ? -5 : 5,
+    }),
+}
+
+// Lightbox image variants – more dramatic 3D
+const lightboxImgVariants = {
+    enter: (dir) => ({
+        x: dir > 0 ? '60%' : '-60%',
+        opacity: 0,
+        scale: 0.85,
+        filter: 'blur(12px)',
+        rotateY: dir > 0 ? 15 : -15,
+    }),
+    center: {
+        x: 0,
+        opacity: 1,
+        scale: 1,
+        filter: 'blur(0px)',
+        rotateY: 0,
+    },
+    exit: (dir) => ({
+        x: dir > 0 ? '-40%' : '40%',
+        opacity: 0,
+        scale: 0.88,
+        filter: 'blur(10px)',
+        rotateY: dir > 0 ? -10 : 10,
+    }),
+}
 
 const slugify = (s) =>
     s?.toString().toLowerCase().trim()
@@ -18,6 +76,7 @@ export default function ProductDetail() {
     const [loading, setLoading] = useState(true)
     const [related, setRelated] = useState([])
     const [activeImg, setActiveImg] = useState(0)
+    const [imgDirection, setImgDirection] = useState(1)
     const [selectedSize, setSelectedSize] = useState(null)
     const [selectedColor, setSelectedColor] = useState(null)
     const [qty, setQty] = useState(1)
@@ -73,28 +132,60 @@ export default function ProductDetail() {
         setConsultErrors({})
         setConsultLoading(true)
 
-        try {
-            const payload = {
-                tenKhach: consultForm.hoTen,
-                soDienThoai: consultForm.soDienThoai,
-                noiDung: `[Tư vấn áo mẫu] Sản phẩm: ${consultForm.tenSanPham}${consultForm.soLuong ? ` | Số lượng: ${consultForm.soLuong}` : ''}`
-            }
-            const res = await fetch('/api/yeu-cau-tu-van', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+        const payload = {
+            tenKhach: consultForm.hoTen,
+            soDienThoai: consultForm.soDienThoai,
+            noiDung: `[Tư vấn áo mẫu] Sản phẩm: ${consultForm.tenSanPham}${consultForm.soLuong ? ` | Số lượng: ${consultForm.soLuong}` : ''}`
+        }
+
+        // Add timeout to fetch (30 seconds)
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 30000)
+
+        const promise = fetch('/api/yeu-cau-tu-van', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+            signal: controller.signal
+        })
+            .then(res => {
+                clearTimeout(timeoutId)
+                if (!res.ok) {
+                    throw new Error(`HTTP ${res.status}: ${res.statusText}`)
+                }
+                return res.json().catch(() => ({}))
+            })
+            .catch(err => {
+                clearTimeout(timeoutId)
+                if (err.name === 'AbortError') {
+                    throw new Error('Yêu cầu hết thời gian chờ (30s). Vui lòng kiểm tra kết nối và thử lại.')
+                }
+                throw err
             })
 
-            if (res.ok) {
+        sileo.promise(promise, {
+            loading: { title: 'Đang gửi...', description: 'Đang gửi yêu cầu tư vấn của bạn.' },
+            success: () => {
+                setConsultLoading(false)
+                setShowConsultModal(false)
+                setConsultForm({ tenSanPham: '', hoTen: '', soDienThoai: '', soLuong: '' })
                 setConsultSuccess(true)
-            } else {
-                setConsultErrors({ submit: 'Có lỗi xảy ra. Vui lòng thử lại sau.' })
+                setConsultErrors({})
+                return { 
+                    title: 'Gửi thành công!', 
+                    description: 'Chúng tôi sẽ liên hệ sớm nhất có thể.' 
+                }
+            },
+            error: (err) => {
+                setConsultLoading(false)
+                const errorMsg = err.message || 'Không thể gửi yêu cầu. Vui lòng thử lại.'
+                setConsultErrors({ submit: errorMsg })
+                return { 
+                    title: 'Lỗi', 
+                    description: errorMsg 
+                }
             }
-        } catch {
-            setConsultErrors({ submit: 'Không thể kết nối máy chủ. Vui lòng thử lại.' })
-        } finally {
-            setConsultLoading(false)
-        }
+        })
     }
 
     const scroll = (direction) => {
@@ -135,11 +226,23 @@ export default function ProductDetail() {
                 setSelectedSize(null)
                 setSelectedColor(null)
                 if (data.danhMuc?.slug) {
-                    fetch(`/api/san-pham?categorySlug=${data.danhMuc.slug}&size=11&sort=newest`)
+                    fetch(`/api/san-pham?categorySlug=${data.danhMuc.slug}&size=16&sort=newest`)
                         .then(r => r.json())
                         .then(relData => {
                             // Lọc bỏ chính sản phẩm hiện tại
-                            setRelated((relData.sanPham || []).filter(p => p.slug !== slug))
+                            let filtered = (relData.sanPham || []).filter(p => p.slug !== slug)
+                            // Nếu không đủ 8 sản phẩm, lấy thêm từ các danh mục khác
+                            if (filtered.length < 8) {
+                                fetch(`/api/san-pham?size=${16 - filtered.length}&sort=newest`)
+                                    .then(r => r.json())
+                                    .then(otherData => {
+                                        const others = (otherData.sanPham || []).filter(p => p.slug !== slug && !filtered.find(f => f.slug === p.slug))
+                                        setRelated([...filtered, ...others].slice(0, 8))
+                                    })
+                                    .catch(() => setRelated(filtered))
+                            } else {
+                                setRelated(filtered.slice(0, 8))
+                            }
                         })
                         .catch(() => setRelated([]))
                 }
@@ -210,6 +313,23 @@ export default function ProductDetail() {
 
     return (
         <div className="min-h-screen bg-[#fafafa]">
+            {/* Back Button */}
+            <div className="max-w-7xl mx-auto px-4 lg:px-6 pt-6 pb-2">
+                <motion.button
+                    onClick={() => navigate(-1)}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    whileHover={{ x: -4 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-brown-bark-700 bg-golden-earth-50 hover:bg-golden-earth-100 rounded-lg transition-colors duration-200"
+                    aria-label="Quay lại"
+                >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                    Quay lại
+                </motion.button>
+            </div>
 
             {/* Main content */}
             <div className="max-w-7xl mx-auto px-4 lg:px-6 py-8">
@@ -222,16 +342,24 @@ export default function ProductDetail() {
                             {images.length > 1 && (
                                 <div className="hidden sm:flex flex-col gap-2.5 w-20 shrink-0">
                                     {images.map((img, i) => (
-                                        <button
+                                        <motion.button
                                             key={i}
-                                            onClick={() => setActiveImg(i)}
-                                            className={`w-full aspect-3/4 rounded-xl overflow-hidden border-2 bg-white transition-all duration-200 ${activeImg === i
-                                                ? 'border-brown-bark-600 shadow-md'
-                                                : 'border-carbon-black-100 hover:border-carbon-black-300'
+                                            initial={{ opacity: 0, x: -20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ ...springSmooth, delay: i * 0.06 }}
+                                            onClick={() => {
+                                                setImgDirection(i > activeImg ? 1 : -1)
+                                                setActiveImg(i)
+                                            }}
+                                            whileHover={{ scale: 1.08, y: -2 }}
+                                            whileTap={{ scale: 0.92 }}
+                                            className={`w-full aspect-3/4 rounded-xl overflow-hidden border-2 bg-white transition-all duration-300 ${activeImg === i
+                                                ? 'border-brown-bark-600 shadow-lg ring-2 ring-brown-bark-200/60 brightness-100'
+                                                : 'border-carbon-black-100 hover:border-carbon-black-300 brightness-[0.85] hover:brightness-100'
                                                 }`}
                                         >
                                             <img src={img} alt={`${name} ${i + 1}`} className="w-full h-full object-cover" />
-                                        </button>
+                                        </motion.button>
                                     ))}
                                 </div>
                             )}
@@ -240,132 +368,81 @@ export default function ProductDetail() {
                             <div
                                 className="flex-1 relative rounded-2xl overflow-hidden bg-white shadow-sm border border-carbon-black-100 cursor-zoom-in group"
                                 onClick={() => setIsLightboxOpen(true)}
+                                style={{ perspective: '1200px' }}
                             >
-                                <div className="aspect-3/4 w-full overflow-hidden">
-                                    <img
-                                        key={activeImg}
-                                        src={images[activeImg] || ''}
-                                        alt={name}
-                                        className="w-full h-full object-cover transition-all duration-700 ease-out group-hover:scale-105"
-                                    />
+                                <div className="aspect-3/4 w-full overflow-hidden relative">
+                                    <AnimatePresence initial={false} mode="popLayout" custom={imgDirection}>
+                                        <motion.img
+                                            key={activeImg}
+                                            src={images[activeImg] || ''}
+                                            alt={name}
+                                            custom={imgDirection}
+                                            variants={imageSlideVariants}
+                                            initial="enter"
+                                            animate="center"
+                                            exit="exit"
+                                            transition={{ ...springSmooth, filter: { duration: 0.35 } }}
+                                            className="w-full h-full object-cover absolute inset-0"
+                                            style={{ transformStyle: 'preserve-3d' }}
+                                        />
+                                    </AnimatePresence>
                                 </div>
-                                <div className="absolute top-4 left-4 flex flex-col gap-2">
+
+                                {/* Hover zoom overlay */}
+                                <motion.div
+                                    className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-500 z-[5]"
+                                />
+
+                                <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
                                     {product.isNew && (
-                                        <span className="bg-[#303187] text-white text-xs font-bold tracking-widest uppercase px-3 py-1 rounded-lg shadow-sm">Mới</span>
+                                        <motion.span
+                                            initial={{ opacity: 0, scale: 0.8 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            transition={springBouncy}
+                                            className="bg-[#303187] text-white text-xs font-bold tracking-widest uppercase px-3 py-1 rounded-lg shadow-sm"
+                                        >
+                                            Mới
+                                        </motion.span>
                                     )}
                                 </div>
+
+                                {/* Image counter - pill style */}
+                                {images.length > 1 && (
+                                    <motion.div
+                                        key={activeImg}
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={springSmooth}
+                                        className="absolute bottom-4 left-4 z-10 flex items-center gap-2 bg-black/60 backdrop-blur-md text-white text-xs font-bold px-3.5 py-2 rounded-full"
+                                    >
+                                        <span className="text-white/90">{activeImg + 1}</span>
+                                        <span className="w-4 h-[1.5px] bg-white/30 rounded-full overflow-hidden">
+                                            <motion.span
+                                                className="block h-full bg-white rounded-full"
+                                                initial={{ width: '0%' }}
+                                                animate={{ width: '100%' }}
+                                                transition={{ duration: 0.4, ease: 'easeOut' }}
+                                            />
+                                        </span>
+                                        <span className="text-white/50">{images.length}</span>
+                                    </motion.div>
+                                )}
+
                                 {/* Expand icon */}
-                                <div className="absolute bottom-4 right-4 w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm border border-carbon-black-100 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.5 }}
+                                    whileHover={{ scale: 1.15 }}
+                                    className="absolute bottom-4 right-4 w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm border border-carbon-black-100 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 shadow-lg"
+                                >
                                     <svg className="w-5 h-5 text-carbon-black-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
                                     </svg>
-                                </div>
+                                </motion.div>
                             </div>
                         </div>
 
                         {/* Tabs content area */}
-                        <div className="bg-white rounded-3xl border border-carbon-black-100 overflow-hidden shadow-sm">
-                            <div className="flex border-b border-carbon-black-100 bg-carbon-black-50/50">
-                                {[
-                                    { id: 'description', label: 'Mô tả chi tiết' },
-                                    { id: 'diff', label: 'Điểm khác biệt' },
-                                    { id: 'process', label: 'Quy trình đặt hàng' }
-                                ].map(tab => (
-                                    <button
-                                        key={tab.id}
-                                        onClick={() => setActiveTab(tab.id)}
-                                        className={`px-6 py-4 text-sm font-bold uppercase tracking-widest transition-all relative ${activeTab === tab.id
-                                            ? 'text-brown-bark-800 bg-white'
-                                            : 'text-carbon-black-400 hover:text-carbon-black-600'}`}
-                                    >
-                                        {tab.label}
-                                        {activeTab === tab.id && <div className="absolute bottom-0 left-0 right-0 h-1 bg-brown-bark-700" />}
-                                    </button>
-                                ))}
-                            </div>
-                            <div className="p-8">
-                                {activeTab === 'description' && (
-                                    <div className="prose prose-sm max-w-none text-carbon-black-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: description }} />
-                                )}
-                                {activeTab === 'diff' && (
-                                    <div className="space-y-12">
-                                        <div className="text-center">
-                                            <h3 className="text-xl font-bold text-brown-bark-900 uppercase tracking-tight mb-2">Điểm khác biệt tại Minh Anh</h3>
-                                            <p className="text-xs text-carbon-black-500 font-medium">Chúng tôi không chỉ bán áo, chúng tôi mang lại niềm kiêu hãnh cho tập thể của bạn</p>
-                                        </div>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                                            {[
-                                                {
-                                                    title: 'Chất vải cao cấp',
-                                                    icon: <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-                                                },
-                                                {
-                                                    title: 'Kỹ thuật may tinh xảo',
-                                                    icon: <path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.77 3.77z" />
-                                                },
-                                                {
-                                                    title: 'Công nghệ in tân tiến',
-                                                    icon: <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                                                },
-                                                {
-                                                    title: 'Đội ngũ giàu kinh nghiệm',
-                                                    icon: <Users size={20} />
-                                                }
-                                            ].map((item, i) => (
-                                                <div key={i} className="group relative bg-[#fdfdf7] border border-[#ffd776]/50 rounded-3xl p-6 transition-all hover:shadow-xl hover:-translate-y-2 overflow-hidden">
-                                                    {/* Background decorative number */}
-                                                    <div className="absolute -bottom-4 -right-2 text-7xl font-bold text-[#ffd776]/20 group-hover:text-[#ffd776]/40 transition-colors pointer-events-none">
-                                                        {i + 1}
-                                                    </div>
-                                                    <div className="w-14 h-14 rounded-2xl bg-white border border-[#ffd776] flex items-center justify-center text-[#c29a3d] mb-6 group-hover:bg-[#ffd776] group-hover:text-carbon-black-900 transition-all duration-300">
-                                                        <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                                                            {item.icon}
-                                                        </svg>
-                                                    </div>
-                                                    <h4 className="text-lg font-bold text-carbon-black-800 mb-3 group-hover:text-[#c29a3d] transition-colors uppercase tracking-tighter leading-tight">{item.title}</h4>
-                                                    <p className="text-xs text-carbon-black-600 leading-relaxed font-medium line-clamp-4">{item.desc}</p>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-                                {activeTab === 'process' && (
-                                    <div className="space-y-12">
-                                        <div className="text-center">
-                                            <h3 className="text-xl font-bold text-brown-bark-900 uppercase tracking-tight mb-2">Quy trình đặt may chuyên nghiệp</h3>
-                                            <p className="text-xs text-carbon-black-500 font-medium">Quy trình 5 bước đảm bảo chất lượng tuyệt đối cho từng sản phẩm</p>
-                                        </div>
-                                        <div className="flex flex-col md:flex-row justify-between gap-10 relative">
-                                            {[
-                                                { step: '01', label: 'Tư vấn - Báo giá', icon: <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" /> },
-                                                { step: '02', label: 'Lên Market sản phẩm', icon: <path d="M4 19h16l-1-7h-14l-1 7zM9 19v2M15 19v2M3 19h18M5 12V6a2 2 0 012-2h10a2 2 0 012 2v6" /> },
-                                                { step: '03', label: 'Chốt mẫu', icon: <path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3zM7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3" /> },
-                                                { step: '04', label: 'Ký hợp đồng', icon: <path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2M9 7a4 4 0 11-8 0 4 4 0 018 0zm10 0a4 4 0 11-8 0 4 4 0 018 0zm1 14v-2a4 4 0 00-3-3.87m-4-12a4 4 0 010 7.75" /> }, // Substitute for handshake
-                                                { step: '05', label: 'Sản xuất', icon: <path d="M2 20a2 2 0 002 2h16a2 2 0 002-2V8l-7 5V8l-7 5V4a2 2 0 00-2-2H4a2 2 0 00-2 2z" /> }
-                                            ].map((item, i) => (
-                                                <div key={i} className="flex-1 flex flex-col items-center group">
-                                                    <div className="relative w-24 h-24 flex items-center justify-center mb-6">
-                                                        {/* Step number on top left */}
-                                                        <div className="absolute -top-1 -left-2 z-10">
-                                                            <p className="text-[10px] font-bold text-brown-bark-300 uppercase tracking-tighter leading-none mb-1">Bước</p>
-                                                            <p className={`text-4xl font-bold italic leading-none transition-colors ${i === 0 ? 'text-blue-500' : 'text-blue-400'}`}>{i + 1}</p>
-                                                        </div>
-                                                        {/* Circular border wrapper */}
-                                                        <div className="absolute inset-0 border-[3px] border-blue-400 rounded-full border-t-transparent -rotate-45 group-hover:rotate-0 transition-transform duration-500" />
-                                                        <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center text-blue-500 transition-transform group-hover:scale-110">
-                                                            <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                                                                {item.icon}
-                                                            </svg>
-                                                        </div>
-                                                    </div>
-                                                    <p className="text-sm font-bold text-carbon-black-800 uppercase tracking-tighter text-center leading-tight group-hover:text-blue-600 transition-colors">{item.label}</p>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
+                        <ProductDetailTabs activeTab={activeTab} setActiveTab={setActiveTab} description={description} />
                     </div>
 
                     {/* ── Right: Sticky Product Info (Col 5) ── */}
@@ -522,113 +599,186 @@ export default function ProductDetail() {
                             </Link>
                         </div>
 
-                        <div
-                            className="relative group/slider"
-                            onMouseEnter={() => setIsHovered(true)}
-                            onMouseLeave={() => setIsHovered(false)}
-                        >
-                            {/* Navigation Buttons */}
-                            <button
-                                onClick={() => scroll('left')}
-                                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-20 w-10 h-10 rounded-full bg-white shadow-lg border border-carbon-black-100 flex items-center justify-center text-carbon-black-700 hover:bg-brown-bark-700 hover:text-white transition-all opacity-0 group-hover/slider:opacity-100 group-hover/slider:translate-x-0 disabled:opacity-0"
-                            >
-                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
-                                </svg>
-                            </button>
-                            <button
-                                onClick={() => scroll('right')}
-                                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-20 w-10 h-10 rounded-full bg-white shadow-lg border border-carbon-black-100 flex items-center justify-center text-carbon-black-700 hover:bg-brown-bark-700 hover:text-white transition-all opacity-0 group-hover/slider:opacity-100 group-hover/slider:translate-x-0 disabled:opacity-0"
-                            >
-                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-                                </svg>
-                            </button>
-
-                            {/* Scrollable Container */}
-                            <div
-                                ref={scrollRef}
-                                className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth snap-x snap-mandatory pb-4"
-                            >
-                                {related.map((p) => (
-                                    <div
-                                        key={p.slug}
-                                        onClick={() => navigate(`/san-pham/${p.slug}`)}
-                                        className="min-w-[240px] md:min-w-[280px] xl:min-w-[240px] flex-shrink-0 snap-start cursor-pointer"
-                                    >
-                                        <ProductCard product={p} />
-                                    </div>
-                                ))}
-                            </div>
+                        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                            {related.map((p) => (
+                                <motion.div
+                                    key={p.slug}
+                                    onClick={() => navigate(`/san-pham/${p.slug}`)}
+                                    className="cursor-pointer"
+                                    initial={{ opacity: 0, y: 20 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.3 }}
+                                    viewport={{ once: true }}
+                                >
+                                    <ProductCard product={p} />
+                                </motion.div>
+                            ))}
                         </div>
                     </div>
                 )}
             </div>
 
             {/* Lightbox / Zoom Overlay */}
-            {isLightboxOpen && (
-                <div
-                    className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-sm flex items-center justify-center p-4 sm:p-10 animate-in fade-in duration-300"
-                    onClick={() => setIsLightboxOpen(false)}
-                >
-                    <button
-                        className="absolute top-6 right-6 w-12 h-12 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors z-[110]"
-                        onClick={(e) => { e.stopPropagation(); setIsLightboxOpen(false); }}
+            <AnimatePresence>
+                {isLightboxOpen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.35, ease: 'easeOut' }}
+                        className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 sm:p-10"
+                        onClick={() => setIsLightboxOpen(false)}
+                        style={{ perspective: '1400px' }}
                     >
-                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
+                        {/* Close button */}
+                        <motion.button
+                            initial={{ opacity: 0, y: -20, rotate: -90 }}
+                            animate={{ opacity: 1, y: 0, rotate: 0 }}
+                            exit={{ opacity: 0, y: -20, rotate: 90 }}
+                            transition={{ ...springBouncy, delay: 0.15 }}
+                            whileHover={{ scale: 1.15, rotate: 90, backgroundColor: 'rgba(255,255,255,0.2)' }}
+                            whileTap={{ scale: 0.85 }}
+                            className="absolute top-6 right-6 w-12 h-12 flex items-center justify-center rounded-full bg-white/10 text-white transition-colors z-[110]"
+                            onClick={(e) => { e.stopPropagation(); setIsLightboxOpen(false); }}
+                        >
+                            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </motion.button>
 
-                    <div
-                        className="relative max-w-5xl w-full h-full flex items-center justify-center"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <img
-                            src={images[activeImg]}
-                            alt={name}
-                            className="max-w-full max-h-full object-contain rounded-lg shadow-2xl animate-in zoom-in-95 duration-300"
-                        />
-
-                        {images.length > 1 && (
-                            <>
-                                <button
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        setActiveImg((i) => (i - 1 + images.length) % images.length);
-                                    }}
-                                    className="absolute left-0 top-1/2 -translate-y-1/2 w-14 h-14 flex items-center justify-center rounded-full bg-black/20 text-white hover:bg-black/40 transition-colors"
-                                >
-                                    <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
-                                    </svg>
-                                </button>
-                                <button
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        setActiveImg((i) => (i + 1) % images.length);
-                                    }}
-                                    className="absolute right-0 top-1/2 -translate-y-1/2 w-14 h-14 flex items-center justify-center rounded-full bg-black/20 text-white hover:bg-black/40 transition-colors"
-                                >
-                                    <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-                                    </svg>
-                                </button>
-                            </>
-                        )}
-
-                        <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-2">
-                            {images.map((_, i) => (
-                                <button
-                                    key={i}
-                                    onClick={() => setActiveImg(i)}
-                                    className={`w-2 h-2 rounded-full transition-all ${activeImg === i ? 'bg-white w-6' : 'bg-white/40'}`}
+                        {/* Image counter top-left */}
+                        <motion.div
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -20 }}
+                            transition={{ ...springSmooth, delay: 0.2 }}
+                            className="absolute top-7 left-6 z-[110] flex items-center gap-3"
+                        >
+                            <div className="text-white/70 text-sm font-bold tracking-wider">
+                                <span className="text-white text-lg">{activeImg + 1}</span>
+                                <span className="mx-1.5 text-white/30">/</span>
+                                <span>{images.length}</span>
+                            </div>
+                            {/* Mini progress bar */}
+                            <div className="w-16 h-1 bg-white/10 rounded-full overflow-hidden">
+                                <motion.div
+                                    className="h-full bg-white/80 rounded-full"
+                                    animate={{ width: `${((activeImg + 1) / images.length) * 100}%` }}
+                                    transition={{ ...springSmooth }}
                                 />
-                            ))}
+                            </div>
+                        </motion.div>
+
+                        <div
+                            className="relative max-w-5xl w-full h-full flex items-center justify-center"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <AnimatePresence initial={false} mode="popLayout" custom={imgDirection}>
+                                <motion.img
+                                    key={activeImg}
+                                    src={images[activeImg]}
+                                    alt={name}
+                                    custom={imgDirection}
+                                    variants={lightboxImgVariants}
+                                    initial="enter"
+                                    animate="center"
+                                    exit="exit"
+                                    transition={{ ...springGentle, filter: { duration: 0.3 } }}
+                                    drag="x"
+                                    dragConstraints={{ left: 0, right: 0 }}
+                                    dragElastic={0.12}
+                                    onDragEnd={(e, { offset, velocity }) => {
+                                        const swipeThreshold = 50
+                                        if (offset.x < -swipeThreshold || velocity.x < -500) {
+                                            setImgDirection(1)
+                                            setActiveImg((i) => (i + 1) % images.length)
+                                        } else if (offset.x > swipeThreshold || velocity.x > 500) {
+                                            setImgDirection(-1)
+                                            setActiveImg((i) => (i - 1 + images.length) % images.length)
+                                        }
+                                    }}
+                                    className="max-w-full max-h-full object-contain rounded-2xl shadow-2xl absolute cursor-grab active:cursor-grabbing select-none"
+                                    style={{ transformStyle: 'preserve-3d' }}
+                                />
+                            </AnimatePresence>
+
+                            {images.length > 1 && (
+                                <>
+                                    <motion.button
+                                        initial={{ opacity: 0, x: -30 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        exit={{ opacity: 0, x: -30 }}
+                                        transition={{ ...springSmooth, delay: 0.1 }}
+                                        whileHover={{ scale: 1.15, backgroundColor: 'rgba(255,255,255,0.25)' }}
+                                        whileTap={{ scale: 0.85, x: -5 }}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setImgDirection(-1)
+                                            setActiveImg((i) => (i - 1 + images.length) % images.length);
+                                        }}
+                                        className="absolute left-4 sm:left-0 top-1/2 -translate-y-1/2 w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-sm border border-white/10"
+                                    >
+                                        <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+                                        </svg>
+                                    </motion.button>
+                                    <motion.button
+                                        initial={{ opacity: 0, x: 30 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        exit={{ opacity: 0, x: 30 }}
+                                        transition={{ ...springSmooth, delay: 0.1 }}
+                                        whileHover={{ scale: 1.15, backgroundColor: 'rgba(255,255,255,0.25)' }}
+                                        whileTap={{ scale: 0.85, x: 5 }}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setImgDirection(1)
+                                            setActiveImg((i) => (i + 1) % images.length);
+                                        }}
+                                        className="absolute right-4 sm:right-0 top-1/2 -translate-y-1/2 w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-sm border border-white/10"
+                                    >
+                                        <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </motion.button>
+                                </>
+                            )}
+
+                            {/* Bottom thumbnail strip in lightbox */}
+                            <motion.div
+                                initial={{ opacity: 0, y: 30 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: 30 }}
+                                transition={{ ...springSmooth, delay: 0.2 }}
+                                className="absolute bottom-6 left-0 right-0 flex justify-center gap-2 px-4"
+                            >
+                                <div className="flex items-center gap-1.5 bg-black/40 backdrop-blur-md rounded-full px-3 py-2">
+                                    {images.map((img, i) => (
+                                        <motion.button
+                                            key={i}
+                                            onClick={() => {
+                                                setImgDirection(i > activeImg ? 1 : -1)
+                                                setActiveImg(i)
+                                            }}
+                                            className={`rounded-full overflow-hidden border-2 transition-all duration-300 ${activeImg === i
+                                                    ? 'border-white shadow-lg shadow-white/20'
+                                                    : 'border-transparent opacity-50 hover:opacity-80'
+                                                }`}
+                                            animate={{
+                                                width: activeImg === i ? 40 : 28,
+                                                height: activeImg === i ? 40 : 28,
+                                            }}
+                                            transition={springSmooth}
+                                            whileHover={{ opacity: 1, scale: 1.1 }}
+                                        >
+                                            <img src={img} alt="" className="w-full h-full object-cover" />
+                                        </motion.button>
+                                    ))}
+                                </div>
+                            </motion.div>
                         </div>
-                    </div>
-                </div>
-            )}
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {/* ── Consultation Modal ── */}
             {showConsultModal && (

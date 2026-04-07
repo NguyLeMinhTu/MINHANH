@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { sileo } from 'sileo'
 
 import Title from '../common/Title'
 import bannerLienHe from '../../assets/banner-lienhe.jpg'
@@ -10,6 +11,60 @@ import { ArrowRightToLine } from 'lucide-react'
 const Contact = () => {
     const [submitted, setSubmitted] = useState(false)
     const [loading, setLoading] = useState(false)
+    const [errors, setErrors] = useState({})
+    const [lastSubmitTime, setLastSubmitTime] = useState(0)
+
+    // Validation functions
+    const validateName = (name) => {
+        if (!name || !name.trim()) return 'Vui lòng nhập họ tên'
+        if (name.trim().length < 2) return 'Họ tên phải có ít nhất 2 ký tự'
+        if (name.trim().length > 100) return 'Họ tên không được quá 100 ký tự'
+        if (!/^[a-zA-ZÀ-ỿ\s]+$/.test(name.trim())) return 'Họ tên chỉ được chứa chữ cái'
+        return ''
+    }
+
+    const validatePhone = (phone) => {
+        if (!phone || !phone.trim()) return 'Vui lòng nhập số điện thoại'
+        const cleanPhone = phone.replace(/\D/g, '')
+        if (cleanPhone.length < 9) return 'Số điện thoại quá ngắn'
+        if (cleanPhone.length > 12) return 'Số điện thoại quá dài'
+        // Vietnamese phone format
+        if (!/^(0|84)[0-9]{9,11}$/.test(cleanPhone)) {
+            return 'Số điện thoại không hợp lệ (VD: 0901234567 hoặc 84901234567)'
+        }
+        return ''
+    }
+
+    const validateEmail = (email) => {
+        if (!email || !email.trim()) return 'Vui lòng nhập email'
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return 'Email không hợp lệ'
+        if (email.length > 100) return 'Email quá dài'
+        return ''
+    }
+
+    const validateMessage = (message) => {
+        if (!message || !message.trim()) return 'Vui lòng nhập nội dung'
+        if (message.trim().length < 10) return 'Nội dung phải có ít nhất 10 ký tự'
+        if (message.trim().length > 1000) return 'Nội dung không được quá 1000 ký tự'
+        return ''
+    }
+
+    const sanitizeInput = (input) => {
+        if (!input) return ''
+        // Remove extra whitespace and trim
+        return input.trim().replace(/\s+/g, ' ')
+    }
+
+    const checkRateLimit = () => {
+        const now = Date.now()
+        const timeSinceLastSubmit = now - lastSubmitTime
+        const MIN_INTERVAL = 5000 // 5 seconds minimum between submissions
+        
+        if (timeSinceLastSubmit < MIN_INTERVAL) {
+            return `Vui lòng đợi ${Math.ceil((MIN_INTERVAL - timeSinceLastSubmit) / 1000)} giây trước khi gửi lại`
+        }
+        return ''
+    }
 
     const contact = thong_tin_lien_he || {}
     const phoneRaw = String(contact.hotline || '').trim()
@@ -53,37 +108,100 @@ const Contact = () => {
         const form = e.target
         const formData = new FormData(form)
 
-        const payload = {
-            tenKhach: formData.get('name'),
-            soDienThoai: formData.get('phone'),
-            email: formData.get('email'),
-            noiDung: formData.get('message'),
+        // Get and sanitize form inputs
+        const name = sanitizeInput(formData.get('name'))
+        const phone = formData.get('phone')?.trim() || ''
+        const email = sanitizeInput(formData.get('email'))
+        const message = sanitizeInput(formData.get('message'))
+
+        // Validate all fields
+        const newErrors = {}
+        
+        const nameError = validateName(name)
+        if (nameError) newErrors.name = nameError
+
+        const phoneError = validatePhone(phone)
+        if (phoneError) newErrors.phone = phoneError
+
+        const emailError = validateEmail(email)
+        if (emailError) newErrors.email = emailError
+
+        const messageError = validateMessage(message)
+        if (messageError) newErrors.message = messageError
+
+        // Check rate limiting
+        const rateLimitError = checkRateLimit()
+        if (rateLimitError) newErrors.rateLimit = rateLimitError
+
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors)
+            return
         }
 
+        setErrors({})
         setLoading(true)
 
-        try {
-            const res = await fetch('/api/yeu-cau-tu-van', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload),
+        // Normalize phone number for storage
+        const normalizedPhone = phone.replace(/\D/g, '')
+
+        const payload = {
+            tenKhach: name,
+            soDienThoai: normalizedPhone,
+            email: email,
+            noiDung: message,
+        }
+
+        // Add timeout to fetch (30 seconds)
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 30000)
+
+        const promise = fetch('/api/yeu-cau-tu-van', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+            signal: controller.signal
+        })
+            .then(res => {
+                clearTimeout(timeoutId)
+                if (!res.ok) {
+                    throw new Error(`HTTP ${res.status}: ${res.statusText}`)
+                }
+                return res.json().catch(() => ({}))
+            })
+            .catch(err => {
+                clearTimeout(timeoutId)
+                if (err.name === 'AbortError') {
+                    throw new Error('Yêu cầu hết thời gian chờ (30s). Vui lòng kiểm tra kết nối và thử lại.')
+                }
+                throw err
             })
 
-            if (res.ok) {
+        sileo.promise(promise, {
+            loading: { title: 'Đang gửi...', description: 'Đang gửi thông tin liên hệ của bạn.' },
+            success: () => {
+                setLoading(false)
                 setSubmitted(true)
+                setLastSubmitTime(Date.now())
                 form.reset()
+                setErrors({})
                 window?.scrollTo?.({ top: 0, behavior: 'smooth' })
-            } else {
-                alert('Rất tiếc, có lỗi xảy ra khi gửi yêu cầu. Vui lòng thử lại sau.')
+                return { 
+                    title: 'Gửi thành công!', 
+                    description: 'Cảm ơn bạn đã liên hệ. Chúng tôi sẽ phản hồi sớm.' 
+                }
+            },
+            error: (err) => {
+                setLoading(false)
+                const errorMsg = err.message || 'Không thể gửi thông tin. Vui lòng thử lại sau.'
+                setErrors({ submit: errorMsg })
+                return { 
+                    title: 'Lỗi', 
+                    description: errorMsg 
+                }
             }
-        } catch (error) {
-            console.error('Lỗi khi submit form liên hệ:', error)
-            alert('Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng và thử lại.')
-        } finally {
-            setLoading(false)
-        }
+        })
     }
 
     return (
@@ -210,11 +328,17 @@ const Contact = () => {
                                 Điền thông tin để đội ngũ hỗ trợ tư vấn đúng nhu cầu.
                             </p>
 
-                            {submitted ? (
-                                <p className="mt-4 rounded-2xl border border-carbon-black-100 bg-golden-earth-50 px-4 py-3 text-sm text-carbon-black-800">
-                                    Đã nhận thông tin. Chúng tôi sẽ liên hệ sớm.
-                                </p>
-                            ) : null}
+                            {errors.rateLimit && (
+                                <div className="mb-4 rounded-2xl border border-red-200 bg-red-50 p-3">
+                                    <p className="text-sm text-red-700 font-semibold">{errors.rateLimit}</p>
+                                </div>
+                            )}
+
+                            {errors.submit && (
+                                <div className="mb-4 rounded-2xl border border-red-200 bg-red-50 p-3">
+                                    <p className="text-sm text-red-700 font-semibold">{errors.submit}</p>
+                                </div>
+                            )}
 
                             <form onSubmit={onSubmit} className="mt-6 grid gap-4 sm:grid-cols-2">
                                 <label className="grid gap-1">
@@ -222,9 +346,12 @@ const Contact = () => {
                                     <input
                                         required
                                         name="name"
-                                        className="h-11 rounded-2xl border border-carbon-black-200 bg-white/80 px-4 text-sm text-carbon-black-900 outline-none focus:border-brown-bark-300"
+                                        className={`h-11 rounded-2xl border bg-white/80 px-4 text-sm text-carbon-black-900 outline-none focus:border-brown-bark-300 ${
+                                            errors.name ? 'border-red-400' : 'border-carbon-black-200'
+                                        }`}
                                         placeholder="Nhập họ tên"
                                     />
+                                    {errors.name && <p className="mt-1 text-xs text-red-600 font-semibold">{errors.name}</p>}
                                 </label>
 
                                 <label className="grid gap-1">
@@ -233,9 +360,12 @@ const Contact = () => {
                                         required
                                         name="phone"
                                         inputMode="tel"
-                                        className="h-11 rounded-2xl border border-carbon-black-200 bg-white/80 px-4 text-sm text-carbon-black-900 outline-none focus:border-brown-bark-300"
+                                        className={`h-11 rounded-2xl border bg-white/80 px-4 text-sm text-carbon-black-900 outline-none focus:border-brown-bark-300 ${
+                                            errors.phone ? 'border-red-400' : 'border-carbon-black-200'
+                                        }`}
                                         placeholder="VD: 0886 268 268"
                                     />
+                                    {errors.phone && <p className="mt-1 text-xs text-red-600 font-semibold">{errors.phone}</p>}
                                 </label>
 
                                 <label className="grid gap-1 sm:col-span-2">
@@ -243,9 +373,12 @@ const Contact = () => {
                                     <input
                                         name="email"
                                         inputMode="email"
-                                        className="h-11 rounded-2xl border border-carbon-black-200 bg-white/80 px-4 text-sm text-carbon-black-900 outline-none focus:border-brown-bark-300"
+                                        className={`h-11 rounded-2xl border bg-white/80 px-4 text-sm text-carbon-black-900 outline-none focus:border-brown-bark-300 ${
+                                            errors.email ? 'border-red-400' : 'border-carbon-black-200'
+                                        }`}
                                         placeholder="email@domain.com"
                                     />
+                                    {errors.email && <p className="mt-1 text-xs text-red-600 font-semibold">{errors.email}</p>}
                                 </label>
 
                                 <label className="grid gap-1 sm:col-span-2">
@@ -254,9 +387,12 @@ const Contact = () => {
                                         required
                                         name="message"
                                         rows={5}
-                                        className="rounded-2xl border border-carbon-black-200 bg-white/80 px-4 py-3 text-sm text-carbon-black-900 outline-none focus:border-brown-bark-300"
+                                        className={`rounded-2xl border bg-white/80 px-4 py-3 text-sm text-carbon-black-900 outline-none focus:border-brown-bark-300 ${
+                                            errors.message ? 'border-red-400' : 'border-carbon-black-200'
+                                        }`}
                                         placeholder="Bạn cần đồng phục gì? Số lượng? Có logo không?"
                                     />
+                                    {errors.message && <p className="mt-1 text-xs text-red-600 font-semibold">{errors.message}</p>}
                                 </label>
 
                                 <div className="sm:col-span-2 flex flex-wrap items-center gap-3">

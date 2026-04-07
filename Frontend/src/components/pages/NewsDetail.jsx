@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams, useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import NewProductsWidget from '../news/NewProductsWidget'
 
 const formatDate = (dateStr) => {
@@ -49,6 +50,7 @@ const Skeleton = () => (
 
 const NewsDetail = () => {
     const { slug } = useParams()
+    const navigate = useNavigate()
     const [post, setPost] = useState(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(false)
@@ -91,6 +93,22 @@ const NewsDetail = () => {
 
     return (
         <main className="max-w-6xl mx-auto px-3 lg:px-4 py-8">
+            {/* Back Button */}
+            <motion.button
+                onClick={() => navigate(-1)}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                whileHover={{ x: -4 }}
+                whileTap={{ scale: 0.95 }}
+                className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-brown-bark-700 bg-golden-earth-50 hover:bg-golden-earth-100 rounded-lg transition-colors duration-200 mb-6"
+                aria-label="Quay l\u1ea1i"
+            >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                Quay l\u1ea1i
+            </motion.button>
+
             {/* Breadcrumb */}
             <nav className="flex items-center gap-1.5 text-xs text-carbon-black-400 mb-6 flex-wrap">
                 <Link to="/" className="hover:text-brown-bark-700 transition-colors">Trang chủ</Link>

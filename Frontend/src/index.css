@@ -83,3 +83,11 @@ h1, h2, h3, h4, h5, h6 {
         display: none; /* Chrome, Safari and Opera */
     }
 }
+
+/* Sileo Toast z-index - display above navbar (navbar z-50) */
+[role="status"],
+[role="alert"],
+[class*="toast"],
+[class*="toaster"] {
+    z-index: 9999 !important;
+}

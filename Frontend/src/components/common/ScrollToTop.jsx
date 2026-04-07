@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronUp } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const ScrollToTop = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -26,17 +27,29 @@ const ScrollToTop = () => {
   };
 
   return (
-    <>
+    <AnimatePresence>
       {isVisible && (
-        <button
+        <motion.button
           onClick={scrollToTop}
-          className="fixed bottom-24 right-6 z-[99] flex items-center justify-center w-11 h-11 bg-white border border-stone-200 text-brown-bark-800 rounded-full shadow-lg hover:bg-stone-50 hover:scale-110 active:scale-95 transition-all duration-300 group"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 20 }}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+          transition={{ duration: 0.3 }}
+          className="fixed bottom-24 right-6 z-[99] flex items-center justify-center w-11 h-11 bg-white border border-stone-200 text-brown-bark-800 rounded-full shadow-lg hover:bg-stone-50 active:scale-95 transition-colors duration-300 group"
           aria-label="Lên đầu trang"
         >
-          <ChevronUp size={24} className="group-hover:-translate-y-1 transition-transform duration-300" />
-        </button>
+          <motion.div
+            animate={{ y: 0 }}
+            whileHover={{ y: -2 }}
+            transition={{ duration: 0.2 }}
+          >
+            <ChevronUp size={24} />
+          </motion.div>
+        </motion.button>
       )}
-    </>
+    </AnimatePresence>
   );
 };
 

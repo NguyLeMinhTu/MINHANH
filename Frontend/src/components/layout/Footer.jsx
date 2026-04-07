@@ -49,17 +49,25 @@ export default function Footer({ primary = "#af7b51" }) {
                         </ul>
                     </div>
 
-                    <div>
+                    <div className="flex flex-col">
                         <h3 className="text-lg font-bold mb-4">TIN TỨC</h3>
                         <ul className="text-base text-golden-earth-100 space-y-3 mb-6">
-                            <li>Bản tin nội bộ người Hải Anh</li>
-                            <li><Link to="/tuyen-dung" className="hover:underline">Tin tuyển dụng</Link></li>
+                            <li><Link to="/tin-tuc?dm=khuyen-mai" className="hover:underline">Khuyến mãi</Link></li>
+                            <li><Link to="/tin-tuc?dm=su-kien" className="hover:underline">Sự kiện</Link></li>
                         </ul>
-
-                        {/* <div className="text-base font-semibold mb-3">CÁC HÌNH THỨC THANH TOÁN</div>
-                        <div className="flex items-center gap-3">
-                            <img src={CongThanhToan} alt="Cổng thanh toán" className="h-14" />
-                        </div> */}
+                        <h3 className="text-lg font-bold mb-4">VỊ TRÍ VĂN PHÒNG</h3>
+                        <div className="w-full h-64 rounded-md overflow-hidden flex-1">
+                            <iframe
+                                title="Minh Anh Location - Can Tho"
+                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3936.050!2d105.7717!3d10.0294!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31a088186f0d0001%3A0x1234567890abc!2sHoa%20Binh%20Street%20Can%20Tho!5e0!3m2!1svi!2sus!4v1712500000"
+                                width="100%"
+                                height="100%"
+                                style={{ border: 0 }}
+                                allowFullScreen={false}
+                                loading="lazy"
+                                referrerPolicy="no-referrer-when-downgrade"
+                            />
+                        </div>
                     </div>
                 </div>
             </div>
